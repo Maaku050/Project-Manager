@@ -32,7 +32,7 @@ export default function ScreensLayout() {
                   }
                 : {
                     width: "70%",
-                    backgroundColor: "#000000ff",
+                    backgroundColor: "#ffffffff",
                   },
               // 👇 Appearance
               headerShown: true,

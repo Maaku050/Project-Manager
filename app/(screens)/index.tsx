@@ -19,9 +19,6 @@ export default function Home() {
   return (
     <View>
       <Text>{profile?.nickName}</Text>
-      {tasks.map((p) => (
-        <Text key={p.id}>{p.text}</Text>
-      ))}
     </View>
   );
 }
