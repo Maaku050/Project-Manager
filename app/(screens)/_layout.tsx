@@ -1,28 +1,25 @@
 // app/_layout.tsx
-import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 import React from "react";
+import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 import { useWindowDimensions } from "react-native";
-import { createDrawerNavigator } from "@react-navigation/drawer";
+import { Drawer } from "expo-router/drawer";
 import "@/global.css";
 
-import TaskCalendar from "@/app/(screens)/index";
-import Sample from "@/app/(screens)/sample";
 import { UserProvider } from "@/context/profileContext";
 import { ProjectProvider } from "@/context/projectContext";
-const Drawer = createDrawerNavigator();
 
-export default function ScreensLayout() {
+export default function RootLayout() {
   const dimensions = useWindowDimensions();
-  const isLargeScreen = dimensions.width >= 768; // 👈 Adjust breakpoint as needed
+  const isLargeScreen = dimensions.width >= 768;
 
   return (
     <UserProvider>
       <ProjectProvider>
         <GluestackUIProvider mode="light">
-          <Drawer.Navigator
+          <Drawer
             screenOptions={{
-              // 👇 Responsive Drawer behavior
-              drawerType: isLargeScreen ? "permanent" : "front",
+              // Responsive Drawer behavior
+              drawerType: isLargeScreen ? "permanent" : "slide",
               drawerStyle: isLargeScreen
                 ? {
                     width: 240,
@@ -32,9 +29,9 @@ export default function ScreensLayout() {
                   }
                 : {
                     width: "70%",
-                    backgroundColor: "#ffffffff",
+                    backgroundColor: "#fff",
                   },
-              // 👇 Appearance
+              // Appearance
               headerShown: true,
               drawerActiveTintColor: "#000",
               drawerInactiveTintColor: "#777",
@@ -43,24 +40,19 @@ export default function ScreensLayout() {
                 fontSize: isLargeScreen ? 16 : 14,
                 fontWeight: "500",
               },
-              // sceneContainerStyle: {
-              //   backgroundColor: "#f9f9f9",
-              //   marginLeft: isLargeScreen ? 240 : 0, // 👈 Adjust for fixed drawer
-              // },
             }}
           >
-            {/* ✅ Screens */}
+            {/* 👇 Drawer-visible screens */}
+            <Drawer.Screen name="index" options={{ title: "Home" }} />
+            <Drawer.Screen name="project" options={{ title: "Project" }} />
             <Drawer.Screen
-              name="index"
-              component={TaskCalendar}
-              options={{ title: "Home" }}
+              name="projectModal"
+              options={{
+                title: "Project",
+                drawerItemStyle: { display: "none" },
+              }}
             />
-            <Drawer.Screen
-              name="sample"
-              component={Sample}
-              options={{ title: "Sample" }}
-            />
-          </Drawer.Navigator>
+          </Drawer>
         </GluestackUIProvider>
       </ProjectProvider>
     </UserProvider>

@@ -14,11 +14,11 @@ import { useProject } from "@/context/projectContext";
 
 export default function Home() {
   const router = useRouter();
-  const { user, profile } = useUser();
+  const { user, profile, profiles } = useUser();
   const { project, tasks, comment, assignedUser } = useProject();
   return (
     <View>
-      <Text>{profile?.nickName}</Text>
+      <Text>{profile ? profile.nickName : ""}</Text>
     </View>
   );
 }

@@ -40,6 +40,8 @@ interface ProjectContextType {
   tasks: Task[];
   comment: Comment[];
   assignedUser: AssignedUser[];
+  selectedProject: string | null;
+  setSelectedProject: (id: string | null) => void;
 }
 
 // === CONTEXT ===
@@ -48,6 +50,8 @@ const ProjectContext = createContext<ProjectContextType>({
   tasks: [],
   comment: [],
   assignedUser: [],
+  selectedProject: null,
+  setSelectedProject: () => {},
 });
 
 export const useProject = () => useContext(ProjectContext);
@@ -62,6 +66,7 @@ export const ProjectProvider = ({
   const [tasks, setTasks] = useState<Task[]>([]);
   const [comment, setComment] = useState<Comment[]>([]);
   const [assignedUser, setAssignedUser] = useState<AssignedUser[]>([]);
+  const [selectedProject, setSelectedProject] = useState<string | null>(null);
 
   useEffect(() => {
     console.log("✅ ProjectContext Mounted");
@@ -123,7 +128,16 @@ export const ProjectProvider = ({
   }, []);
 
   return (
-    <ProjectContext.Provider value={{ project, tasks, comment, assignedUser }}>
+    <ProjectContext.Provider
+      value={{
+        project,
+        tasks,
+        comment,
+        assignedUser,
+        selectedProject,
+        setSelectedProject,
+      }}
+    >
       {children}
     </ProjectContext.Provider>
   );

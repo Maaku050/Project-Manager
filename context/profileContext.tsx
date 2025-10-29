@@ -23,11 +23,13 @@ interface Profile {
 interface UserContextType {
   user: any;
   profile: Profile | null;
+  profiles: Profile[];
 }
 
 const UserContext = createContext<UserContextType>({
   user: null,
   profile: null,
+  profiles: [],
 });
 
 export const useUser = () => useContext(UserContext);
@@ -35,6 +37,7 @@ export const useUser = () => useContext(UserContext);
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
+  const [profiles, setProfiles] = useState<Profile[]>([]);
 
   useEffect(() => {
     console.log("UserContext mounted");
@@ -69,8 +72,20 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     };
   }, []);
 
+  useEffect(() => {
+    const unsubProfiles = onSnapshot(collection(db, "profile"), (snapshot) => {
+      const list: Profile[] = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...(doc.data() as Omit<Profile, "id">),
+      }));
+      setProfiles(list);
+    });
+
+    return () => unsubProfiles();
+  }, []);
+
   return (
-    <UserContext.Provider value={{ user, profile }}>
+    <UserContext.Provider value={{ user, profile, profiles }}>
       {children}
     </UserContext.Provider>
   );
