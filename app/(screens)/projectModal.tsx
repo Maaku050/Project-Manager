@@ -66,6 +66,20 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import DateTimePicker from "@/components/DateTimePicker";
 import TaskModal from "./taskModal";
+import { ChevronDownIcon, SquarePen } from "lucide-react-native";
+import { Textarea, TextareaInput } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectTrigger,
+  SelectInput,
+  SelectIcon,
+  SelectPortal,
+  SelectBackdrop,
+  SelectContent,
+  SelectDragIndicatorWrapper,
+  SelectDragIndicator,
+  SelectItem,
+} from "@/components/ui/select";
 
 export default function ProjectModal() {
   const { selectedProject, project, tasks, assignedUser, setSelectedTask } =
@@ -93,6 +107,9 @@ export default function ProjectModal() {
   const [showPicker, setShowPicker] = useState(false);
   const [deadline, setDeadline] = useState<Date | null>(null);
   const [saving, setSaving] = useState(false);
+  const [isHover, setIsHover] = useState<string | null>(null);
+  const [descriptionPressed, setDescriptionPressed] = useState(false);
+  const [showEditProjectModal, setShowEditProjectModal] = useState(false);
 
   if (!currentProjectData) return;
 
@@ -187,149 +204,195 @@ export default function ProjectModal() {
     }
   };
 
+  const truncateWords = (text: string, wordLimit: number) => {
+    const words = text.split(" ");
+    return words.length > wordLimit
+      ? words.slice(0, wordLimit).join(" ") + " ..."
+      : text;
+  };
+
+  // Pending Project
   if (pendingProject.length != 0) {
     return (
-      <View>
-        <Box style={{ borderWidth: 0, width: 100 }}>
-          <Pressable onPress={() => router.replace("/(screens)/project")}>
-            <HStack style={{ alignItems: "center", alignContent: "center" }}>
-              <Icon
-                as={ArrowLeftIcon}
-                className="text-typography-500 m-2 w-7 h-7 "
+      <View style={{ flex: 1, padding: 15 }}>
+        <HStack
+          style={{
+            borderWidth: 0,
+            justifyContent: "space-between",
+          }}
+        >
+          <Box>
+            <Pressable onPress={() => router.replace("/(screens)/project")}>
+              <HStack style={{ alignItems: "center" }}>
+                <Icon
+                  as={ArrowLeftIcon}
+                  className="text-typography-500 w-7 h-7 "
+                />
+                <Text style={{ fontSize: 23, fontWeight: "bold" }}>Back</Text>
+              </HStack>
+            </Pressable>
+          </Box>
+
+          <Box style={{ borderWidth: 0 }}>
+            <HStack style={{ alignItems: "center" }}>
+              <Pressable onPress={() => setShowEditProjectModal(true)}>
+                <SquarePen />
+              </Pressable>
+
+              <Divider
+                orientation="vertical"
+                style={{ marginLeft: 20, marginRight: 20 }}
               />
-              <Text style={{ fontSize: 23, fontWeight: "bold" }}>Back</Text>
+
+              <Button action="positive" style={{ width: 150 }}>
+                <ButtonText>Deploy</ButtonText>
+              </Button>
             </HStack>
-          </Pressable>
-        </Box>
+          </Box>
+        </HStack>
 
         <Box
           style={{
-            borderWidth: 1,
+            borderWidth: 0,
+            borderColor: "blue",
             alignItems: "center",
+            padding: 10,
           }}
         >
-          <HStack>
+          <HStack style={{ flex: 1 }}>
             <View
               style={{
-                height: 520,
-                width: 730,
                 margin: 5,
-                borderWidth: 0,
-                borderColor: "black",
-                borderRadius: 15,
+                borderWidth: 1,
+                borderColor: "gray",
+                borderRadius: 10,
                 padding: 10,
+                flex: 1,
               }}
             >
               <Box style={{ borderWidth: 0 }}>
-                <Text style={{ fontSize: 20, fontWeight: "bold" }}>
+                <Text style={{ fontSize: 18, fontWeight: "bold" }}>
                   {currentProjectData.title}
                 </Text>
               </Box>
-              <Box style={{ borderWidth: 0, height: 100 }}>
+              <Box style={{ borderWidth: 0 }}>
                 <ScrollView>
-                  <Text>{currentProjectData.description}</Text>
+                  {descriptionPressed ? (
+                    <Pressable onPress={() => setDescriptionPressed(false)}>
+                      <Text style={{ fontSize: 15 }}>
+                        {truncateWords(currentProjectData.description, 1000)}
+                      </Text>
+                    </Pressable>
+                  ) : (
+                    <Pressable onPress={() => setDescriptionPressed(true)}>
+                      <Text style={{ fontSize: 15 }}>
+                        {truncateWords(currentProjectData.description, 50)}
+                      </Text>
+                    </Pressable>
+                  )}
                 </ScrollView>
-              </Box>
-              <Box
-                style={{ borderWidth: 0, alignItems: "flex-end", padding: 10 }}
-              >
-                <Button
-                  style={{ width: 120 }}
-                  onPress={() => setShowAddTaskModal(true)}
-                >
-                  <ButtonText>Add Task</ButtonText>
-                </Button>
-              </Box>
-              <Box
-                style={{
-                  borderWidth: 1,
-                  borderColor: "black",
-                  borderRadius: 15,
-                  height: 310,
-                  padding: 10,
-                }}
-              >
-                {currentProjectTasks.map((t) => (
-                  <View key={t.id}>
-                    <Center>
-                      <Card
-                        size="lg"
-                        className="p-5 w-full m-1"
-                        style={{ borderRadius: 20, borderWidth: 1 }}
-                      >
-                        <HStack style={{ alignItems: "center" }} space="md">
-                          {/* 🟩 Section 1 */}
-                          <Checkbox
-                            hitSlop={{
-                              top: 10,
-                              bottom: 10,
-                              left: 10,
-                              right: 10,
-                            }}
-                            isChecked={!t.status}
-                            onChange={() =>
-                              updateDoc(doc(db, "tasks", t.id), {
-                                status: !t.status,
-                              })
-                            }
-                            value={t.id}
-                            accessibilityLabel={t.title ? String(t.title) : ""}
-                          >
-                            <CheckboxIndicator>
-                              <CheckboxIcon as={CheckIcon} />
-                            </CheckboxIndicator>
-                          </Checkbox>
-
-                          <Divider orientation="vertical" />
-
-                          {/* 🟨 Section 2 */}
-                          <VStack style={{ flex: 1 }}>
-                            <Text
-                              style={{
-                                padding: 4,
-                                fontSize: 16,
-                                flexWrap: "wrap",
-                              }}
-                            >
-                              {t.title ? String(t.title) : ""}
-                            </Text>
-                          </VStack>
-                          <Button
-                            hitSlop={{
-                              top: 10,
-                              bottom: 10,
-                              left: 10,
-                              right: 10,
-                            }}
-                            size="xs"
-                            className="h-6 px-1 right-2"
-                            variant="outline"
-                            style={{
-                              backgroundColor: "transparent",
-                              borderWidth: 0,
-                            }}
-                            onPress={() => {
-                              setSelectedTask(t.id);
-                              router.push("/(screens)/taskModal");
-                            }}
-                          >
-                            <ButtonIcon as={CloseIcon} size={"lg"} />
-                          </Button>
-                        </HStack>
-                      </Card>
-                    </Center>
-                  </View>
-                ))}
               </Box>
             </View>
 
             <View
               style={{
-                height: 520,
+                margin: 5,
+                borderWidth: 1,
+                borderColor: "gray",
+                borderRadius: 10,
+                padding: 10,
+                flex: 1,
+              }}
+            >
+              <VStack>
+                <HStack
+                  style={{
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    paddingRight: 260,
+                    margin: 10,
+                  }}
+                >
+                  <Box style={{ borderWidth: 0 }}>
+                    <Text style={{ fontSize: 18, fontWeight: "bold" }}>
+                      Status
+                    </Text>
+                  </Box>
+                  <Box style={{ borderWidth: 0 }}>
+                    <Text style={{ fontSize: 15, color: "gray" }}>
+                      {currentProjectData.status}
+                    </Text>
+                  </Box>
+                </HStack>
+
+                <HStack
+                  style={{
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    paddingRight: 240,
+                    margin: 10,
+                  }}
+                >
+                  <Box style={{ borderWidth: 0 }}>
+                    <Text style={{ fontSize: 18, fontWeight: "bold" }}>
+                      Deadline
+                    </Text>
+                  </Box>
+                  <Box style={{ borderWidth: 0 }}>
+                    <Text style={{ fontSize: 15, color: "gray" }}>
+                      {currentProjectData.deadline
+                        ?.toDate()
+                        .toLocaleDateString()}
+                    </Text>
+                  </Box>
+                </HStack>
+
+                <HStack
+                  style={{
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    paddingRight: 250,
+                    margin: 10,
+                  }}
+                >
+                  <Box style={{ borderWidth: 0 }}>
+                    <Text style={{ fontSize: 18, fontWeight: "bold" }}>
+                      Assigned Member
+                    </Text>
+                  </Box>
+                  <Box style={{ borderWidth: 0, marginLeft: 15 }}>
+                    <HStack>
+                      {profiles
+                        .filter((p) =>
+                          assignedUser.some(
+                            (a) =>
+                              a.projectID === selectedProject && a.uid === p.uid
+                          )
+                        )
+                        .map((t) => {
+                          return (
+                            <Avatar size="sm" key={t.id}>
+                              <AvatarFallbackText>
+                                {t.firstName}
+                              </AvatarFallbackText>
+
+                              <AvatarBadge />
+                            </Avatar>
+                          );
+                        })}
+                    </HStack>
+                  </Box>
+                </HStack>
+              </VStack>
+            </View>
+
+            {/* Assigning Window */}
+            {/* <View
+              style={{
                 width: 350,
                 margin: 5,
-                borderWidth: 0,
-                borderColor: "black",
+                borderWidth: 1,
+                borderColor: "red",
                 borderRadius: 15,
                 padding: 10,
               }}
@@ -438,11 +501,123 @@ export default function ProjectModal() {
                   loading={saving}
                 />
               </Box>
-            </View>
+            </View> */}
           </HStack>
         </Box>
 
-        {/* Modals */}
+        <Box
+          style={{
+            borderWidth: 0,
+            borderColor: "red",
+            paddingRight: 30,
+            paddingLeft: 30,
+          }}
+        >
+          <HStack
+            style={{ justifyContent: "space-between", alignItems: "center" }}
+          >
+            <Text style={{ fontWeight: "bold", fontSize: 20 }}>Task</Text>
+
+            <Button
+              style={{ width: 120 }}
+              onPress={() => setShowAddTaskModal(true)}
+            >
+              <ButtonText>Add Task</ButtonText>
+            </Button>
+          </HStack>
+          <Progress
+            value={100}
+            size="sm"
+            orientation="horizontal"
+            style={{ marginTop: 10, marginBottom: 10 }}
+          >
+            <ProgressFilledTrack />
+          </Progress>
+        </Box>
+
+        <Box
+          style={{
+            borderWidth: 0,
+            borderColor: "red",
+            flex: 1,
+          }}
+        >
+          {/* Task Window */}
+          <ScrollView
+            style={{
+              borderWidth: 0,
+              borderColor: "black",
+              borderRadius: 15,
+              paddingLeft: 20,
+              paddingRight: 20,
+            }}
+          >
+            {currentProjectTasks.map((t) => (
+              <View key={t.id}>
+                <Pressable
+                  onPress={() => {
+                    setSelectedTask(t.id);
+                    router.push("/(screens)/taskModal");
+                  }}
+                  onHoverIn={() => setIsHover(t.id)}
+                  onHoverOut={() => setIsHover(null)}
+                >
+                  <Center>
+                    <Card
+                      size="lg"
+                      className="p-5 w-full m-1"
+                      style={{
+                        borderRadius: 20,
+                        borderWidth: 1,
+                        borderColor: isHover === t.id ? "black" : "",
+                      }}
+                    >
+                      <HStack style={{ alignItems: "center" }} space="md">
+                        {/* <Checkbox
+                        hitSlop={{
+                          top: 10,
+                          bottom: 10,
+                          left: 10,
+                          right: 10,
+                        }}
+                        isChecked={!t.status}
+                        onChange={() =>
+                          updateDoc(doc(db, "tasks", t.id), {
+                            status: !t.status,
+                          })
+                        }
+                        value={t.id}
+                        accessibilityLabel={t.title ? String(t.title) : ""}
+                      >
+                        <CheckboxIndicator>
+                          <CheckboxIcon as={CheckIcon} />
+                        </CheckboxIndicator>
+                      </Checkbox>
+
+                      <Divider orientation="vertical" /> */}
+
+                        <VStack style={{ flex: 1 }}>
+                          <Text
+                            style={{
+                              padding: 4,
+                              fontSize: 16,
+                              flexWrap: "wrap",
+                              fontWeight: "bold",
+                            }}
+                          >
+                            {t.title ? String(t.title) : ""}
+                          </Text>
+                        </VStack>
+                      </HStack>
+                    </Card>
+                  </Center>
+                </Pressable>
+              </View>
+            ))}
+          </ScrollView>
+        </Box>
+
+        {/* Add Task Modal */}
         <Modal
           isOpen={showAddTaskModal}
           onClose={() => {
@@ -453,15 +628,16 @@ export default function ProjectModal() {
           <ModalBackdrop />
           <ModalContent>
             <ModalHeader>
-              <Heading size="lg">Title</Heading>
+              <Heading size="lg">Add Task</Heading>
               <ModalCloseButton>
                 <Icon as={CloseIcon} />
               </ModalCloseButton>
             </ModalHeader>
             <ModalBody>
+              <Text>Task Name</Text>
               <TextInput
                 style={styles.inputs}
-                placeholder="Input the Task Title"
+                placeholder="Enter Task Name"
                 value={titleInput}
                 onChangeText={setTitleInput}
               />
@@ -483,10 +659,121 @@ export default function ProjectModal() {
             </ModalFooter>
           </ModalContent>
         </Modal>
+
+        {/* Edit Project Modal */}
+        <Modal
+          isOpen={showEditProjectModal}
+          onClose={() => {
+            setShowEditProjectModal(false);
+          }}
+          size="lg"
+        >
+          <ModalBackdrop />
+          <ModalContent>
+            <ModalHeader>
+              <Heading size="lg">Edit Project</Heading>
+              <ModalCloseButton>
+                <Icon as={CloseIcon} />
+              </ModalCloseButton>
+            </ModalHeader>
+            <ModalBody>
+              <Box style={{ margin: 5 }}>
+                <Text style={{ fontWeight: "bold", marginBottom: 5 }}>
+                  Project Name
+                </Text>
+                <TextInput
+                  style={{
+                    borderBottomWidth: 1,
+                    borderColor: "#000", // or your theme color
+                    paddingVertical: 8,
+                    fontSize: 16,
+                  }}
+                  placeholder="Enter your Project Title"
+                  placeholderTextColor="#999"
+                />
+              </Box>
+
+              <Box style={{ margin: 5 }}>
+                <Text style={{ fontWeight: "bold", marginBottom: 5 }}>
+                  Project Description
+                </Text>
+                <Textarea
+                  size="md"
+                  isReadOnly={false}
+                  isInvalid={false}
+                  isDisabled={false}
+                >
+                  <TextareaInput placeholder="Enter your Project Description" />
+                </Textarea>
+              </Box>
+
+              <Box style={{ margin: 5 }}>
+                <Text style={{ fontWeight: "bold" }}>Project Deadline</Text>
+                <DateTimePicker
+                  value={projectDeadline}
+                  onChange={handleDateChange}
+                  mode="date"
+                  placeholder="Select a date and time"
+                  loading={saving}
+                />
+              </Box>
+
+              <Box style={{ margin: 5 }}>
+                <Text style={{ fontWeight: "bold" }}>Project Members</Text>
+                <Select>
+                  <SelectTrigger variant="outline" size="md">
+                    <SelectInput placeholder="@ Select Members" />
+                    <SelectIcon className="mr-3" as={ChevronDownIcon} />
+                  </SelectTrigger>
+                  <SelectPortal>
+                    <SelectBackdrop />
+                    <SelectContent>
+                      <SelectDragIndicatorWrapper>
+                        <SelectDragIndicator />
+                      </SelectDragIndicatorWrapper>
+                      <SelectItem label="UX Research" value="ux" />
+                      <SelectItem label="Web Development" value="web" />
+                      <SelectItem
+                        label="Cross Platform Development Process"
+                        value="Cross Platform Development Process"
+                      />
+                      <SelectItem
+                        label="UI Designing"
+                        value="ui"
+                        isDisabled={true}
+                      />
+                      <SelectItem label="Backend Development" value="backend" />
+                    </SelectContent>
+                  </SelectPortal>
+                </Select>
+              </Box>
+            </ModalBody>
+            <ModalFooter>
+              <Button
+                variant="outline"
+                action="secondary"
+                className="mr-3"
+                onPress={() => {
+                  setShowEditProjectModal(false);
+                }}
+              >
+                <ButtonText>Cancel</ButtonText>
+              </Button>
+              <Button
+                onPress={() => {
+                  setShowEditProjectModal(false);
+                }}
+              >
+                <ButtonText>Save</ButtonText>
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
       </View>
     );
   }
 
+  // Ongoing Project
   return (
     <>
       <Box style={{ borderWidth: 0, width: 100 }}>

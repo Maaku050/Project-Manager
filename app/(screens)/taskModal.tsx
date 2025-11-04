@@ -32,6 +32,9 @@ export default function TaskModal() {
     (t) => t.projectID === selectedProject && t.id === selectedTask
   );
 
+  const toDate = (t?: Timestamp | null) => (t ? t.toDate() : undefined);
+  const toTimestamp = (d?: Date | null) => (d ? Timestamp.fromDate(d) : null);
+
   const editTitle = async (newText: string) => {
     console.log("Edit Function mounted!");
     if (!selectedTask) return; // 🧩 make sure a task is selected
@@ -101,6 +104,22 @@ export default function TaskModal() {
     (e?.target as HTMLInputElement | HTMLTextAreaElement)?.value ??
     "";
 
+  useEffect(() => {
+    console.log("Current Task ID: ", selectedTask);
+    console.log("Comments: ", currentTaskComments);
+  }, []);
+
+  useEffect(() => {
+    if (currentTask) {
+      setTempTitle(currentTask.title ?? "");
+      setTempDescription(currentTask.description ?? "");
+      setTempStart(currentTask.start ?? null);
+      setTempEnd(currentTask.end ?? null);
+    }
+
+    console.log("Tasks start: ", tempStart);
+  }, [currentTask]);
+
   const currentTaskComments = comment
     .filter((t) => t.taskID === selectedTask)
     .sort((a, b) => {
@@ -116,10 +135,41 @@ export default function TaskModal() {
   const [descHeight, setDescHeight] = useState(40);
   const [isComment, setIsComment] = useState("");
 
-  useEffect(() => {
-    console.log("Current Task ID: ", selectedTask);
-    console.log("Comments: ", currentTaskComments);
-  }, []);
+  const [tempTitle, setTempTitle] = useState<string>("");
+  const [tempDescription, setTempDescription] = useState<string>("");
+  const [tempStart, setTempStart] = useState<Timestamp | null>(null);
+  const [tempEnd, setTempEnd] = useState<Timestamp | null>(null);
+
+  const handleSaveChanges = async () => {
+    if (
+      !tempTitle.trim() ||
+      !tempDescription.trim() ||
+      !tempStart ||
+      !tempEnd
+    ) {
+      console.log("Empty Fields!");
+      return;
+    }
+
+    if (!selectedTask) {
+      console.log("No selected task!");
+      return;
+    }
+
+    try {
+      const taskRef = doc(db, "tasks", selectedTask);
+      await updateDoc(taskRef, {
+        title: tempTitle,
+        description: tempDescription,
+        start: tempStart,
+        end: tempEnd,
+      });
+
+      console.log("✅ Task updated successfully");
+    } catch (error) {
+      console.error("❌ Error updating task:", error);
+    }
+  };
 
   return (
     <View style={{ flex: 1 }}>
@@ -143,7 +193,28 @@ export default function TaskModal() {
       {isEdit ? (
         <View style={{ flex: 1, borderWidth: 1 }}>
           <Box style={{ borderWidth: 1, alignItems: "flex-end" }}>
-            <Button action="positive" onPress={() => setIsEdit(false)}>
+            <Button
+              action="negative"
+              onPress={() => {
+                if (currentTask) {
+                  setTempTitle(currentTask.title ?? "");
+                  setTempDescription(currentTask.description ?? "");
+                  setTempStart(currentTask.start ?? null);
+                  setTempEnd(currentTask.end ?? null);
+                }
+
+                setIsEdit(false);
+              }}
+            >
+              <ButtonText>Cancel</ButtonText>
+            </Button>
+            <Button
+              action="positive"
+              onPress={() => {
+                handleSaveChanges();
+                setIsEdit(false);
+              }}
+            >
               <ButtonText>Done</ButtonText>
             </Button>
           </Box>
@@ -155,9 +226,9 @@ export default function TaskModal() {
                     padding: 8,
                     textAlignVertical: "top",
                   }}
-                  defaultValue={currentTask?.title}
-                  placeholder="Input a task here..."
-                  onBlur={(e) => editTitle(getInputValue(e))}
+                  value={tempTitle}
+                  placeholder="Input the title here"
+                  onChangeText={setTempTitle}
                 />
                 <TextInput
                   multiline
@@ -171,9 +242,9 @@ export default function TaskModal() {
                     padding: 8,
                     textAlignVertical: "top",
                   }}
-                  defaultValue={currentTask?.description}
-                  placeholder="Input a task here..."
-                  onBlur={(e) => editDescription(getInputValue(e))}
+                  value={tempDescription}
+                  placeholder="Input the description here"
+                  onChangeText={setTempDescription}
                 />
               </VStack>
             </Box>
@@ -181,27 +252,25 @@ export default function TaskModal() {
               <VStack>
                 <Text>{currentTask?.status}</Text>
                 <HStack>
-                  <Text>
-                    {currentTask?.start instanceof Timestamp
-                      ? currentTask.start.toDate().toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        })
-                      : "No start date"}
-                  </Text>
+                  <DateTimePicker
+                    value={tempStart ? tempStart.toDate() : null} // ✅ null, not undefined
+                    onChange={(date) =>
+                      setTempStart(date ? Timestamp.fromDate(date) : null)
+                    }
+                    mode="date"
+                    placeholder="Select a date and time"
+                  />
 
                   <Text> - </Text>
 
-                  <Text>
-                    {currentTask?.end instanceof Timestamp
-                      ? currentTask.end.toDate().toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        })
-                      : "No end date"}
-                  </Text>
+                  <DateTimePicker
+                    value={tempEnd ? tempEnd.toDate() : null}
+                    onChange={(date) =>
+                      setTempEnd(date ? Timestamp.fromDate(date) : null)
+                    }
+                    mode="date"
+                    placeholder="Select a date and time"
+                  />
                 </HStack>
               </VStack>
             </Box>
@@ -210,7 +279,17 @@ export default function TaskModal() {
       ) : (
         <View style={{ flex: 1, borderWidth: 0, borderColor: "red" }}>
           <Box style={{ borderWidth: 1, alignItems: "flex-end" }}>
-            <Pressable onPress={() => setIsEdit(true)}>
+            <Pressable
+              onPress={() => {
+                if (currentTask) {
+                  setTempTitle(currentTask.title);
+                  setTempDescription(currentTask.description);
+                  setTempStart(currentTask.start);
+                  setTempEnd(currentTask.end);
+                }
+                setIsEdit(true);
+              }}
+            >
               <SquarePen />
             </Pressable>
           </Box>
