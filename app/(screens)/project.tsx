@@ -1,12 +1,9 @@
-import Gradient from "@/assets/icons/Gradient";
-import Logo from "@/assets/icons/Logo";
 import { Box } from "@/components/ui/box";
 import { Pressable, ScrollView } from "react-native";
 import { Text } from "@/components/ui/text";
 import { Button, ButtonText } from "@/components/ui/button";
 import { useRouter } from "expo-router";
 import { CloseIcon, Icon } from "@/components/ui/icon";
-import { View } from "@/components/Themed";
 import { useUser } from "@/context/profileContext";
 import { useProject } from "@/context/projectContext";
 import { Card } from "@/components/ui/card";
@@ -26,13 +23,11 @@ import React from "react";
 import { TextInput } from "react-native-gesture-handler";
 import { db, auth } from "@/firebase/firebaseConfig";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
-import ProjectModal from "./projectModal";
 
 export default function Sample() {
   const router = useRouter();
-  const { user, profile, profiles } = useUser();
-  const { project, tasks, comment, assignedUser, setSelectedProject } =
-    useProject();
+  const { profiles } = useUser();
+  const { project, setSelectedProject } = useProject();
   const [showModal, setShowModal] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -72,10 +67,6 @@ export default function Sample() {
 
     setTitle("");
     setDescription("");
-  };
-
-  const handleProjectModal = (projectID: string) => {
-    return () => {};
   };
 
   return (

@@ -1,7 +1,8 @@
 // app/_layout.tsx
 import React from "react";
-import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 import { useWindowDimensions } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 import { Drawer } from "expo-router/drawer";
 import "@/global.css";
 
@@ -13,48 +14,58 @@ export default function RootLayout() {
   const isLargeScreen = dimensions.width >= 768;
 
   return (
-    <UserProvider>
-      <ProjectProvider>
-        <GluestackUIProvider mode="light">
-          <Drawer
-            screenOptions={{
-              // Responsive Drawer behavior
-              drawerType: isLargeScreen ? "permanent" : "slide",
-              drawerStyle: isLargeScreen
-                ? {
-                    width: 240,
-                    backgroundColor: "#fff",
-                    borderRightWidth: 1,
-                    borderRightColor: "#ddd",
-                  }
-                : {
-                    width: "70%",
-                    backgroundColor: "#fff",
-                  },
-              // Appearance
-              headerShown: true,
-              drawerActiveTintColor: "#000",
-              drawerInactiveTintColor: "#777",
-              drawerActiveBackgroundColor: "#e0e0e0",
-              drawerLabelStyle: {
-                fontSize: isLargeScreen ? 16 : 14,
-                fontWeight: "500",
-              },
-            }}
-          >
-            {/* 👇 Drawer-visible screens */}
-            <Drawer.Screen name="index" options={{ title: "Home" }} />
-            <Drawer.Screen name="project" options={{ title: "Project" }} />
-            <Drawer.Screen
-              name="projectModal"
-              options={{
-                title: "Project",
-                drawerItemStyle: { display: "none" },
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <UserProvider>
+        <ProjectProvider>
+          <GluestackUIProvider mode="light">
+            <Drawer
+              screenOptions={{
+                drawerType: isLargeScreen ? "permanent" : "slide",
+                drawerStyle: isLargeScreen
+                  ? {
+                      width: 240,
+                      backgroundColor: "#fff",
+                      borderRightWidth: 1,
+                      borderRightColor: "#ddd",
+                    }
+                  : {
+                      width: "70%",
+                      backgroundColor: "#fff",
+                    },
+                headerShown: true,
+                drawerActiveTintColor: "#000",
+                drawerInactiveTintColor: "#777",
+                drawerActiveBackgroundColor: "#e0e0e0",
+                drawerLabelStyle: {
+                  fontSize: isLargeScreen ? 16 : 14,
+                  fontWeight: "500",
+                },
               }}
-            />
-          </Drawer>
-        </GluestackUIProvider>
-      </ProjectProvider>
-    </UserProvider>
+            >
+              <Drawer.Screen name="index" options={{ title: "Home" }} />
+              <Drawer.Screen
+                name="dashboard"
+                options={{ title: "Dashboard" }}
+              />
+              <Drawer.Screen name="project" options={{ title: "Project" }} />
+              <Drawer.Screen
+                name="projectModal"
+                options={{
+                  title: "Project",
+                  drawerItemStyle: { display: "none" },
+                }}
+              />
+              <Drawer.Screen
+                name="taskModal"
+                options={{
+                  title: "Task",
+                  drawerItemStyle: { display: "none" },
+                }}
+              />
+            </Drawer>
+          </GluestackUIProvider>
+        </ProjectProvider>
+      </UserProvider>
+    </GestureHandlerRootView>
   );
 }

@@ -1,5 +1,11 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
+import {
+  collection,
+  onSnapshot,
+  orderBy,
+  query,
+  Timestamp,
+} from "firebase/firestore";
 import { db } from "@/firebase/firebaseConfig";
 
 // === TYPES ===
@@ -9,17 +15,18 @@ interface Project {
   description: string;
   status: string;
   startedAt: string | null;
-  deadline: string | null;
+  deadline: Timestamp | null;
   createdBy: string;
 }
 
 interface Task {
   id: string;
   projectID: string;
-  text: string;
+  title: string;
+  description: string;
   status: string;
-  start: string | null;
-  end: string | null;
+  start: Timestamp | null;
+  end: Timestamp | null;
 }
 
 interface Comment {
@@ -27,6 +34,7 @@ interface Comment {
   taskID: string;
   text: string;
   uid: string;
+  createdAt: Timestamp;
 }
 
 interface AssignedUser {
@@ -42,6 +50,8 @@ interface ProjectContextType {
   assignedUser: AssignedUser[];
   selectedProject: string | null;
   setSelectedProject: (id: string | null) => void;
+  selectedTask: string | null;
+  setSelectedTask: (id: string | null) => void;
 }
 
 // === CONTEXT ===
@@ -52,6 +62,8 @@ const ProjectContext = createContext<ProjectContextType>({
   assignedUser: [],
   selectedProject: null,
   setSelectedProject: () => {},
+  selectedTask: null,
+  setSelectedTask: () => {},
 });
 
 export const useProject = () => useContext(ProjectContext);
@@ -67,6 +79,7 @@ export const ProjectProvider = ({
   const [comment, setComment] = useState<Comment[]>([]);
   const [assignedUser, setAssignedUser] = useState<AssignedUser[]>([]);
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
+  const [selectedTask, setSelectedTask] = useState<string | null>(null);
 
   useEffect(() => {
     console.log("✅ ProjectContext Mounted");
@@ -80,7 +93,6 @@ export const ProjectProvider = ({
           ...(doc.data() as Omit<Project, "id">),
         }));
         setProject(list);
-        console.log(list);
       }
     );
 
@@ -93,12 +105,11 @@ export const ProjectProvider = ({
           ...(doc.data() as Omit<Task, "id">),
         }));
         setTasks(list);
-        console.log("Tasks: ", list);
       }
     );
 
     // --- Comments ---
-    const unsubComments = onSnapshot(collection(db, "comments"), (snapshot) => {
+    const unsubComments = onSnapshot(collection(db, "comment"), (snapshot) => {
       const list: Comment[] = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...(doc.data() as Omit<Comment, "id">),
@@ -108,7 +119,7 @@ export const ProjectProvider = ({
 
     // --- Assigned Users ---
     const unsubAssignedUsers = onSnapshot(
-      collection(db, "assignedUsers"),
+      collection(db, "assignedUser"),
       (snapshot) => {
         const list: AssignedUser[] = snapshot.docs.map((doc) => ({
           id: doc.id,
@@ -136,6 +147,8 @@ export const ProjectProvider = ({
         assignedUser,
         selectedProject,
         setSelectedProject,
+        selectedTask,
+        setSelectedTask,
       }}
     >
       {children}
