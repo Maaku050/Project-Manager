@@ -96,6 +96,7 @@ export default function TaskAddModal({ visible, onClose }: projectModalType) {
     )
       return;
 
+    setIsSaving(true);
     try {
       const toLocalStart = new Date(tempStart);
       const toLocalEnd = new Date(tempEnd);
@@ -106,7 +107,7 @@ export default function TaskAddModal({ visible, onClose }: projectModalType) {
         title: tempTitle.trim(),
         description: tempDescription.trim(),
         projectID: selectedProject,
-        status: "active",
+        status: "To-do",
         start: Timestamp.fromDate(toLocalStart),
         end: Timestamp.fromDate(toLocalEnd),
         starID: null,
@@ -118,6 +119,7 @@ export default function TaskAddModal({ visible, onClose }: projectModalType) {
     } catch (error: any) {
       console.log("Error adding task:", error.message);
     } finally {
+      setIsSaving(false);
       onClose();
     }
   };

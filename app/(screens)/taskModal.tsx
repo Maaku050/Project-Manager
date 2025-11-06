@@ -139,6 +139,7 @@ export default function TaskModal() {
   const [tempDescription, setTempDescription] = useState<string>("");
   const [tempStart, setTempStart] = useState<Timestamp | null>(null);
   const [tempEnd, setTempEnd] = useState<Timestamp | null>(null);
+  const [descriptionPressed, setDescriptionPressed] = useState(false);
 
   const handleSaveChanges = async () => {
     if (
@@ -171,26 +172,52 @@ export default function TaskModal() {
     }
   };
 
+  const truncateWords = (text: string | undefined, wordLimit: number) => {
+    if (!text) return "";
+    const words = text.split(" ");
+    return words.length > wordLimit
+      ? words.slice(0, wordLimit).join(" ") + " ..."
+      : text;
+  };
+
   return (
-    <View style={{ flex: 1 }}>
-      <Box style={{ borderWidth: 0, width: 100 }}>
-        <Pressable
-          onPress={() => {
-            setIsEdit(false);
-            router.replace("/(screens)/projectModal");
-          }}
+    <View style={{ flex: 1, paddingHorizontal: 20 }}>
+      <Box style={{ borderWidth: 0 }}>
+        <HStack
+          style={{ alignItems: "center", justifyContent: "space-between" }}
         >
-          <HStack style={{ alignItems: "center", alignContent: "center" }}>
-            <Icon
-              as={ArrowLeftIcon}
-              className="text-typography-500 m-2 w-7 h-7 "
-            />
-            <Text style={{ fontSize: 23, fontWeight: "bold" }}>Back</Text>
-          </HStack>
-        </Pressable>
+          <Pressable
+            onPress={() => {
+              setIsEdit(false);
+              router.replace("/(screens)/projectModal");
+            }}
+          >
+            <HStack style={{ alignItems: "center" }}>
+              <Icon
+                as={ArrowLeftIcon}
+                className="text-typography-500 w-7 h-6 mr-1 mt-1"
+              />
+              <Text style={{ fontSize: 25, fontWeight: "bold" }}>Back</Text>
+            </HStack>
+          </Pressable>
+
+          <Pressable
+            onPress={() => {
+              if (currentTask) {
+                setTempTitle(currentTask.title);
+                setTempDescription(currentTask.description);
+                setTempStart(currentTask.start);
+                setTempEnd(currentTask.end);
+              }
+              setIsEdit(true);
+            }}
+          >
+            <SquarePen />
+          </Pressable>
+        </HStack>
       </Box>
 
-      {isEdit ? (
+      {/* {isEdit ? (
         <View style={{ flex: 1, borderWidth: 1 }}>
           <Box style={{ borderWidth: 1, alignItems: "flex-end" }}>
             <Button
@@ -276,32 +303,65 @@ export default function TaskModal() {
             </Box>
           </HStack>
         </View>
-      ) : (
-        <View style={{ flex: 1, borderWidth: 0, borderColor: "red" }}>
-          <Box style={{ borderWidth: 1, alignItems: "flex-end" }}>
-            <Pressable
-              onPress={() => {
-                if (currentTask) {
-                  setTempTitle(currentTask.title);
-                  setTempDescription(currentTask.description);
-                  setTempStart(currentTask.start);
-                  setTempEnd(currentTask.end);
-                }
-                setIsEdit(true);
-              }}
-            >
-              <SquarePen />
-            </Pressable>
+      ) : ( */}
+
+      <View
+        style={{
+          borderWidth: 1,
+          borderColor: "red",
+          borderRadius: 15,
+          marginTop: 10,
+          paddingHorizontal: 20,
+          paddingVertical: 10,
+        }}
+      >
+        <HStack>
+          <Box style={{ flex: 1, borderWidth: 0 }}>
+            <VStack>
+              <Text style={{ fontWeight: "bold", marginBottom: 5 }}>
+                Task title
+              </Text>
+              <Text style={{ marginBottom: 5, fontSize: 15 }}>
+                {currentTask?.title}
+              </Text>
+              <Text style={{ fontWeight: "bold", marginBottom: 5 }}>
+                Task description
+              </Text>
+              <Box style={{ borderWidth: 0 }}>
+                <ScrollView>
+                  {descriptionPressed ? (
+                    <Pressable onPress={() => setDescriptionPressed(false)}>
+                      <Text style={{ fontSize: 15 }}>
+                        {truncateWords(currentTask?.description, 1000)}
+                      </Text>
+                    </Pressable>
+                  ) : (
+                    <Pressable onPress={() => setDescriptionPressed(true)}>
+                      <Text style={{ fontSize: 15 }}>
+                        {truncateWords(currentTask?.description, 50)}
+                      </Text>
+                    </Pressable>
+                  )}
+                </ScrollView>
+              </Box>
+            </VStack>
           </Box>
-          <HStack>
-            <Box style={{ flex: 1, borderWidth: 1 }}>
-              <VStack>
-                <Text>{currentTask?.title}</Text>
-                <Text>{currentTask?.description}</Text>
-              </VStack>
-            </Box>
-            <Box style={{ flex: 1, borderWidth: 1 }}>
-              <VStack>
+
+          <Box style={{ borderWidth: 0 }}>
+            <HStack>
+              <Box style={{ borderWidth: 1, justifyContent: "space-between" }}>
+                <Text style={{ fontWeight: "bold", marginBottom: 20 }}>
+                  Status
+                </Text>
+                <Text style={{ fontWeight: "bold", marginBottom: 20 }}>
+                  Time Line
+                </Text>
+                <Text style={{ fontWeight: "bold", marginBottom: 20 }}>
+                  assigned Members
+                </Text>
+              </Box>
+
+              <Box style={{ borderWidth: 1 }}>
                 <Text>{currentTask?.status}</Text>
                 <HStack>
                   <Text>
@@ -324,11 +384,11 @@ export default function TaskModal() {
                       : "No start date"}
                   </Text>
                 </HStack>
-              </VStack>
-            </Box>
-          </HStack>
-        </View>
-      )}
+              </Box>
+            </HStack>
+          </Box>
+        </HStack>
+      </View>
 
       <View style={{ borderWidth: 0, flex: 1, borderColor: "yellow" }}>
         <Text>Comments</Text>
