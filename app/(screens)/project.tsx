@@ -23,6 +23,7 @@ import React from "react";
 import { TextInput } from "react-native-gesture-handler";
 import { db, auth } from "@/firebase/firebaseConfig";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import ProjectAddModal from "@/modals/projectAddModal";
 
 export default function Sample() {
   const router = useRouter();
@@ -112,7 +113,7 @@ export default function Sample() {
         ))}
       </ScrollView>
 
-      <Modal
+      {/* <Modal
         isOpen={showModal}
         onClose={() => {
           setShowModal(false);
@@ -161,7 +162,12 @@ export default function Sample() {
             </Button>
           </ModalFooter>
         </ModalContent>
-      </Modal>
+      </Modal> */}
+
+      <ProjectAddModal
+        visible={showModal}
+        onClose={() => setShowModal(false)}
+      />
     </>
   );
 }

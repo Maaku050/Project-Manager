@@ -20,7 +20,7 @@ import {
 import { useEffect, useState } from "react";
 import React from "react";
 import { TextInput } from "react-native-gesture-handler";
-import { db } from "@/firebase/firebaseConfig";
+import { auth, db } from "@/firebase/firebaseConfig";
 import {
   addDoc,
   collection,
@@ -53,13 +53,15 @@ type projectModalType = {
   onClose: () => void;
 };
 
-export default function ProjectEditModal({
+export default function ProjectAddModal({
   visible,
   onClose,
 }: projectModalType) {
   // UseStates
   const [tempTitle, setTempTitle] = useState<string>("");
   const [tempDescription, setTempDescription] = useState<string>("");
+  const [tempStart, setTempStart] = useState<Date | null>(null);
+  const [tempEnd, setTempEnd] = useState<Date | null>(null);
   const [tempDeadline, setTempDeadline] = useState<Date | null>(null);
   const [tempAssigned, setTempAssigned] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState<boolean>(false);
@@ -69,82 +71,70 @@ export default function ProjectEditModal({
   const { profiles } = useUser();
 
   // On Load Innitializations
-  const currentProjectData = project.find((t) => t.id === selectedProject);
-  const projectDeadline =
-    currentProjectData?.deadline && "toDate" in currentProjectData.deadline
-      ? currentProjectData.deadline.toDate()
-      : null;
-
-  // Remove other tempAssigned effects and use only this one:
   useEffect(() => {
     if (!visible) return;
 
-    // Initialize assigned users for this project when modal opens
-    const assignedUids = assignedUser
-      .filter((a) => a.projectID === selectedProject)
-      .map((a) => a.uid);
-
-    setTempAssigned(assignedUids);
-
-    // Initialize other fields
-    if (currentProjectData) {
-      const projectDeadline =
-        currentProjectData.deadline && "toDate" in currentProjectData.deadline
-          ? currentProjectData.deadline.toDate()
-          : null;
-      setTempTitle(currentProjectData.title);
-      setTempDescription(currentProjectData.description);
-      setTempDeadline(projectDeadline);
-    }
+    // Initiallize Fields
+    setTempTitle("");
+    setTempDescription("");
+    setTempDeadline(null);
+    setTempAssigned([]);
   }, [visible]);
 
   // Functions
-  const handleSave = async () => {
-    if (!tempTitle.trim() || !tempDescription.trim() || !tempDeadline) return;
-    if (!selectedProject) return;
+  const addProject = async () => {
+    if (
+      !tempTitle.trim() ||
+      !tempDescription.trim() ||
+      !tempDeadline ||
+      !auth.currentUser
+    )
+      return;
+
     setIsSaving(true);
     try {
-      const projectRef = doc(db, "project", selectedProject);
       const localDeadline = new Date(tempDeadline);
       localDeadline.setHours(0, 0, 0, 0);
 
-      await updateDoc(projectRef, {
+      const docRef = await addDoc(collection(db, "project"), {
         title: tempTitle.trim(),
         description: tempDescription.trim(),
+        createdBy: auth.currentUser.uid,
+        status: "Pending",
+        startedAt: null,
         deadline: Timestamp.fromDate(localDeadline),
       });
 
-      await handleSaveAssignedUsers(); // ✅ Save assigned users last
-    } catch (err) {
-      console.error("Error saving project details: ", err);
+      const projectID = docRef.id;
+
+      await handleSaveAssignedUsers(projectID);
+    } catch (error: any) {
+      console.log("Error adding task:", error.message);
     } finally {
       setIsSaving(false);
+      onClose();
     }
   };
 
-  const handleSaveAssignedUsers = async () => {
+  const handleSaveAssignedUsers = async (projectID: string) => {
     try {
       const userRef = collection(db, "assignedUser");
 
-      // Remove all current assignments for this project
-      const q = query(userRef, where("projectID", "==", selectedProject));
-      const snapshot = await getDocs(q);
-      for (const docSnap of snapshot.docs) {
-        await deleteDoc(docSnap.ref);
-      }
+      // (Optional) If you want to remove any existing assignments for this task (usually unnecessary for new ones)
+      //   const q = query(userRef, where("taskID", "==", taskID));
+      //   const snapshot = await getDocs(q);
+      //   for (const docSnap of snapshot.docs) {
+      //     await deleteDoc(docSnap.ref);
+      //   }
 
-      // Add new ones
       for (const uid of tempAssigned) {
         await addDoc(userRef, {
-          projectID: selectedProject,
+          projectID,
           uid,
         });
       }
-
-      onClose();
     } catch (err) {
-      console.error("Error saving assignments:", err);
-    } finally {
+      console.error("Error saving task assignments:", err);
     }
   };
 
@@ -153,7 +143,7 @@ export default function ProjectEditModal({
       <ModalBackdrop />
       <ModalContent>
         <ModalHeader>
-          <Heading size="lg">Edit Project</Heading>
+          <Heading size="lg">Add Project</Heading>
           <ModalCloseButton>
             <Icon as={CloseIcon} />
           </ModalCloseButton>
@@ -180,7 +170,7 @@ export default function ProjectEditModal({
                 }}
                 placeholder="Enter your Project Title"
                 placeholderTextColor="#999"
-                defaultValue={currentProjectData?.title}
+                value={tempTitle}
                 onChangeText={setTempTitle}
               />
             </Box>
@@ -192,7 +182,7 @@ export default function ProjectEditModal({
               <Textarea size="sm" isReadOnly={false} isInvalid={false}>
                 <TextareaInput
                   placeholder="Enter your Project Description"
-                  defaultValue={currentProjectData?.description}
+                  value={tempDescription}
                   onChangeText={setTempDescription}
                 />
               </Textarea>
@@ -201,7 +191,7 @@ export default function ProjectEditModal({
             <Box style={{ margin: 5 }}>
               <Text style={{ fontWeight: "bold" }}>Project Deadline</Text>
               <DateTimePicker
-                value={tempDeadline ? tempDeadline : projectDeadline}
+                value={tempDeadline}
                 onChange={setTempDeadline}
                 mode="date"
                 placeholder="Select a date and time"
@@ -354,7 +344,7 @@ export default function ProjectEditModal({
           >
             <ButtonText>Cancel</ButtonText>
           </Button>
-          <Button onPress={handleSave}>
+          <Button onPress={addProject}>
             <ButtonText>
               {isSaving ? <Spinner size="small" color="grey" /> : "Save"}
             </ButtonText>

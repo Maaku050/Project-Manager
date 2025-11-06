@@ -20,7 +20,7 @@ import {
 import { useEffect, useState } from "react";
 import React from "react";
 import { TextInput } from "react-native-gesture-handler";
-import { db } from "@/firebase/firebaseConfig";
+import { auth, db } from "@/firebase/firebaseConfig";
 import {
   addDoc,
   collection,
@@ -48,77 +48,87 @@ import { Spinner } from "@/components/ui/spinner";
 import DateTimePicker from "@/components/DateTimePicker";
 import { Textarea, TextareaInput } from "@/components/ui/textarea";
 
-type projectModalType = {
+type tasktModalType = {
   visible: boolean;
   onClose: () => void;
 };
 
-export default function ProjectEditModal({
-  visible,
-  onClose,
-}: projectModalType) {
+export default function TaskEditModal({ visible, onClose }: tasktModalType) {
   // UseStates
   const [tempTitle, setTempTitle] = useState<string>("");
   const [tempDescription, setTempDescription] = useState<string>("");
-  const [tempDeadline, setTempDeadline] = useState<Date | null>(null);
+  const [tempStart, setTempStart] = useState<Date | null>(null);
+  const [tempEnd, setTempEnd] = useState<Date | null>(null);
   const [tempAssigned, setTempAssigned] = useState<string[]>([]);
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
   // Contexts
-  const { selectedProject, project, assignedUser } = useProject();
+  const { selectedTask, tasks, assignedUser, selectedProject } = useProject();
   const { profiles } = useUser();
 
   // On Load Innitializations
-  const currentProjectData = project.find((t) => t.id === selectedProject);
-  const projectDeadline =
-    currentProjectData?.deadline && "toDate" in currentProjectData.deadline
-      ? currentProjectData.deadline.toDate()
-      : null;
+  const currentTaskData = tasks.find((t) => t.id === selectedTask);
 
-  // Remove other tempAssigned effects and use only this one:
   useEffect(() => {
     if (!visible) return;
 
-    // Initialize assigned users for this project when modal opens
-    const assignedUids = assignedUser
-      .filter((a) => a.projectID === selectedProject)
-      .map((a) => a.uid);
-
-    setTempAssigned(assignedUids);
-
     // Initialize other fields
-    if (currentProjectData) {
-      const projectDeadline =
-        currentProjectData.deadline && "toDate" in currentProjectData.deadline
-          ? currentProjectData.deadline.toDate()
+    if (currentTaskData) {
+      const taskStartDeadline =
+        currentTaskData.start && "toDate" in currentTaskData.start
+          ? currentTaskData.start.toDate()
           : null;
-      setTempTitle(currentProjectData.title);
-      setTempDescription(currentProjectData.description);
-      setTempDeadline(projectDeadline);
+
+      const taskEndDeadline =
+        currentTaskData.end && "toDate" in currentTaskData.end
+          ? currentTaskData.end.toDate()
+          : null;
+
+      setTempTitle(currentTaskData.title);
+      setTempDescription(currentTaskData.description);
+      setTempStart(taskStartDeadline);
+      setTempEnd(taskEndDeadline);
+
+      // Initialize assigned users for this project when modal opens
+      const assignedUids = assignedUser
+        .filter((a) => a.taskID === selectedTask)
+        .map((a) => a.uid);
+
+      setTempAssigned(assignedUids);
     }
   }, [visible]);
 
   // Functions
-  const handleSave = async () => {
-    if (!tempTitle.trim() || !tempDescription.trim() || !tempDeadline) return;
-    if (!selectedProject) return;
+  const updateTask = async () => {
+    if (!tempTitle.trim() || !tempDescription.trim() || !tempStart || !tempEnd)
+      return;
+    if (!selectedTask) return;
+
     setIsSaving(true);
     try {
-      const projectRef = doc(db, "project", selectedProject);
-      const localDeadline = new Date(tempDeadline);
-      localDeadline.setHours(0, 0, 0, 0);
+      const toLocalStart = new Date(tempStart);
+      const toLocalEnd = new Date(tempEnd);
+      toLocalStart.setHours(0, 0, 0, 0);
+      toLocalEnd.setHours(0, 0, 0, 0);
 
-      await updateDoc(projectRef, {
+      const taskRef = doc(db, "tasks", selectedTask);
+
+      const docRef = await updateDoc(taskRef, {
         title: tempTitle.trim(),
         description: tempDescription.trim(),
-        deadline: Timestamp.fromDate(localDeadline),
+        projectID: selectedProject,
+        status: "To-do",
+        start: Timestamp.fromDate(toLocalStart),
+        end: Timestamp.fromDate(toLocalEnd),
+        starID: null,
       });
 
-      await handleSaveAssignedUsers(); // ✅ Save assigned users last
-    } catch (err) {
-      console.error("Error saving project details: ", err);
+      await handleSaveAssignedUsers();
+    } catch (error: any) {
+      console.log("Error adding task:", error.message);
     } finally {
       setIsSaving(false);
+      onClose();
     }
   };
 
@@ -126,25 +136,21 @@ export default function ProjectEditModal({
     try {
       const userRef = collection(db, "assignedUser");
 
-      // Remove all current assignments for this project
-      const q = query(userRef, where("projectID", "==", selectedProject));
+      // (Optional) If you want to remove any existing assignments for this task (usually unnecessary for new ones)
+      const q = query(userRef, where("taskID", "==", selectedTask));
       const snapshot = await getDocs(q);
       for (const docSnap of snapshot.docs) {
         await deleteDoc(docSnap.ref);
       }
 
-      // Add new ones
       for (const uid of tempAssigned) {
         await addDoc(userRef, {
-          projectID: selectedProject,
+          taskID: selectedTask,
           uid,
         });
       }
-
-      onClose();
     } catch (err) {
-      console.error("Error saving assignments:", err);
-    } finally {
+      console.error("Error saving task assignments:", err);
     }
   };
 
@@ -153,7 +159,7 @@ export default function ProjectEditModal({
       <ModalBackdrop />
       <ModalContent>
         <ModalHeader>
-          <Heading size="lg">Edit Project</Heading>
+          <Heading size="lg">Edit Task</Heading>
           <ModalCloseButton>
             <Icon as={CloseIcon} />
           </ModalCloseButton>
@@ -169,7 +175,7 @@ export default function ProjectEditModal({
           >
             <Box style={{ margin: 5 }}>
               <Text style={{ fontWeight: "bold", marginBottom: 5 }}>
-                Project Title
+                Task Title
               </Text>
               <TextInput
                 style={{
@@ -178,39 +184,61 @@ export default function ProjectEditModal({
                   paddingVertical: 8,
                   fontSize: 16,
                 }}
-                placeholder="Enter your Project Title"
+                placeholder="Enter the Task Title"
                 placeholderTextColor="#999"
-                defaultValue={currentProjectData?.title}
+                value={tempTitle}
                 onChangeText={setTempTitle}
               />
             </Box>
 
             <Box style={{ margin: 5 }}>
               <Text style={{ fontWeight: "bold", marginBottom: 5 }}>
-                Project Description
+                Task Description
               </Text>
               <Textarea size="sm" isReadOnly={false} isInvalid={false}>
                 <TextareaInput
-                  placeholder="Enter your Project Description"
-                  defaultValue={currentProjectData?.description}
+                  placeholder="Enter the Task Description"
+                  value={tempDescription}
                   onChangeText={setTempDescription}
                 />
               </Textarea>
             </Box>
 
             <Box style={{ margin: 5 }}>
-              <Text style={{ fontWeight: "bold" }}>Project Deadline</Text>
-              <DateTimePicker
-                value={tempDeadline ? tempDeadline : projectDeadline}
-                onChange={setTempDeadline}
-                mode="date"
-                placeholder="Select a date and time"
-              />
+              <Text style={{ fontWeight: "bold" }}>Task Deadline</Text>
+              <HStack
+                style={{
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                {/* Start */}
+                <Box style={{ flex: 1 }}>
+                  <DateTimePicker
+                    value={tempStart}
+                    onChange={setTempStart}
+                    mode="date"
+                    placeholder="Select a date and time"
+                  />
+                </Box>
+
+                <Text style={{ marginHorizontal: 10, fontSize: 18 }}> - </Text>
+
+                {/* End */}
+                <Box style={{ flex: 1 }}>
+                  <DateTimePicker
+                    value={tempEnd}
+                    onChange={setTempEnd}
+                    mode="date"
+                    placeholder="Select a date and time"
+                  />
+                </Box>
+              </HStack>
             </Box>
 
             {/* Members */}
             <Box style={{ margin: 5 }}>
-              <Text style={{ fontWeight: "bold" }}>Project Members</Text>
+              <Text style={{ fontWeight: "bold" }}>Task Members</Text>
 
               <Box
                 style={{
@@ -290,7 +318,6 @@ export default function ProjectEditModal({
                                     ? prev.filter((uid) => uid !== p.uid)
                                     : [...prev, p.uid]
                                 );
-                                console.log(tempAssigned);
                               };
 
                               return (
@@ -354,7 +381,7 @@ export default function ProjectEditModal({
           >
             <ButtonText>Cancel</ButtonText>
           </Button>
-          <Button onPress={handleSave}>
+          <Button onPress={updateTask}>
             <ButtonText>
               {isSaving ? <Spinner size="small" color="grey" /> : "Save"}
             </ButtonText>

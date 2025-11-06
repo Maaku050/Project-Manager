@@ -40,6 +40,7 @@ interface Comment {
 interface AssignedUser {
   id: string;
   projectID: string;
+  taskID: string;
   uid: string;
 }
 

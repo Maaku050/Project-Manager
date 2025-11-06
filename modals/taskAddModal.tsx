@@ -48,12 +48,12 @@ import { Spinner } from "@/components/ui/spinner";
 import DateTimePicker from "@/components/DateTimePicker";
 import { Textarea, TextareaInput } from "@/components/ui/textarea";
 
-type projectModalType = {
+type tasktModalType = {
   visible: boolean;
   onClose: () => void;
 };
 
-export default function TaskAddModal({ visible, onClose }: projectModalType) {
+export default function TaskAddModal({ visible, onClose }: tasktModalType) {
   // UseStates
   const [tempTitle, setTempTitle] = useState<string>("");
   const [tempDescription, setTempDescription] = useState<string>("");
@@ -167,7 +167,7 @@ export default function TaskAddModal({ visible, onClose }: projectModalType) {
           >
             <Box style={{ margin: 5 }}>
               <Text style={{ fontWeight: "bold", marginBottom: 5 }}>
-                Project Title
+                Task Title
               </Text>
               <TextInput
                 style={{
@@ -184,7 +184,7 @@ export default function TaskAddModal({ visible, onClose }: projectModalType) {
 
             <Box style={{ margin: 5 }}>
               <Text style={{ fontWeight: "bold", marginBottom: 5 }}>
-                Project Description
+                Task Description
               </Text>
               <Textarea size="sm" isReadOnly={false} isInvalid={false}>
                 <TextareaInput
@@ -195,7 +195,7 @@ export default function TaskAddModal({ visible, onClose }: projectModalType) {
             </Box>
 
             <Box style={{ margin: 5 }}>
-              <Text style={{ fontWeight: "bold" }}>Project Deadline</Text>
+              <Text style={{ fontWeight: "bold" }}>Task Deadline</Text>
               <HStack
                 style={{
                   alignItems: "center",
@@ -228,7 +228,7 @@ export default function TaskAddModal({ visible, onClose }: projectModalType) {
 
             {/* Members */}
             <Box style={{ margin: 5 }}>
-              <Text style={{ fontWeight: "bold" }}>Project Members</Text>
+              <Text style={{ fontWeight: "bold" }}>Task Members</Text>
 
               <Box
                 style={{

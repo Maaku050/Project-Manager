@@ -260,11 +260,10 @@ export default function Project() {
           style={{
             borderWidth: 0,
             borderColor: "blue",
-            alignItems: "center",
             padding: 10,
           }}
         >
-          <HStack style={{ flex: 1 }}>
+          <HStack>
             <View
               style={{
                 margin: 5,
