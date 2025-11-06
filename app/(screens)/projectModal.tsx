@@ -80,8 +80,10 @@ import {
   SelectDragIndicator,
   SelectItem,
 } from "@/components/ui/select";
+import ProjectEditModal from "@/modals/projectEditModal";
+import TaskAddModal from "@/modals/taskAddModal";
 
-export default function ProjectModal() {
+export default function Project() {
   const { selectedProject, project, tasks, assignedUser, setSelectedTask } =
     useProject();
   const { profiles } = useUser();
@@ -110,8 +112,6 @@ export default function ProjectModal() {
   const [isHover, setIsHover] = useState<string | null>(null);
   const [descriptionPressed, setDescriptionPressed] = useState(false);
   const [showEditProjectModal, setShowEditProjectModal] = useState(false);
-
-  if (!currentProjectData) return;
 
   const projectDeadline =
     currentProjectData?.deadline && "toDate" in currentProjectData.deadline
@@ -204,12 +204,17 @@ export default function ProjectModal() {
     }
   };
 
-  const truncateWords = (text: string, wordLimit: number) => {
+  const truncateWords = (text: string | undefined, wordLimit: number) => {
+    if (!text) return "";
     const words = text.split(" ");
     return words.length > wordLimit
       ? words.slice(0, wordLimit).join(" ") + " ..."
       : text;
   };
+
+  if (!currentProjectData) {
+    return <Text>Loading project data...</Text>;
+  }
 
   // Pending Project
   if (pendingProject.length != 0) {
@@ -618,7 +623,7 @@ export default function ProjectModal() {
         </Box>
 
         {/* Add Task Modal */}
-        <Modal
+        {/* <Modal
           isOpen={showAddTaskModal}
           onClose={() => {
             setShowAddTaskModal(false);
@@ -658,10 +663,10 @@ export default function ProjectModal() {
               </Button>
             </ModalFooter>
           </ModalContent>
-        </Modal>
+        </Modal> */}
 
         {/* Edit Project Modal */}
-        <Modal
+        {/* <Modal
           isOpen={showEditProjectModal}
           onClose={() => {
             setShowEditProjectModal(false);
@@ -768,7 +773,17 @@ export default function ProjectModal() {
               </Button>
             </ModalFooter>
           </ModalContent>
-        </Modal>
+        </Modal> */}
+
+        <ProjectEditModal
+          visible={showEditProjectModal}
+          onClose={() => setShowEditProjectModal(false)}
+        />
+
+        <TaskAddModal
+          visible={showAddTaskModal}
+          onClose={() => setShowAddTaskModal(false)}
+        />
       </View>
     );
   }

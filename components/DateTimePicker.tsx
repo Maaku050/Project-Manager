@@ -25,6 +25,7 @@ type Props = {
   maximumDate?: Date;
   placeholder?: string;
   loading?: boolean;
+  defaultValue?: Date | null; // ✅ NEW PROP
 };
 
 function formatLocalInputValue(d: Date | null, mode: Mode) {
@@ -43,6 +44,7 @@ function formatLocalInputValue(d: Date | null, mode: Mode) {
 
 export default function DateTimePicker({
   value,
+  defaultValue,
   onChange,
   mode = "datetime",
   label,
@@ -96,7 +98,7 @@ export default function DateTimePicker({
           <input
             aria-label={label ?? "date-time"}
             type={inputType}
-            value={formatLocalInputValue(value, mode)}
+            value={formatLocalInputValue(value ?? defaultValue ?? null, mode)} // ✅ use defaultValue if no value
             onChange={handleWebChange}
             min={
               minimumDate ? formatLocalInputValue(minimumDate, mode) : undefined
@@ -104,7 +106,7 @@ export default function DateTimePicker({
             max={
               maximumDate ? formatLocalInputValue(maximumDate, mode) : undefined
             }
-            disabled={loading} // disable while saving
+            disabled={loading}
             style={{
               padding: 10,
               borderRadius: 6,
@@ -114,6 +116,7 @@ export default function DateTimePicker({
               opacity: loading ? 0.6 : 1,
             }}
           />
+
           {loading && (
             <View
               style={{
@@ -157,7 +160,7 @@ export default function DateTimePicker({
           <Spinner size="small" color="gray" />
         ) : (
           <Text style={styles.buttonText}>
-            {value ? value.toLocaleString() : placeholder}
+            {(value ?? defaultValue)?.toLocaleString() ?? placeholder}
           </Text>
         )}
       </Pressable>
@@ -175,8 +178,8 @@ export default function DateTimePicker({
             <View style={styles.modalOverlay}>
               <View style={styles.modalContent}>
                 <RNDateTimePicker
-                  value={value ?? new Date()}
-                  mode={mode === "datetime" ? "date" : (mode as any)} // we'll handle datetime by sequence on Android
+                  value={value ?? defaultValue ?? new Date()} // ✅ use defaultValue if value is null
+                  mode={mode === "datetime" ? "date" : (mode as any)}
                   display={Platform.OS === "ios" ? "spinner" : "default"}
                   onChange={onChangeMobile}
                   minimumDate={minimumDate}
