@@ -1,0 +1,356 @@
+import { Box } from "@/components/ui/box";
+import { ScrollView } from "react-native";
+import { Text } from "@/components/ui/text";
+import { Button, ButtonText } from "@/components/ui/button";
+import { CheckIcon, CloseIcon, Icon } from "@/components/ui/icon";
+import { View } from "@/components/Themed";
+import { useUser } from "@/context/profileContext";
+import { useProject } from "@/context/projectContext";
+import { Heading } from "@/components/ui/heading";
+import { Divider } from "@/components/ui/divider";
+import {
+  ModalBackdrop,
+  ModalContent,
+  ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  ModalFooter,
+  Modal,
+} from "@/components/ui/modal";
+import { useEffect, useState } from "react";
+import React from "react";
+import { TextInput } from "react-native-gesture-handler";
+import { auth, db } from "@/firebase/firebaseConfig";
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  query,
+  Timestamp,
+  updateDoc,
+  where,
+} from "firebase/firestore";
+import { HStack } from "@/components/ui/hstack";
+import {
+  Checkbox,
+  CheckboxIndicator,
+  CheckboxIcon,
+} from "@/components/ui/checkbox";
+import { VStack } from "@/components/ui/vstack";
+import {
+  Avatar,
+  AvatarFallbackText,
+  AvatarBadge,
+} from "@/components/ui/avatar";
+import { Spinner } from "@/components/ui/spinner";
+import DateTimePicker from "@/components/DateTimePicker";
+import { Textarea, TextareaInput } from "@/components/ui/textarea";
+
+type projectModalType = {
+  visible: boolean;
+  onClose: () => void;
+};
+
+export default function ProjectAddModal({
+  visible,
+  onClose,
+}: projectModalType) {
+  // UseStates
+  const [tempTitle, setTempTitle] = useState<string>("");
+  const [tempDescription, setTempDescription] = useState<string>("");
+  const [tempStart, setTempStart] = useState<Date | null>(null);
+  const [tempEnd, setTempEnd] = useState<Date | null>(null);
+  const [tempDeadline, setTempDeadline] = useState<Date | null>(null);
+  const [tempAssigned, setTempAssigned] = useState<string[]>([]);
+  const [isSaving, setIsSaving] = useState<boolean>(false);
+
+  // Contexts
+  const { selectedProject, project, assignedUser } = useProject();
+  const { profiles } = useUser();
+
+  // On Load Innitializations
+  useEffect(() => {
+    if (!visible) return;
+
+    // Initiallize Fields
+    setTempTitle("");
+    setTempDescription("");
+    setTempDeadline(null);
+    setTempAssigned([]);
+  }, [visible]);
+
+  // Functions
+  const addProject = async () => {
+    if (
+      !tempTitle.trim() ||
+      !tempDescription.trim() ||
+      !tempDeadline ||
+      !auth.currentUser
+    )
+      return;
+
+    setIsSaving(true);
+    try {
+      const localDeadline = new Date(tempDeadline);
+      localDeadline.setHours(0, 0, 0, 0);
+
+      const docRef = await addDoc(collection(db, "project"), {
+        title: tempTitle.trim(),
+        description: tempDescription.trim(),
+        createdBy: auth.currentUser.uid,
+        status: "Pending",
+        startedAt: null,
+        deadline: Timestamp.fromDate(localDeadline),
+      });
+
+      const projectID = docRef.id;
+
+      await handleSaveAssignedUsers(projectID);
+    } catch (error: any) {
+      console.log("Error adding task:", error.message);
+    } finally {
+      setIsSaving(false);
+      onClose();
+    }
+  };
+
+  const handleSaveAssignedUsers = async (projectID: string) => {
+    try {
+      const userRef = collection(db, "assignedUser");
+
+      // (Optional) If you want to remove any existing assignments for this task (usually unnecessary for new ones)
+      //   const q = query(userRef, where("taskID", "==", taskID));
+      //   const snapshot = await getDocs(q);
+      //   for (const docSnap of snapshot.docs) {
+      //     await deleteDoc(docSnap.ref);
+      //   }
+
+      for (const uid of tempAssigned) {
+        await addDoc(userRef, {
+          projectID,
+          uid,
+        });
+      }
+    } catch (err) {
+      console.error("Error saving task assignments:", err);
+    }
+  };
+
+  return (
+    <Modal isOpen={visible} onClose={onClose} size="lg">
+      <ModalBackdrop />
+      <ModalContent>
+        <ModalHeader>
+          <Heading size="lg">Add Project</Heading>
+          <ModalCloseButton>
+            <Icon as={CloseIcon} />
+          </ModalCloseButton>
+        </ModalHeader>
+        <ModalBody>
+          <ScrollView
+            style={{ maxHeight: 500 }} // limits scroll area
+            contentContainerStyle={{
+              paddingBottom: 20,
+              flexGrow: 1,
+            }}
+            showsVerticalScrollIndicator={false}
+          >
+            <Box style={{ margin: 5 }}>
+              <Text style={{ fontWeight: "bold", marginBottom: 5 }}>
+                Project Title
+              </Text>
+              <TextInput
+                style={{
+                  borderBottomWidth: 1,
+                  borderColor: "#000",
+                  paddingVertical: 8,
+                  fontSize: 16,
+                }}
+                placeholder="Enter your Project Title"
+                placeholderTextColor="#999"
+                value={tempTitle}
+                onChangeText={setTempTitle}
+              />
+            </Box>
+
+            <Box style={{ margin: 5 }}>
+              <Text style={{ fontWeight: "bold", marginBottom: 5 }}>
+                Project Description
+              </Text>
+              <Textarea size="sm" isReadOnly={false} isInvalid={false}>
+                <TextareaInput
+                  placeholder="Enter your Project Description"
+                  value={tempDescription}
+                  onChangeText={setTempDescription}
+                />
+              </Textarea>
+            </Box>
+
+            <Box style={{ margin: 5 }}>
+              <Text style={{ fontWeight: "bold" }}>Project Deadline</Text>
+              <DateTimePicker
+                value={tempDeadline}
+                onChange={setTempDeadline}
+                mode="date"
+                placeholder="Select a date and time"
+              />
+            </Box>
+
+            {/* Members */}
+            <Box style={{ margin: 5 }}>
+              <Text style={{ fontWeight: "bold" }}>Project Members</Text>
+
+              <Box
+                style={{
+                  marginTop: 10,
+                  borderWidth: 1,
+                  borderColor: "#ccc",
+                  borderRadius: 8,
+                  padding: 10,
+                  backgroundColor: "#fff",
+                }}
+              >
+                {/* Header */}
+                <Box
+                  style={{
+                    marginBottom: 8,
+                    borderBottomWidth: 0,
+                    borderBottomColor: "#000",
+                    paddingBottom: 4,
+                  }}
+                >
+                  <Text style={{ marginLeft: 8 }}>Select Members</Text>
+                </Box>
+
+                {/* Members List */}
+                <VStack space="sm">
+                  {[
+                    "Project Manager",
+                    "UI/UX",
+                    "Fullstack Developer",
+                    "Front-End Developer",
+                    "Back-End Developer",
+                    "Mobile Developer",
+                    "Game Developer",
+                    "Quality Assurance",
+                    "Intern",
+                  ]
+                    .filter((role) =>
+                      profiles.some(
+                        (profile) =>
+                          profile.role?.toLowerCase() === role.toLowerCase()
+                      )
+                    )
+                    .map((role, i) => {
+                      const matchingProfiles = profiles.filter(
+                        (profile) =>
+                          profile.role?.toLowerCase() === role.toLowerCase()
+                      );
+
+                      return (
+                        <View key={i}>
+                          <HStack
+                            style={{
+                              alignItems: "center",
+                              justifyContent: "space-between",
+                              paddingVertical: 6,
+                            }}
+                          >
+                            <Text style={{ fontSize: 14, fontWeight: "bold" }}>
+                              {role}
+                            </Text>
+                            <Divider
+                              style={{
+                                flex: 1,
+                                marginHorizontal: 8,
+                                borderWidth: 0.5,
+                              }}
+                            />
+                          </HStack>
+
+                          <VStack>
+                            {matchingProfiles.map((p) => {
+                              const isChecked = tempAssigned.includes(p.uid);
+
+                              const toggleCheck = () => {
+                                setTempAssigned((prev) =>
+                                  isChecked
+                                    ? prev.filter((uid) => uid !== p.uid)
+                                    : [...prev, p.uid]
+                                );
+                                console.log(tempAssigned);
+                              };
+
+                              return (
+                                <HStack
+                                  key={p.uid}
+                                  style={{
+                                    alignItems: "center",
+                                    marginTop: 10,
+                                  }}
+                                >
+                                  <Checkbox
+                                    isChecked={isChecked}
+                                    onChange={toggleCheck}
+                                    value={p.uid}
+                                    accessibilityLabel={`${p.firstName} ${p.lastName}`}
+                                    hitSlop={{
+                                      top: 10,
+                                      bottom: 10,
+                                      left: 10,
+                                      right: 10,
+                                    }}
+                                  >
+                                    <CheckboxIndicator>
+                                      <CheckboxIcon as={CheckIcon} />
+                                    </CheckboxIndicator>
+                                  </Checkbox>
+
+                                  <Avatar size="sm" style={{ marginLeft: 8 }}>
+                                    <AvatarFallbackText>
+                                      {p.firstName}
+                                    </AvatarFallbackText>
+                                    <AvatarBadge />
+                                  </Avatar>
+
+                                  <Text
+                                    style={{
+                                      fontSize: 13,
+                                      marginLeft: 10,
+                                    }}
+                                  >
+                                    {p.firstName} {p.lastName}
+                                  </Text>
+                                </HStack>
+                              );
+                            })}
+                          </VStack>
+                        </View>
+                      );
+                    })}
+                </VStack>
+              </Box>
+            </Box>
+          </ScrollView>
+        </ModalBody>
+        <ModalFooter>
+          <Button
+            variant="outline"
+            action="secondary"
+            className="mr-3"
+            onPress={onClose}
+          >
+            <ButtonText>Cancel</ButtonText>
+          </Button>
+          <Button onPress={addProject}>
+            <ButtonText>
+              {isSaving ? <Spinner size="small" color="grey" /> : "Save"}
+            </ButtonText>
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
+  );
+}

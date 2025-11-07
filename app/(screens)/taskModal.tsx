@@ -7,7 +7,7 @@ import { Icon, ArrowLeftIcon } from "@/components/ui/icon";
 import { router } from "expo-router";
 import { VStack } from "@/components/ui/vstack";
 import { Card } from "@/components/ui/card";
-import { SquarePen } from "lucide-react-native";
+import { CalendarDays, Clock4, SquarePen } from "lucide-react-native";
 import { Button, ButtonText } from "@/components/ui/button";
 import { TextInput } from "react-native-gesture-handler";
 import { db } from "@/firebase/firebaseConfig";
@@ -22,9 +22,16 @@ import {
 } from "firebase/firestore";
 import { useUser } from "@/context/profileContext";
 import DateTimePicker from "@/components/DateTimePicker";
+import {
+  Avatar,
+  AvatarBadge,
+  AvatarFallbackText,
+} from "@/components/ui/avatar";
+import TaskEditModal from "@/modals/taskEditModal";
 
 export default function TaskModal() {
-  const { selectedProject, comment, tasks, selectedTask } = useProject();
+  const { selectedProject, comment, tasks, selectedTask, assignedUser } =
+    useProject();
 
   const { user, profile, profiles } = useUser();
 
@@ -139,6 +146,8 @@ export default function TaskModal() {
   const [tempDescription, setTempDescription] = useState<string>("");
   const [tempStart, setTempStart] = useState<Timestamp | null>(null);
   const [tempEnd, setTempEnd] = useState<Timestamp | null>(null);
+  const [descriptionPressed, setDescriptionPressed] = useState(false);
+  const [showEditTaskModal, setShowEditTaskModal] = useState(false);
 
   const handleSaveChanges = async () => {
     if (
@@ -171,26 +180,60 @@ export default function TaskModal() {
     }
   };
 
+  const truncateWords = (text: string | undefined, wordLimit: number) => {
+    if (!text) return "";
+    const words = text.split(" ");
+    return words.length > wordLimit
+      ? words.slice(0, wordLimit).join(" ") + " ..."
+      : text;
+  };
+
+  function timeAgo(date: Date | string | number) {
+    const now = new Date();
+    const then = new Date(date);
+    const seconds = Math.floor((now.getTime() - then.getTime()) / 1000);
+
+    if (seconds < 60) return `${seconds} seconds ago`;
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes} minute${minutes > 1 ? "s" : ""} ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours} hour${hours > 1 ? "s" : ""} ago`;
+    const days = Math.floor(hours / 24);
+    return `${days} day${days > 1 ? "s" : ""} ago`;
+  }
+
   return (
-    <View style={{ flex: 1 }}>
-      <Box style={{ borderWidth: 0, width: 100 }}>
-        <Pressable
-          onPress={() => {
-            setIsEdit(false);
-            router.replace("/(screens)/projectModal");
-          }}
+    <View style={{ flex: 1, paddingHorizontal: 20, paddingBottom: 10 }}>
+      <Box style={{ borderWidth: 0 }}>
+        <HStack
+          style={{ alignItems: "center", justifyContent: "space-between" }}
         >
-          <HStack style={{ alignItems: "center", alignContent: "center" }}>
-            <Icon
-              as={ArrowLeftIcon}
-              className="text-typography-500 m-2 w-7 h-7 "
-            />
-            <Text style={{ fontSize: 23, fontWeight: "bold" }}>Back</Text>
-          </HStack>
-        </Pressable>
+          <Pressable
+            onPress={() => {
+              setIsEdit(false);
+              router.replace("/(screens)/projectModal");
+            }}
+          >
+            <HStack style={{ alignItems: "center" }}>
+              <Icon
+                as={ArrowLeftIcon}
+                className="text-typography-500 w-7 h-6 mr-1 mt-1"
+              />
+              <Text style={{ fontSize: 25, fontWeight: "bold" }}>Back</Text>
+            </HStack>
+          </Pressable>
+
+          <Pressable
+            onPress={() => {
+              setShowEditTaskModal(true);
+            }}
+          >
+            <SquarePen />
+          </Pressable>
+        </HStack>
       </Box>
 
-      {isEdit ? (
+      {/* {isEdit ? (
         <View style={{ flex: 1, borderWidth: 1 }}>
           <Box style={{ borderWidth: 1, alignItems: "flex-end" }}>
             <Button
@@ -276,101 +319,259 @@ export default function TaskModal() {
             </Box>
           </HStack>
         </View>
-      ) : (
-        <View style={{ flex: 1, borderWidth: 0, borderColor: "red" }}>
-          <Box style={{ borderWidth: 1, alignItems: "flex-end" }}>
-            <Pressable
-              onPress={() => {
-                if (currentTask) {
-                  setTempTitle(currentTask.title);
-                  setTempDescription(currentTask.description);
-                  setTempStart(currentTask.start);
-                  setTempEnd(currentTask.end);
-                }
-                setIsEdit(true);
+      ) : ( */}
+
+      <View
+        style={{
+          borderWidth: 1,
+          borderRadius: 8,
+          marginTop: 10,
+          paddingHorizontal: 20,
+          paddingVertical: 10,
+        }}
+      >
+        <HStack>
+          <Box style={{ flex: 1, borderWidth: 0 }}>
+            <VStack>
+              <Text style={{ fontWeight: "bold", marginBottom: 5 }}>
+                Task title
+              </Text>
+              <Text style={{ marginBottom: 5, fontSize: 15 }}>
+                {currentTask?.title}
+              </Text>
+              <Text style={{ fontWeight: "bold", marginBottom: 5 }}>
+                Task description
+              </Text>
+              <Box style={{ borderWidth: 0, paddingRight: 10 }}>
+                <ScrollView>
+                  {descriptionPressed ? (
+                    <Pressable onPress={() => setDescriptionPressed(false)}>
+                      <Text style={{ fontSize: 15 }}>
+                        {truncateWords(currentTask?.description, 1000)}
+                      </Text>
+                    </Pressable>
+                  ) : (
+                    <Pressable onPress={() => setDescriptionPressed(true)}>
+                      <Text style={{ fontSize: 15 }}>
+                        {truncateWords(currentTask?.description, 50)}
+                      </Text>
+                    </Pressable>
+                  )}
+                </ScrollView>
+              </Box>
+            </VStack>
+          </Box>
+
+          <Box style={{ flex: 1, borderWidth: 0 }}>
+            <Box
+              style={{
+                flex: 1,
+                borderWidth: 0,
+                alignContent: "center",
               }}
             >
-              <SquarePen />
-            </Pressable>
+              <HStack>
+                <Box style={{ flex: 1 }}>
+                  <Text style={{ fontWeight: "bold" }}>Status</Text>
+                </Box>
+                <Box style={{ flex: 2 }}>
+                  <HStack
+                    style={{
+                      alignItems: "center",
+                    }}
+                  >
+                    <Clock4 size={25} />
+                    <Text style={{ marginLeft: 15 }}>
+                      {currentTask?.status}
+                    </Text>
+                  </HStack>
+                </Box>
+              </HStack>
+            </Box>
+
+            <Box
+              style={{
+                flex: 1,
+                borderWidth: 0,
+                alignContent: "center",
+              }}
+            >
+              <HStack>
+                <Box style={{ flex: 1 }}>
+                  <Text style={{ fontWeight: "bold" }}>Time Line</Text>
+                </Box>
+                <Box style={{ flex: 2 }}>
+                  <HStack>
+                    <CalendarDays size={25} />
+                    <Text style={{ marginLeft: 15 }}>
+                      {currentTask?.start
+                        ? currentTask.start
+                            .toDate()
+                            .toLocaleDateString("en-US", {
+                              year: "numeric",
+                              month: "numeric",
+                              day: "numeric",
+                            })
+                        : "No start date"}
+                    </Text>
+                    <Text> - </Text>
+                    <Text>
+                      {currentTask?.end
+                        ? currentTask.end.toDate().toLocaleDateString("en-US", {
+                            year: "numeric",
+                            month: "numeric",
+                            day: "numeric",
+                          })
+                        : "No start date"}
+                    </Text>
+                  </HStack>
+                </Box>
+              </HStack>
+            </Box>
+
+            <Box
+              style={{
+                flex: 1,
+                borderWidth: 0,
+                alignContent: "center",
+              }}
+            >
+              <HStack>
+                <Box style={{ flex: 1 }}>
+                  <Text style={{ fontWeight: "bold" }}>Assigned Members</Text>
+                </Box>
+                <Box style={{ flex: 2 }}>
+                  <HStack>
+                    {profiles
+                      .filter((p) =>
+                        assignedUser.some(
+                          (a) => a.taskID === selectedTask && a.uid === p.uid
+                        )
+                      )
+                      .map((t) => {
+                        return (
+                          <>
+                            <Avatar size="xs" key={t.id}>
+                              <AvatarFallbackText>
+                                {t.firstName}
+                              </AvatarFallbackText>
+
+                              <AvatarBadge />
+                            </Avatar>
+                            <Text style={{ marginLeft: 15 }}>
+                              {t.firstName} {t.lastName}
+                            </Text>
+                          </>
+                        );
+                      })}
+                  </HStack>
+                </Box>
+              </HStack>
+            </Box>
           </Box>
-          <HStack>
-            <Box style={{ flex: 1, borderWidth: 1 }}>
-              <VStack>
-                <Text>{currentTask?.title}</Text>
-                <Text>{currentTask?.description}</Text>
-              </VStack>
-            </Box>
-            <Box style={{ flex: 1, borderWidth: 1 }}>
-              <VStack>
-                <Text>{currentTask?.status}</Text>
-                <HStack>
-                  <Text>
-                    {currentTask?.start
-                      ? currentTask.start.toDate().toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        })
-                      : "No start date"}
-                  </Text>
-                  <Text> - </Text>
-                  <Text>
-                    {currentTask?.end
-                      ? currentTask.end.toDate().toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        })
-                      : "No start date"}
-                  </Text>
-                </HStack>
-              </VStack>
-            </Box>
+        </HStack>
+      </View>
+
+      <View
+        style={{
+          flex: 1,
+          borderWidth: 1,
+          borderRadius: 8,
+          marginTop: 10,
+          paddingHorizontal: 20,
+          paddingVertical: 10,
+        }}
+      >
+        <Text style={{ fontWeight: "bold" }}>Comments</Text>
+        <Box style={{ borderWidth: 0 }}>
+          <HStack style={{ alignItems: "center" }}>
+            <Avatar size="sm" style={{ position: "absolute", marginLeft: 15 }}>
+              <AvatarFallbackText>{profile?.firstName}</AvatarFallbackText>
+              <AvatarBadge />
+            </Avatar>
+
+            <TextInput
+              style={{
+                borderWidth: 1,
+                borderRadius: 8,
+                height: 45,
+                outlineWidth: 1,
+                color: "#000000ff",
+                flex: 1,
+                paddingLeft: 55,
+              }}
+              value={isComment}
+              onChangeText={setIsComment}
+              onSubmitEditing={handleAddComment}
+              placeholder="Write a comment..."
+            />
           </HStack>
-        </View>
-      )}
+        </Box>
 
-      <View style={{ borderWidth: 0, flex: 1, borderColor: "yellow" }}>
-        <Text>Comments</Text>
-        <Box>
-          <TextInput
-            style={{
-              borderWidth: 1,
-              borderColor: "#0000005b",
-              borderRadius: 8,
-              padding: 10,
-              color: "#000000ff",
-            }}
-            value={isComment}
-            onChangeText={setIsComment}
-            placeholder="Write a comment..."
-          />
-
-          <Button
+        {/* <Button
             onPress={handleAddComment}
             action="primary"
             style={{ marginTop: 8 }}
           >
             <ButtonText>Post</ButtonText>
-          </Button>
-        </Box>
+          </Button> */}
 
-        <Box style={{ flex: 1, borderWidth: 0, borderColor: "blue" }}>
+        <Box
+          style={{
+            flex: 1,
+            borderWidth: 0,
+            marginTop: 5,
+          }}
+        >
           <ScrollView>
-            {currentTaskComments.map((t) => (
-              <View key={t.id} style={{ borderWidth: 1, borderColor: "green" }}>
-                <Card>
-                  <Text>
-                    {profiles.find((a) => a.uid === t.uid)?.firstName}{" "}
-                    {profiles.find((a) => a.uid === t.uid)?.lastName}
-                  </Text>
-                  <Text>{t.text}</Text>
+            {currentTaskComments.map((t) => {
+              const user = profiles.find((a) => a.uid === t.uid);
+              return (
+                <Card key={t.id} style={{ borderRadius: 0 }}>
+                  <HStack>
+                    <Box>
+                      <Avatar size="sm">
+                        <AvatarFallbackText>
+                          {user?.firstName}
+                        </AvatarFallbackText>
+                        <AvatarBadge />
+                      </Avatar>
+                    </Box>
+
+                    <Box style={{ flex: 1, marginLeft: 8 }}>
+                      <HStack
+                        style={{
+                          alignItems: "center",
+                        }}
+                      >
+                        <Text style={{ fontWeight: "bold" }}>
+                          {user?.firstName} {user?.lastName}{" "}
+                        </Text>
+                        <Text style={{ fontSize: 12, color: "#999" }}>
+                          {t.createdAt
+                            ? timeAgo(
+                                t.createdAt.seconds
+                                  ? new Date(t.createdAt.seconds * 1000)
+                                  : new Date(t.createdAt.toDate())
+                              )
+                            : ""}
+                        </Text>
+                      </HStack>
+
+                      <Text>{t.text}</Text>
+                    </Box>
+                  </HStack>
                 </Card>
-              </View>
-            ))}
+              );
+            })}
           </ScrollView>
         </Box>
       </View>
+
+      <TaskEditModal
+        visible={showEditTaskModal}
+        onClose={() => setShowEditTaskModal(false)}
+      />
     </View>
   );
 }

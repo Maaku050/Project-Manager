@@ -25,6 +25,7 @@ import { TextInput } from "react-native-gesture-handler";
 import { db, auth } from "@/firebase/firebaseConfig";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { isValidRubberBandConfig } from "react-native-reanimated/lib/typescript/animation/decay/utils";
+import ProjectAddModal from "@/modals/projectAddModal";
 
 export default function Sample() {
   const router = useRouter();
@@ -159,59 +160,6 @@ export default function Sample() {
         ))}
         </View>
       </ScrollView>
-
-
-      <Modal
-        isOpen={showModal}
-        onClose={() => {
-          setShowModal(false);
-        }}
-        size="md"
-      >
-        <ModalBackdrop />
-        <ModalContent>
-          <ModalHeader>
-            <Heading size="lg">Add project</Heading>
-            <ModalCloseButton>
-              <Icon as={CloseIcon} />
-            </ModalCloseButton>
-          </ModalHeader>
-          <ModalBody>
-            <Text>Title</Text>
-            <TextInput
-              style={{ borderWidth: 1, borderRadius: 10, height: 40 }}
-              value={title}
-              onChangeText={setTitle}
-            ></TextInput>
-            <Text>Description</Text>
-            <TextInput
-              style={{ borderWidth: 1, borderRadius: 10, height: 40 }}
-              value={description}
-              onChangeText={setDescription}
-            ></TextInput>
-          </ModalBody>
-          <ModalFooter>
-            <Button
-              variant="outline"
-              action="secondary"
-              className="mr-3"
-              onPress={() => {
-                setShowModal(false);
-              }}
-            >
-              <ButtonText>Cancel</ButtonText>
-            </Button>
-            <Button
-              onPress={() => {
-                setShowModal(false);
-              }}
-            >
-              <ButtonText onPress={addProject}>Save</ButtonText>
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-      
     </>
   );
 }
