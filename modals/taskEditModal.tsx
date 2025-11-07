@@ -1,52 +1,25 @@
-import { Box } from "@/components/ui/box";
-import { ScrollView } from "react-native";
-import { Text } from "@/components/ui/text";
-import { Button, ButtonText } from "@/components/ui/button";
-import { CheckIcon, CloseIcon, Icon } from "@/components/ui/icon";
+import DateTimePicker from "@/components/DateTimePicker";
 import { View } from "@/components/Themed";
+import { Avatar, AvatarBadge, AvatarFallbackText } from "@/components/ui/avatar";
+import { Box } from "@/components/ui/box";
+import { Button, ButtonText } from "@/components/ui/button";
+import { Checkbox, CheckboxIcon, CheckboxIndicator } from "@/components/ui/checkbox";
+import { Divider } from "@/components/ui/divider";
+import { Heading } from "@/components/ui/heading";
+import { HStack } from "@/components/ui/hstack";
+import { CheckIcon, CloseIcon, Icon } from "@/components/ui/icon";
+import { Modal, ModalBackdrop, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader } from "@/components/ui/modal";
+import { Spinner } from "@/components/ui/spinner";
+import { Text } from "@/components/ui/text";
+import { Textarea, TextareaInput } from "@/components/ui/textarea";
+import { VStack } from "@/components/ui/vstack";
 import { useUser } from "@/context/profileContext";
 import { useProject } from "@/context/projectContext";
-import { Heading } from "@/components/ui/heading";
-import { Divider } from "@/components/ui/divider";
-import {
-  ModalBackdrop,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  ModalFooter,
-  Modal,
-} from "@/components/ui/modal";
-import { useEffect, useState } from "react";
-import React from "react";
+import { db } from "@/firebase/firebaseConfig";
+import { addDoc, collection, deleteDoc, doc, getDocs, query, Timestamp, updateDoc, where } from "firebase/firestore";
+import React, { useEffect, useState } from "react";
+import { ScrollView } from "react-native";
 import { TextInput } from "react-native-gesture-handler";
-import { auth, db } from "@/firebase/firebaseConfig";
-import {
-  addDoc,
-  collection,
-  deleteDoc,
-  doc,
-  getDocs,
-  query,
-  Timestamp,
-  updateDoc,
-  where,
-} from "firebase/firestore";
-import { HStack } from "@/components/ui/hstack";
-import {
-  Checkbox,
-  CheckboxIndicator,
-  CheckboxIcon,
-} from "@/components/ui/checkbox";
-import { VStack } from "@/components/ui/vstack";
-import {
-  Avatar,
-  AvatarFallbackText,
-  AvatarBadge,
-} from "@/components/ui/avatar";
-import { Spinner } from "@/components/ui/spinner";
-import DateTimePicker from "@/components/DateTimePicker";
-import { Textarea, TextareaInput } from "@/components/ui/textarea";
 
 type tasktModalType = {
   visible: boolean;
@@ -74,15 +47,9 @@ export default function TaskEditModal({ visible, onClose }: tasktModalType) {
 
     // Initialize other fields
     if (currentTaskData) {
-      const taskStartDeadline =
-        currentTaskData.start && "toDate" in currentTaskData.start
-          ? currentTaskData.start.toDate()
-          : null;
+      const taskStartDeadline = currentTaskData.start && "toDate" in currentTaskData.start ? currentTaskData.start.toDate() : null;
 
-      const taskEndDeadline =
-        currentTaskData.end && "toDate" in currentTaskData.end
-          ? currentTaskData.end.toDate()
-          : null;
+      const taskEndDeadline = currentTaskData.end && "toDate" in currentTaskData.end ? currentTaskData.end.toDate() : null;
 
       setTempTitle(currentTaskData.title);
       setTempDescription(currentTaskData.description);
@@ -90,9 +57,7 @@ export default function TaskEditModal({ visible, onClose }: tasktModalType) {
       setTempEnd(taskEndDeadline);
 
       // Initialize assigned users for this project when modal opens
-      const assignedUids = assignedUser
-        .filter((a) => a.taskID === selectedTask)
-        .map((a) => a.uid);
+      const assignedUids = assignedUser.filter((a) => a.taskID === selectedTask).map((a) => a.uid);
 
       setTempAssigned(assignedUids);
     }
@@ -100,9 +65,7 @@ export default function TaskEditModal({ visible, onClose }: tasktModalType) {
 
   // Functions
   const updateTask = async () => {
-    if (!tempTitle.trim() || !tempDescription.trim() || !tempStart || !tempEnd)
-      return;
-    if (!selectedTask) return;
+    if (!tempTitle.trim() || !tempDescription.trim() || !tempStart || !tempEnd || !selectedTask) return;
 
     setIsSaving(true);
     try {
@@ -113,7 +76,7 @@ export default function TaskEditModal({ visible, onClose }: tasktModalType) {
 
       const taskRef = doc(db, "tasks", selectedTask);
 
-      const docRef = await updateDoc(taskRef, {
+      await updateDoc(taskRef, {
         title: tempTitle.trim(),
         description: tempDescription.trim(),
         projectID: selectedProject,
@@ -139,10 +102,11 @@ export default function TaskEditModal({ visible, onClose }: tasktModalType) {
       // (Optional) If you want to remove any existing assignments for this task (usually unnecessary for new ones)
       const q = query(userRef, where("taskID", "==", selectedTask));
       const snapshot = await getDocs(q);
+      // Expensive
       for (const docSnap of snapshot.docs) {
         await deleteDoc(docSnap.ref);
       }
-
+      // Expensive
       for (const uid of tempAssigned) {
         await addDoc(userRef, {
           taskID: selectedTask,
@@ -171,12 +135,9 @@ export default function TaskEditModal({ visible, onClose }: tasktModalType) {
               paddingBottom: 20,
               flexGrow: 1,
             }}
-            showsVerticalScrollIndicator={false}
-          >
+            showsVerticalScrollIndicator={false}>
             <Box style={{ margin: 5 }}>
-              <Text style={{ fontWeight: "bold", marginBottom: 5 }}>
-                Task Title
-              </Text>
+              <Text style={{ fontWeight: "bold", marginBottom: 5 }}>Task Title</Text>
               <TextInput
                 style={{
                   borderBottomWidth: 1,
@@ -192,15 +153,9 @@ export default function TaskEditModal({ visible, onClose }: tasktModalType) {
             </Box>
 
             <Box style={{ margin: 5 }}>
-              <Text style={{ fontWeight: "bold", marginBottom: 5 }}>
-                Task Description
-              </Text>
+              <Text style={{ fontWeight: "bold", marginBottom: 5 }}>Task Description</Text>
               <Textarea size="sm" isReadOnly={false} isInvalid={false}>
-                <TextareaInput
-                  placeholder="Enter the Task Description"
-                  value={tempDescription}
-                  onChangeText={setTempDescription}
-                />
+                <TextareaInput placeholder="Enter the Task Description" value={tempDescription} onChangeText={setTempDescription} />
               </Textarea>
             </Box>
 
@@ -210,28 +165,17 @@ export default function TaskEditModal({ visible, onClose }: tasktModalType) {
                 style={{
                   alignItems: "center",
                   justifyContent: "space-between",
-                }}
-              >
+                }}>
                 {/* Start */}
                 <Box style={{ flex: 1 }}>
-                  <DateTimePicker
-                    value={tempStart}
-                    onChange={setTempStart}
-                    mode="date"
-                    placeholder="Select a date and time"
-                  />
+                  <DateTimePicker value={tempStart} onChange={setTempStart} mode="date" placeholder="Select a date and time" />
                 </Box>
 
                 <Text style={{ marginHorizontal: 10, fontSize: 18 }}> - </Text>
 
                 {/* End */}
                 <Box style={{ flex: 1 }}>
-                  <DateTimePicker
-                    value={tempEnd}
-                    onChange={setTempEnd}
-                    mode="date"
-                    placeholder="Select a date and time"
-                  />
+                  <DateTimePicker value={tempEnd} onChange={setTempEnd} mode="date" placeholder="Select a date and time" />
                 </Box>
               </HStack>
             </Box>
@@ -248,8 +192,7 @@ export default function TaskEditModal({ visible, onClose }: tasktModalType) {
                   borderRadius: 8,
                   padding: 10,
                   backgroundColor: "#fff",
-                }}
-              >
+                }}>
                 {/* Header */}
                 <Box
                   style={{
@@ -257,35 +200,16 @@ export default function TaskEditModal({ visible, onClose }: tasktModalType) {
                     borderBottomWidth: 0,
                     borderBottomColor: "#000",
                     paddingBottom: 4,
-                  }}
-                >
+                  }}>
                   <Text style={{ marginLeft: 8 }}>Select Members</Text>
                 </Box>
 
                 {/* Members List */}
                 <VStack space="sm">
-                  {[
-                    "Project Manager",
-                    "UI/UX",
-                    "Fullstack Developer",
-                    "Front-End Developer",
-                    "Back-End Developer",
-                    "Mobile Developer",
-                    "Game Developer",
-                    "Quality Assurance",
-                    "Intern",
-                  ]
-                    .filter((role) =>
-                      profiles.some(
-                        (profile) =>
-                          profile.role?.toLowerCase() === role.toLowerCase()
-                      )
-                    )
+                  {["Project Manager", "UI/UX", "Fullstack Developer", "Front-End Developer", "Back-End Developer", "Mobile Developer", "Game Developer", "Quality Assurance", "Intern"]
+                    .filter((role) => profiles.some((profile) => profile.role?.toLowerCase() === role.toLowerCase()))
                     .map((role, i) => {
-                      const matchingProfiles = profiles.filter(
-                        (profile) =>
-                          profile.role?.toLowerCase() === role.toLowerCase()
-                      );
+                      const matchingProfiles = profiles.filter((profile) => profile.role?.toLowerCase() === role.toLowerCase());
 
                       return (
                         <View key={i}>
@@ -294,11 +218,8 @@ export default function TaskEditModal({ visible, onClose }: tasktModalType) {
                               alignItems: "center",
                               justifyContent: "space-between",
                               paddingVertical: 6,
-                            }}
-                          >
-                            <Text style={{ fontSize: 14, fontWeight: "bold" }}>
-                              {role}
-                            </Text>
+                            }}>
+                            <Text style={{ fontSize: 14, fontWeight: "bold" }}>{role}</Text>
                             <Divider
                               style={{
                                 flex: 1,
@@ -313,11 +234,7 @@ export default function TaskEditModal({ visible, onClose }: tasktModalType) {
                               const isChecked = tempAssigned.includes(p.uid);
 
                               const toggleCheck = () => {
-                                setTempAssigned((prev) =>
-                                  isChecked
-                                    ? prev.filter((uid) => uid !== p.uid)
-                                    : [...prev, p.uid]
-                                );
+                                setTempAssigned((prev) => (isChecked ? prev.filter((uid) => uid !== p.uid) : [...prev, p.uid]));
                               };
 
                               return (
@@ -326,8 +243,7 @@ export default function TaskEditModal({ visible, onClose }: tasktModalType) {
                                   style={{
                                     alignItems: "center",
                                     marginTop: 10,
-                                  }}
-                                >
+                                  }}>
                                   <Checkbox
                                     isChecked={isChecked}
                                     onChange={toggleCheck}
@@ -338,17 +254,14 @@ export default function TaskEditModal({ visible, onClose }: tasktModalType) {
                                       bottom: 10,
                                       left: 10,
                                       right: 10,
-                                    }}
-                                  >
+                                    }}>
                                     <CheckboxIndicator>
                                       <CheckboxIcon as={CheckIcon} />
                                     </CheckboxIndicator>
                                   </Checkbox>
 
                                   <Avatar size="sm" style={{ marginLeft: 8 }}>
-                                    <AvatarFallbackText>
-                                      {p.firstName}
-                                    </AvatarFallbackText>
+                                    <AvatarFallbackText>{p.firstName}</AvatarFallbackText>
                                     <AvatarBadge />
                                   </Avatar>
 
@@ -356,8 +269,7 @@ export default function TaskEditModal({ visible, onClose }: tasktModalType) {
                                     style={{
                                       fontSize: 13,
                                       marginLeft: 10,
-                                    }}
-                                  >
+                                    }}>
                                     {p.firstName} {p.lastName}
                                   </Text>
                                 </HStack>
@@ -373,18 +285,11 @@ export default function TaskEditModal({ visible, onClose }: tasktModalType) {
           </ScrollView>
         </ModalBody>
         <ModalFooter>
-          <Button
-            variant="outline"
-            action="secondary"
-            className="mr-3"
-            onPress={onClose}
-          >
+          <Button variant="outline" action="secondary" className="mr-3" onPress={onClose}>
             <ButtonText>Cancel</ButtonText>
           </Button>
           <Button onPress={updateTask}>
-            <ButtonText>
-              {isSaving ? <Spinner size="small" color="grey" /> : "Save"}
-            </ButtonText>
+            <ButtonText>{isSaving ? <Spinner size="small" color="grey" /> : "Save"}</ButtonText>
           </Button>
         </ModalFooter>
       </ModalContent>
