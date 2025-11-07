@@ -65,8 +65,7 @@ export default function TaskEditModal({ visible, onClose }: tasktModalType) {
 
   // Functions
   const updateTask = async () => {
-    if (!tempTitle.trim() || !tempDescription.trim() || !tempStart || !tempEnd) return;
-    if (!selectedTask) return;
+    if (!tempTitle.trim() || !tempDescription.trim() || !tempStart || !tempEnd || !selectedTask) return;
 
     setIsSaving(true);
     try {
@@ -77,7 +76,7 @@ export default function TaskEditModal({ visible, onClose }: tasktModalType) {
 
       const taskRef = doc(db, "tasks", selectedTask);
 
-      const docRef = await updateDoc(taskRef, {
+      await updateDoc(taskRef, {
         title: tempTitle.trim(),
         description: tempDescription.trim(),
         projectID: selectedProject,
@@ -103,10 +102,11 @@ export default function TaskEditModal({ visible, onClose }: tasktModalType) {
       // (Optional) If you want to remove any existing assignments for this task (usually unnecessary for new ones)
       const q = query(userRef, where("taskID", "==", selectedTask));
       const snapshot = await getDocs(q);
+      // Expensive
       for (const docSnap of snapshot.docs) {
         await deleteDoc(docSnap.ref);
       }
-
+      // Expensive
       for (const uid of tempAssigned) {
         await addDoc(userRef, {
           taskID: selectedTask,
