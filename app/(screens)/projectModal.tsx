@@ -6,6 +6,7 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
+  useWindowDimensions,
 } from "react-native";
 import { Text } from "@/components/ui/text";
 import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
@@ -83,9 +84,8 @@ import {
 import ProjectEditModal from "@/modals/projectEditModal";
 import TaskAddModal from "@/modals/taskAddModal";
 
-export default function Project() {
-  const { selectedProject, project, tasks, assignedUser, setSelectedTask } =
-    useProject();
+export default function ProjectModal() {
+  const { selectedProject, project, tasks, assignedUser, setSelectedTask } = useProject();
   const { profiles } = useUser();
   const currentProjectData = project.find((t) => t.id === selectedProject);
   const currentProjectTasks = tasks.filter(
@@ -96,6 +96,10 @@ export default function Project() {
       (a) => a.projectID === selectedProject && a.uid === profile.uid
     )
   );
+
+  const dimensions = useWindowDimensions(); 
+  const isLargeScreen = dimensions.width >= 1400; // computer UI condition
+  const isMediumScreen = dimensions.width <= 1400 && dimensions.width > 860; // tablet UI condition
 
   const pendingProject = project.filter(
     (t) => t.id === selectedProject && t.status === "Pending"
@@ -208,7 +212,7 @@ export default function Project() {
     if (!text) return "";
     const words = text.split(" ");
     return words.length > wordLimit
-      ? words.slice(0, wordLimit).join(" ") + " ..."
+      ? words.slice(0, wordLimit).join(" ") + " ...see more"
       : text;
   };
 
@@ -219,11 +223,13 @@ export default function Project() {
   // Pending Project
   if (pendingProject.length != 0) {
     return (
-      <View style={{ flex: 1, padding: 15 }}>
+    
+      <View style={{ flex: 1, padding: 15, backgroundColor: "black" }}>
         <HStack
           style={{
             borderWidth: 0,
             justifyContent: "space-between",
+            // backgroundColor: "black",
           }}
         >
           <Box>
@@ -233,7 +239,7 @@ export default function Project() {
                   as={ArrowLeftIcon}
                   className="text-typography-500 w-7 h-7 "
                 />
-                <Text style={{ fontSize: 23, fontWeight: "bold" }}>Back</Text>
+                <Text style={{ fontSize: 23, fontWeight: "bold", color: 'white' }}>Back</Text>
               </HStack>
             </Pressable>
           </Box>
@@ -249,81 +255,92 @@ export default function Project() {
                 style={{ marginLeft: 20, marginRight: 20 }}
               />
 
-              <Button action="positive" style={{ width: 150 }}>
+              <Button action="positive" style={{ width: 150, alignItems: "center", justifyContent: "center" }}>
                 <ButtonText>Deploy</ButtonText>
               </Button>
             </HStack>
           </Box>
         </HStack>
 
+{/* top section titel wit\d othes */}
+<View style={{  marginTop: 20, backgroundColor: '#1F1F1F' }}>
         <Box
           style={{
-            borderWidth: 0,
-            borderColor: "blue",
+            // borderWidth: 1,
+            // borderColor: "yellow",
+            alignItems: "stretch",
+            alignContent: "space-evenly",
             padding: 10,
+           
           }}
         >
-          <HStack>
+          <HStack style={{ flex: 1,  flexDirection: isLargeScreen ? "row" : isMediumScreen ? "row" : "column", }}>
             <View
               style={{
-                margin: 5,
-                borderWidth: 1,
-                borderColor: "gray",
+                margin: 4,
+                // borderWidth: 1,
+                // borderColor: "red",
                 borderRadius: 10,
                 padding: 10,
                 flex: 1,
+                backgroundColor: "#5C5C5C",
               }}
             >
-              <Box style={{ borderWidth: 0 }}>
-                <Text style={{ fontSize: 18, fontWeight: "bold" }}>
+              <Box style={{ borderWidth: 0, marginBottom: isLargeScreen ? 16 : 12 }}>
+                <Text style={{ fontSize: 24, fontWeight: "bold", color: "white" }}>
                   {currentProjectData.title}
                 </Text>
               </Box>
               <Box style={{ borderWidth: 0 }}>
-                <ScrollView>
+              
                   {descriptionPressed ? (
                     <Pressable onPress={() => setDescriptionPressed(false)}>
-                      <Text style={{ fontSize: 15 }}>
+                      <Text style={{ fontSize: 16, color: "white" }}>
                         {truncateWords(currentProjectData.description, 1000)}
                       </Text>
                     </Pressable>
                   ) : (
                     <Pressable onPress={() => setDescriptionPressed(true)}>
-                      <Text style={{ fontSize: 15 }}>
-                        {truncateWords(currentProjectData.description, 50)}
+                      <Text style={{ fontSize: 16, color: "#CDCCCC" }}>
+                        {truncateWords(currentProjectData.description, isLargeScreen ? 50 : isMediumScreen ? 30 : 15)}
                       </Text>
                     </Pressable>
                   )}
-                </ScrollView>
+               
               </Box>
             </View>
 
             <View
               style={{
-                margin: 5,
-                borderWidth: 1,
-                borderColor: "gray",
+                margin: 4,
+                // borderWidth: 5,
+                // borderColor: "#333333",
                 borderRadius: 10,
                 padding: 10,
                 flex: 1,
+                // alignContent: "flex-start",
+                alignItems: "flex-start",
+                backgroundColor: "#5C5C5C",
+  
               }}
             >
-              <VStack>
+              <VStack style={{ flex: 1, alignItems: "flex-start", justifyContent: "flex-start", paddingLeft: 8, gap: isLargeScreen ? 16 : 12 }}>
                 <HStack
                   style={{
-                    alignItems: "center",
+                    
+                    alignItems: "flex-start",
                     justifyContent: "space-between",
-                    paddingRight: 260,
-                    margin: 10,
+                    
+                    // borderWidth: 4,
                   }}
                 >
-                  <Box style={{ borderWidth: 0 }}>
-                    <Text style={{ fontSize: 18, fontWeight: "bold" }}>
+                  <Box style={{ borderWidth: 0, marginRight: isLargeScreen ? 32 : 20, alignItems: "flex-start" }}>
+                    <Text style={{ fontSize: 18, fontWeight: "bold", color: "white" }}>
                       Status
                     </Text>
                   </Box>
                   <Box style={{ borderWidth: 0 }}>
-                    <Text style={{ fontSize: 15, color: "gray" }}>
+                    <Text style={{ fontSize: 15, color: "white" }}>
                       {currentProjectData.status}
                     </Text>
                   </Box>
@@ -331,19 +348,19 @@ export default function Project() {
 
                 <HStack
                   style={{
-                    alignItems: "center",
+                    alignItems: "flex-start",
                     justifyContent: "space-between",
-                    paddingRight: 240,
-                    margin: 10,
+                  
+                    // borderWidth: 4,
                   }}
                 >
-                  <Box style={{ borderWidth: 0 }}>
-                    <Text style={{ fontSize: 18, fontWeight: "bold" }}>
+                  <Box style={{ borderWidth: 0, marginRight: isLargeScreen ? 32 : 20 }}>
+                    <Text style={{ fontSize: 18, fontWeight: "bold", color: "white" }}>
                       Deadline
                     </Text>
                   </Box>
                   <Box style={{ borderWidth: 0 }}>
-                    <Text style={{ fontSize: 15, color: "gray" }}>
+                    <Text style={{ fontSize: 15, color: "white" }}>
                       {currentProjectData.deadline
                         ?.toDate()
                         .toLocaleDateString()}
@@ -353,19 +370,20 @@ export default function Project() {
 
                 <HStack
                   style={{
-                    alignItems: "center",
+                    alignItems: "flex-start",
                     justifyContent: "space-between",
-                    paddingRight: 250,
-                    margin: 10,
+        
+                   
+                    // borderWidth: 4,
                   }}
                 >
-                  <Box style={{ borderWidth: 0 }}>
-                    <Text style={{ fontSize: 18, fontWeight: "bold" }}>
+                  <Box style={{ borderWidth: 0, marginRight: isLargeScreen ? 32 : 20 }}>
+                    <Text style={{ fontSize: 18, fontWeight: "bold", color: "white" }}>
                       Assigned Member
                     </Text>
                   </Box>
-                  <Box style={{ borderWidth: 0, marginLeft: 15 }}>
-                    <HStack>
+                  <Box style={{ borderWidth: 0, marginLeft: "auto" }}>   
+                    <HStack style={{ gap: 8 }}>
                       {profiles
                         .filter((p) =>
                           assignedUser.some(
@@ -379,7 +397,7 @@ export default function Project() {
                               <AvatarFallbackText>
                                 {t.firstName}
                               </AvatarFallbackText>
-
+ 
                               <AvatarBadge />
                             </Avatar>
                           );
@@ -508,7 +526,8 @@ export default function Project() {
             </View> */}
           </HStack>
         </Box>
-
+</View>
+{/* add task section */}
         <Box
           style={{
             borderWidth: 0,
@@ -520,7 +539,7 @@ export default function Project() {
           <HStack
             style={{ justifyContent: "space-between", alignItems: "center" }}
           >
-            <Text style={{ fontWeight: "bold", fontSize: 20 }}>Task</Text>
+            <Text style={{ fontWeight: "bold", fontSize: 20, color: "white" }}>Task</Text>
 
             <Button
               style={{ width: 120 }}
@@ -549,15 +568,17 @@ export default function Project() {
           {/* Task Window */}
           <ScrollView
             style={{
-              borderWidth: 0,
-              borderColor: "black",
+              // borderWidth: 2,
+              // borderColor: "blue",
               borderRadius: 15,
-              paddingLeft: 20,
-              paddingRight: 20,
+              paddingLeft: 12,
+              paddingRight: 12,
+              paddingTop: 12,
+              backgroundColor: "#ffffffff",
             }}
           >
             {currentProjectTasks.map((t) => (
-              <View key={t.id}>
+              <View key={t.id} style={{ backgroundColor: "transparent", margin: 0, padding: 4 }}>
                 <Pressable
                   onPress={() => {
                     setSelectedTask(t.id);
@@ -571,9 +592,10 @@ export default function Project() {
                       size="lg"
                       className="p-5 w-full m-1"
                       style={{
-                        borderRadius: 20,
+                        borderRadius: 12,
                         borderWidth: 1,
                         borderColor: isHover === t.id ? "black" : "",
+                        backgroundColor: "#CDCCCC",
                       }}
                     >
                       <HStack style={{ alignItems: "center" }} space="md">
@@ -600,13 +622,16 @@ export default function Project() {
 
                       <Divider orientation="vertical" /> */}
 
-                        <VStack style={{ flex: 1 }}>
+                        <VStack style={{ flex: 1, 
+                          
+                        }}>
                           <Text
                             style={{
                               padding: 4,
                               fontSize: 16,
                               flexWrap: "wrap",
                               fontWeight: "bold",
+                              color: "black",
                             }}
                           >
                             {t.title ? String(t.title) : ""}
@@ -784,10 +809,14 @@ export default function Project() {
           onClose={() => setShowAddTaskModal(false)}
         />
       </View>
+   
     );
   }
 
-  // Ongoing Project
+
+
+
+  // Ongoing Project THE TASK ARE....??????????????????????????????????????//
   return (
     <>
       <Box style={{ borderWidth: 0, width: 100 }}>
@@ -839,11 +868,13 @@ export default function Project() {
 
       <Box
         style={{
-          borderWidth: 0,
+          borderWidth: 2,
           paddingTop: 20,
           paddingLeft: 50,
           paddingRight: 50,
           marginBottom: 10,
+          // backgroundColor: "black",
+          // borderColor: "black",
         }}
       >
         <HStack
@@ -863,7 +894,7 @@ export default function Project() {
         </Progress>
       </Box>
 
-      <Box style={{ borderWidth: 0 }}>
+      <Box style={{ borderWidth: 0}}>
         <HStack
           style={{
             justifyContent: "space-between",

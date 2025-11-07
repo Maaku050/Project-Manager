@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Box } from "@/components/ui/box";
-import { Pressable, ScrollView, StyleSheet } from "react-native";
+import { Pressable, ScrollView, StyleSheet, useWindowDimensions } from "react-native";
 import { Text } from "@/components/ui/text";
 import { useRouter } from "expo-router";
 import { View } from "@/components/Themed";
@@ -10,7 +10,7 @@ import { Card } from "@/components/ui/card";
 import { Heading } from "@/components/ui/heading";
 import { HStack } from "@/components/ui/hstack";
 import { Divider } from "@/components/ui/divider";
-import { useWindowDimensions } from "react-native";
+// import { useWindowDimensions } from "react-native";
 import { VStack } from "@/components/ui/vstack";
 
 export default function Home() {
