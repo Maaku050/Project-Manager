@@ -36,9 +36,9 @@ export default function Sample() {
   const [description, setDescription] = useState("");
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
-  const dimensions = useWindowDimensions();
-  const isLargeScreen = dimensions.width >= 1400; // computer UI condition
-  const isMediumScreen = dimensions.width <= 1400 && dimensions.width > 860; // tablet UI condition
+    const dimensions = useWindowDimensions(); 
+    const isLargeScreen = dimensions.width >= 1280; // computer UI condition
+    const isMediumScreen = dimensions.width <= 1280 && dimensions.width > 768; // tablet UI condition
 
   const truncateWords = (text: string, wordLimit: number) => {
     const words = text.split(" ");

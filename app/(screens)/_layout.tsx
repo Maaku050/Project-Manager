@@ -10,8 +10,9 @@ import { UserProvider } from "@/context/profileContext";
 import { ProjectProvider } from "@/context/projectContext";
 
 export default function RootLayout() {
-  const dimensions = useWindowDimensions();
-  const isLargeScreen = dimensions.width >= 768;
+ const dimensions = useWindowDimensions();
+  const isLargeScreen = dimensions.width >= 1280; // computer UI condition
+  const isMediumScreen = dimensions.width <= 1280 && dimensions.width > 768; // tablet UI condition
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -20,25 +21,26 @@ export default function RootLayout() {
           <GluestackUIProvider mode="light">
             <Drawer
               screenOptions={{
-                drawerType: isLargeScreen ? "permanent" : "slide",
+                drawerType: isLargeScreen ? "permanent" : isMediumScreen ? "slide" : "slide",
                 drawerStyle: isLargeScreen
                   ? {
                       width: 240,
-                      backgroundColor: "#fff",
-                      borderRightWidth: 1,
-                      borderRightColor: "#ddd",
+                      backgroundColor: "#5C5C5C",
+                      borderRightWidth: 0,
+                      borderRightColor: "#ffffff",
                     }
                   : {
                       width: "70%",
-                      backgroundColor: "#fff",
+                      backgroundColor: "#5C5C5C",
                     },
                 headerShown: true,
                 drawerActiveTintColor: "#000",
-                drawerInactiveTintColor: "#777",
+                drawerInactiveTintColor: "#ffffff",
                 drawerActiveBackgroundColor: "#e0e0e0",
                 drawerLabelStyle: {
                   fontSize: isLargeScreen ? 16 : 14,
-                  fontWeight: "500",
+                  fontWeight: "bold",
+                  fontFamily: "roboto, arial",
                 },
               }}
             >

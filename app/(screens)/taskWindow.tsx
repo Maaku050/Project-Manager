@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Pressable, ScrollView } from "react-native";
+import { View, Text, Pressable, ScrollView, useWindowDimensions } from "react-native";
 import { useProject } from "@/context/projectContext";
 import { Box } from "@/components/ui/box";
 import { HStack } from "@/components/ui/hstack";
@@ -32,6 +32,10 @@ import TaskEditModal from "@/modals/taskEditModal";
 export default function TaskModal() {
   const { selectedProject, comment, tasks, selectedTask, assignedUser } =
     useProject();
+
+    const dimensions = useWindowDimensions(); 
+      const isLargeScreen = dimensions.width >= 1280; // computer UI condition
+      const isMediumScreen = dimensions.width <= 1280 && dimensions.width > 768; // tablet UI condition
 
   const { user, profile, profiles } = useUser();
 
@@ -203,8 +207,12 @@ export default function TaskModal() {
   }
 
   return (
-    <View style={{ flex: 1, paddingHorizontal: 20, paddingBottom: 10 }}>
-      <Box style={{ borderWidth: 0 }}>
+    <View style={{ flex: 1, 
+    paddingHorizontal: 20, 
+    paddingBottom: 10, 
+    backgroundColor: "#8f8f8fff", 
+    }}>
+      <Box style={{ borderWidth: 0, paddingTop: isLargeScreen ? 50 : isMediumScreen ? 30 : 10, paddingBottom: 10, marginTop: 12 }}>
         <HStack
           style={{ alignItems: "center", justifyContent: "space-between" }}
         >
@@ -218,8 +226,9 @@ export default function TaskModal() {
               <Icon
                 as={ArrowLeftIcon}
                 className="text-typography-500 w-7 h-6 mr-1 mt-1"
+                color="White"
               />
-              <Text style={{ fontSize: 25, fontWeight: "bold" }}>Back</Text>
+              <Text style={{ fontSize: 25, fontWeight: "bold", color: "#ffffff" }}>Back</Text>
             </HStack>
           </Pressable>
 
@@ -227,132 +236,58 @@ export default function TaskModal() {
             onPress={() => {
               setShowEditTaskModal(true);
             }}
+          color={"#ffffff"}
+            
           >
             <SquarePen />
           </Pressable>
         </HStack>
       </Box>
 
-      {/* {isEdit ? (
-        <View style={{ flex: 1, borderWidth: 1 }}>
-          <Box style={{ borderWidth: 1, alignItems: "flex-end" }}>
-            <Button
-              action="negative"
-              onPress={() => {
-                if (currentTask) {
-                  setTempTitle(currentTask.title ?? "");
-                  setTempDescription(currentTask.description ?? "");
-                  setTempStart(currentTask.start ?? null);
-                  setTempEnd(currentTask.end ?? null);
-                }
-
-                setIsEdit(false);
-              }}
-            >
-              <ButtonText>Cancel</ButtonText>
-            </Button>
-            <Button
-              action="positive"
-              onPress={() => {
-                handleSaveChanges();
-                setIsEdit(false);
-              }}
-            >
-              <ButtonText>Done</ButtonText>
-            </Button>
-          </Box>
-          <HStack style={{ flex: 1 }}>
-            <Box style={{ flex: 1, borderWidth: 1 }}>
-              <VStack style={{ flex: 1 }}>
-                <TextInput
-                  style={{
-                    padding: 8,
-                    textAlignVertical: "top",
-                  }}
-                  value={tempTitle}
-                  placeholder="Input the title here"
-                  onChangeText={setTempTitle}
-                />
-                <TextInput
-                  multiline
-                  scrollEnabled={false}
-                  onContentSizeChange={(e) =>
-                    setDescHeight(e.nativeEvent.contentSize.height)
-                  }
-                  style={{
-                    minHeight: 40,
-                    height: descHeight,
-                    padding: 8,
-                    textAlignVertical: "top",
-                  }}
-                  value={tempDescription}
-                  placeholder="Input the description here"
-                  onChangeText={setTempDescription}
-                />
-              </VStack>
-            </Box>
-            <Box style={{ flex: 1, borderWidth: 1 }}>
-              <VStack>
-                <Text>{currentTask?.status}</Text>
-                <HStack>
-                  <DateTimePicker
-                    value={tempStart ? tempStart.toDate() : null} // ✅ null, not undefined
-                    onChange={(date) =>
-                      setTempStart(date ? Timestamp.fromDate(date) : null)
-                    }
-                    mode="date"
-                    placeholder="Select a date and time"
-                  />
-
-                  <Text> - </Text>
-
-                  <DateTimePicker
-                    value={tempEnd ? tempEnd.toDate() : null}
-                    onChange={(date) =>
-                      setTempEnd(date ? Timestamp.fromDate(date) : null)
-                    }
-                    mode="date"
-                    placeholder="Select a date and time"
-                  />
-                </HStack>
-              </VStack>
-            </Box>
-          </HStack>
-        </View>
-      ) : ( */}
-
+{/* Top container */}
       <View
         style={{
-          borderWidth: 1,
+          borderWidth: 0,
           borderRadius: 8,
-          marginTop: 10,
+          marginTop: 12,
           paddingHorizontal: 20,
-          paddingVertical: 10,
+          paddingVertical: 12,
+          backgroundColor: "#1f1f1f",
+          height: "auto",
+          gap: 0,
         }}
-      >
-        <HStack>
-          <Box style={{ flex: 1, borderWidth: 0 }}>
+      >  
+
+{/* content container */}
+        <HStack style={{ 
+          // flex: 1, 
+          width: isLargeScreen ? "auto": "100%", 
+          flexDirection: isLargeScreen ? "row" : isMediumScreen ? "column" : "column",
+          borderWidth: 0,
+          gap: 8,
+          }}>  
+          <Box style={{ flex: 1, borderWidth: 0, padding: 20, backgroundColor: "#5C5C5C", borderRadius: 12 }}>  {/* Main Info Section */}
             <VStack>
-              <Text style={{ fontWeight: "bold", marginBottom: 5 }}>
+              <Text style={{fontSize: isLargeScreen ? 20 : isMediumScreen ? 20 : 16, fontWeight: "bold", marginBottom: 5, color: "#ffffff" }}>
                 Task title
               </Text>
-              <Text style={{ marginBottom: 5, fontSize: 15 }}>
+              <Text style={{ marginBottom: 5, fontSize: 12 , color: "#ffffff"}}>
                 {currentTask?.title}
               </Text>
-              <Text style={{ fontWeight: "bold", marginBottom: 5 }}>
+              <Text style={{fontSize: isLargeScreen ? 20 : isMediumScreen ? 20 : 16, fontWeight: "bold", marginBottom: 5, color: "#ffffff" }}>
                 Task description
               </Text>
-              <Box style={{ borderWidth: 0, paddingRight: 10 }}>
+              <Box style={{ borderWidth: 0, paddingRight: 10, color: "#ffffff" }}>
                 <ScrollView>
                   {descriptionPressed ? (
                     <Pressable onPress={() => setDescriptionPressed(false)}>
-                      <Text style={{ fontSize: 15 }}>
+                      <Text style={{ fontSize: 15, color: "#ffffff" }}>
                         {truncateWords(currentTask?.description, 1000)}
                       </Text>
                     </Pressable>
                   ) : (
                     <Pressable onPress={() => setDescriptionPressed(true)}>
-                      <Text style={{ fontSize: 15 }}>
+                      <Text style={{ fontSize: 15, color: "#ffffff" }}>
                         {truncateWords(currentTask?.description, 50)}
                       </Text>
                     </Pressable>
@@ -362,7 +297,8 @@ export default function TaskModal() {
             </VStack>
           </Box>
 
-          <Box style={{ flex: 1, borderWidth: 0 }}>
+              {/* status and timeline section */}
+          <Box style={{ flex: 1,  backgroundColor: "#5C5C5C", borderWidth: 0, padding: 20, gap: 10, borderRadius: 12 }}>
             <Box
               style={{
                 flex: 1,
@@ -372,7 +308,7 @@ export default function TaskModal() {
             >
               <HStack>
                 <Box style={{ flex: 1 }}>
-                  <Text style={{ fontWeight: "bold" }}>Status</Text>
+                  <Text style={{ fontWeight: "bold", fontSize: isLargeScreen ? 20 : isMediumScreen ? 20 : 16, color: "#ffffff" }}>Status</Text>
                 </Box>
                 <Box style={{ flex: 2 }}>
                   <HStack
@@ -380,8 +316,8 @@ export default function TaskModal() {
                       alignItems: "center",
                     }}
                   >
-                    <Clock4 size={25} />
-                    <Text style={{ marginLeft: 15 }}>
+                    <Clock4 size={25} color={"#ffffff"}/>
+                    <Text style={{ marginLeft: 15, color: "#ffffff" }}>
                       {currentTask?.status}
                     </Text>
                   </HStack>
@@ -398,12 +334,12 @@ export default function TaskModal() {
             >
               <HStack>
                 <Box style={{ flex: 1 }}>
-                  <Text style={{ fontWeight: "bold" }}>Time Line</Text>
+                  <Text style={{ fontWeight: "bold", fontSize: isLargeScreen ? 20 : isMediumScreen ? 20 : 16, color: "#ffffff" }}>Time Line</Text>
                 </Box>
                 <Box style={{ flex: 2 }}>
                   <HStack>
-                    <CalendarDays size={25} />
-                    <Text style={{ marginLeft: 15 }}>
+                    <CalendarDays size={25} color={"#ffffff"} />
+                    <Text style={{ marginLeft: 15, color: "#ffffff" }}>
                       {currentTask?.start
                         ? currentTask.start
                             .toDate()
@@ -414,8 +350,8 @@ export default function TaskModal() {
                             })
                         : "No start date"}
                     </Text>
-                    <Text> - </Text>
-                    <Text>
+                    <Text style={{color: "white"}}> - </Text>
+                    <Text style={{ marginLeft: 15, color: "#ffffff" }}>
                       {currentTask?.end
                         ? currentTask.end.toDate().toLocaleDateString("en-US", {
                             year: "numeric",
@@ -436,9 +372,9 @@ export default function TaskModal() {
                 alignContent: "center",
               }}
             >
-              <HStack>
+              <HStack style={{ alignItems: "center", paddingBottom: 12, marginBottom: 12, paddingTop: 12 }}>
                 <Box style={{ flex: 1 }}>
-                  <Text style={{ fontWeight: "bold" }}>Assigned Members</Text>
+                  <Text style={{ fontWeight: "bold", fontSize: isLargeScreen ? 20 : isMediumScreen ? 20 : 16, color: "#ffffff",  }}>Assigned Members</Text>
                 </Box>
                 <Box style={{ flex: 2 }}>
                   <HStack>
@@ -475,14 +411,15 @@ export default function TaskModal() {
       <View
         style={{
           flex: 1,
-          borderWidth: 1,
+          // borderWidth: 1,
           borderRadius: 8,
-          marginTop: 10,
+          marginTop: 12,
           paddingHorizontal: 20,
           paddingVertical: 10,
+          backgroundColor: isLargeScreen ? "#5C5C5C" : isMediumScreen ? "#5C5C5C" : "#1f1f1f",
         }}
       >
-        <Text style={{ fontWeight: "bold" }}>Comments</Text>
+        <Text style={{ fontSize: isLargeScreen ? 20 : 16, fontWeight: "bold", fontFamily: "roboto", color: "#ffffff"  }}>Comments</Text>
         <Box style={{ borderWidth: 0 }}>
           <HStack style={{ alignItems: "center" }}>
             <Avatar size="sm" style={{ position: "absolute", marginLeft: 15 }}>
@@ -492,11 +429,12 @@ export default function TaskModal() {
 
             <TextInput
               style={{
-                borderWidth: 1,
+                borderWidth: isLargeScreen ? 2 : 1,
+                borderColor: "#cccccc",
                 borderRadius: 8,
                 height: 45,
                 outlineWidth: 1,
-                color: "#000000ff",
+                color: "#ffffff",
                 flex: 1,
                 paddingLeft: 55,
               }}
