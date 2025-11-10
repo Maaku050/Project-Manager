@@ -151,11 +151,11 @@ export default function ProjectEditModal({
   return (
     <Modal isOpen={visible} onClose={onClose} size="lg">
       <ModalBackdrop />
-      <ModalContent>
+      <ModalContent style={{backgroundColor: "#1f1f1f", borderWidth: 0}}>
         <ModalHeader>
-          <Heading size="lg">Edit Project</Heading>
+          <Heading size="lg" style={{color: "#ffffff"}}>Edit Project</Heading>
           <ModalCloseButton>
-            <Icon as={CloseIcon} />
+            <Icon as={CloseIcon} color="white"/>
           </ModalCloseButton>
         </ModalHeader>
         <ModalBody>
@@ -168,15 +168,16 @@ export default function ProjectEditModal({
             showsVerticalScrollIndicator={false}
           >
             <Box style={{ margin: 5 }}>
-              <Text style={{ fontWeight: "bold", marginBottom: 5 }}>
+              <Text style={{ fontWeight: "bold", marginBottom: 5, color: "#cdcccc" }}>
                 Project Title
               </Text>
               <TextInput
                 style={{
                   borderBottomWidth: 1,
-                  borderColor: "#000",
+                  borderColor: "#fff",
                   paddingVertical: 8,
                   fontSize: 16,
+                  color: "#ffffffff",
                 }}
                 placeholder="Enter your Project Title"
                 placeholderTextColor="#999"
@@ -186,11 +187,12 @@ export default function ProjectEditModal({
             </Box>
 
             <Box style={{ margin: 5 }}>
-              <Text style={{ fontWeight: "bold", marginBottom: 5 }}>
+              <Text style={{ fontWeight: "bold", marginBottom: 5, color: "#cdcccc" }}>
                 Project Description
               </Text>
-              <Textarea size="sm" isReadOnly={false} isInvalid={false}>
+              <Textarea size="sm" isReadOnly={false} isInvalid={false} style={{height: 200}}>
                 <TextareaInput
+                style={{color: "#000000", backgroundColor: "#ffffff"}}
                   placeholder="Enter your Project Description"
                   defaultValue={currentProjectData?.description}
                   onChangeText={setTempDescription}
@@ -199,7 +201,7 @@ export default function ProjectEditModal({
             </Box>
 
             <Box style={{ margin: 5 }}>
-              <Text style={{ fontWeight: "bold" }}>Project Deadline</Text>
+              <Text style={{ fontWeight: "bold", color: "#cdcccc" }}>Project Deadline</Text>
               <DateTimePicker
                 value={tempDeadline ? tempDeadline : projectDeadline}
                 onChange={setTempDeadline}
@@ -210,12 +212,12 @@ export default function ProjectEditModal({
 
             {/* Members */}
             <Box style={{ margin: 5 }}>
-              <Text style={{ fontWeight: "bold" }}>Project Members</Text>
+              <Text style={{ fontWeight: "bold", color: "#cdcccc" }}>Project Members</Text>
 
               <Box
                 style={{
                   marginTop: 10,
-                  borderWidth: 1,
+                  // borderWidth: 1,
                   borderColor: "#ccc",
                   borderRadius: 8,
                   padding: 10,

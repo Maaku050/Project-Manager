@@ -121,10 +121,11 @@ export default function Home() {
           alignItems: isLargeScreen ? 'flex-start' : isMediumScreen ? "flex-start" : 'center',  // create another condition for alignItems
           flexDirection: isLargeScreen ? 'row' : isMediumScreen ? 'row' : 'column', 
           flexWrap: 'wrap', 
-          columnGap: isLargeScreen ? 8 : 0,
-          rowGap: isLargeScreen ? 8 : 4,
-          paddingLeft: isLargeScreen ? 20 : isMediumScreen ? 28 : 0,
-          
+          // columnGap: isLargeScreen ? 4 : 0,
+          // rowGap: isLargeScreen ? 4 : 0,
+          paddingLeft: isLargeScreen ? 20 : isMediumScreen ? 120 : 0,
+          paddingBottom: isLargeScreen ? 20 : isMediumScreen ? 12 : 32,
+          paddingRight: isLargeScreen ? 20 : isMediumScreen ? 0 : 0,
           }}>
           {project.map((t) => (
             <Card  variant="outline" className="m-3" key={t.id} 
@@ -135,13 +136,16 @@ export default function Home() {
               // justifyContent:'flex-start',
               // alignItems: 'flex-start',
               // flexWrap: 'wrap',
+              marginBottom: 0,
+              marginRight: -2,
+              marginLeft: 12,
               paddingTop: 12, 
-              paddingLeft: 12, 
+              paddingLeft: isLargeScreen ? 12 : isMediumScreen ? 20 : 8, 
               paddingRight: 12, 
               paddingBottom: 32,
               height: isLargeScreen ? 140 : isMediumScreen ? 180 : 120, 
               backgroundColor: 'white', 
-              borderRadius: 12
+              borderRadius: isLargeScreen ? 12 : isMediumScreen ? 12 : 8,
               }}>
               <Pressable
                 // onPress={() => {

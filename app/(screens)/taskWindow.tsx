@@ -7,6 +7,7 @@ import { Icon, ArrowLeftIcon } from "@/components/ui/icon";
 import { router } from "expo-router";
 import { VStack } from "@/components/ui/vstack";
 import { Card } from "@/components/ui/card";
+import { Divider } from "@/components/ui/divider";
 import { CalendarDays, Clock4, SquarePen } from "lucide-react-native";
 import { Button, ButtonText } from "@/components/ui/button";
 import { TextInput } from "react-native-gesture-handler";
@@ -28,6 +29,7 @@ import {
   AvatarFallbackText,
 } from "@/components/ui/avatar";
 import TaskEditModal from "@/modals/taskEditModal";
+import { Colors } from "@/constants/Colors";
 
 export default function TaskModal() {
   const { selectedProject, comment, tasks, selectedTask, assignedUser } =
@@ -143,7 +145,7 @@ export default function TaskModal() {
     });
 
   const [isEdit, setIsEdit] = useState(false);
-  const [descHeight, setDescHeight] = useState(40);
+  // const [descHeight, setDescHeight] = useState(40);
   const [isComment, setIsComment] = useState("");
 
   const [tempTitle, setTempTitle] = useState<string>("");
@@ -152,6 +154,8 @@ export default function TaskModal() {
   const [tempEnd, setTempEnd] = useState<Timestamp | null>(null);
   const [descriptionPressed, setDescriptionPressed] = useState(false);
   const [showEditTaskModal, setShowEditTaskModal] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+
 
   const handleSaveChanges = async () => {
     if (
@@ -210,37 +214,51 @@ export default function TaskModal() {
     <View style={{ flex: 1, 
     paddingHorizontal: 20, 
     paddingBottom: 10, 
-    backgroundColor: "#8f8f8fff", 
+    backgroundColor: "#000000ff", 
     }}>
-      <Box style={{ borderWidth: 0, paddingTop: isLargeScreen ? 50 : isMediumScreen ? 30 : 10, paddingBottom: 10, marginTop: 12 }}>
+      
+      {/* <View style={{backgroundColor: isLargeScreen ? "#1F1F1F" : isMediumScreen ? "#1F1F1F" : "transparent", margin: 12, padding: isLargeScreen ? 12 : isMediumScreen ? 12 : 8, borderRadius: 12}}> */}
+      <Box style={{ borderWidth: 0, paddingTop: isLargeScreen ? 12 : isMediumScreen ? 12 : 8, paddingBottom: 10, marginTop: 0 }}>
         <HStack
           style={{ alignItems: "center", justifyContent: "space-between" }}
         >
           <Pressable
             onPress={() => {
               setIsEdit(false);
-              router.replace("/(screens)/projectWindow");
+              router.replace("/projectWindow");
             }}
           >
-            <HStack style={{ alignItems: "center" }}>
+            <HStack style={{ alignItems: "center", alignContent: "center"}}>
               <Icon
                 as={ArrowLeftIcon}
                 className="text-typography-500 w-7 h-6 mr-1 mt-1"
-                color="White"
+                color="#ffffff"
               />
               <Text style={{ fontSize: 25, fontWeight: "bold", color: "#ffffff" }}>Back</Text>
             </HStack>
-          </Pressable>
-
-          <Pressable
-            onPress={() => {
-              setShowEditTaskModal(true);
-            }}
-          color={"#ffffff"}
             
-          >
-            <SquarePen />
           </Pressable>
+          <HStack style={{alignContent: "space-between", alignItems: "center"}}>
+          <Pressable onPress={() => {setShowEditTaskModal(true);}}>
+            <SquarePen color={"#ffffff"} />
+          </Pressable>
+              
+              
+           <Divider orientation="vertical" style={{ marginLeft: 20, marginRight: 20, borderColor: "#ffffff42", borderWidth: 1, height: 30 }}/>
+
+               
+          <Button
+              action="positive"
+              style={{
+                width: 150,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <ButtonText style={{fontSize: 20, fontWeight: "bold"}}>Done</ButtonText>
+          </Button>
+          </HStack>
+
         </HStack>
       </Box>
 
@@ -412,11 +430,12 @@ export default function TaskModal() {
         style={{
           flex: 1,
           // borderWidth: 1,
+          borderColor: "#5C5C5C",
           borderRadius: 8,
           marginTop: 12,
           paddingHorizontal: 20,
           paddingVertical: 10,
-          backgroundColor: isLargeScreen ? "#5C5C5C" : isMediumScreen ? "#5C5C5C" : "#1f1f1f",
+          backgroundColor: isLargeScreen ? "#5C5C5C" : isMediumScreen ? "#5C5C5C" : "#1F1F1F",
         }}
       >
         <Text style={{ fontSize: isLargeScreen ? 20 : 16, fontWeight: "bold", fontFamily: "roboto", color: "#ffffff"  }}>Comments</Text>
@@ -461,13 +480,18 @@ export default function TaskModal() {
             marginTop: 5,
           }}
         >
-          <ScrollView>
+          <ScrollView style={{ height: "100%", marginBottom: 8, backgroundColor: "transparent"}}>
             {currentTaskComments.map((t) => {
               const user = profiles.find((a) => a.uid === t.uid);
               return (
-                <Card key={t.id} style={{ borderRadius: 0 }}>
-                  <HStack>
-                    <Box>
+              
+                <Card key={t.id} style={{ borderRadius: 0, backgroundColor: isLargeScreen ? "#00000052" : isMediumScreen ? "#00000052" : "transparent", marginBottom: -20}}>
+                  <Pressable  
+                   onHoverIn={() => setIsHovered(true)}
+                   onHoverOut={() => setIsHovered(false)} 
+                  >  
+                 <HStack style={{backgroundColor: isHovered ? "#353535cc" : "transparent", padding: 12, height: "auto"}}>
+                    <Box >
                       <Avatar size="sm">
                         <AvatarFallbackText>
                           {user?.firstName}
@@ -482,7 +506,7 @@ export default function TaskModal() {
                           alignItems: "center",
                         }}
                       >
-                        <Text style={{ fontWeight: "bold" }}>
+                        <Text style={{ fontWeight: "bold", color: "#ffffff" }}>
                           {user?.firstName} {user?.lastName}{" "}
                         </Text>
                         <Text style={{ fontSize: 12, color: "#999" }}>
@@ -496,16 +520,19 @@ export default function TaskModal() {
                         </Text>
                       </HStack>
 
-                      <Text>{t.text}</Text>
+                      <Text style={{color: "#CDCCCC"}}>{t.text}</Text>
                     </Box>
                   </HStack>
+                  </Pressable>
                 </Card>
+                
               );
             })}
           </ScrollView>
         </Box>
       </View>
 
+{/* </View> */}
       <TaskEditModal
         visible={showEditTaskModal}
         onClose={() => setShowEditTaskModal(false)}
