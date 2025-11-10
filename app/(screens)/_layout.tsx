@@ -51,14 +51,14 @@ export default function RootLayout() {
               />
               <Drawer.Screen name="project" options={{ title: "Project" }} />
               <Drawer.Screen
-                name="projectModal"
+                name="projectWindow"
                 options={{
                   title: "Project",
                   drawerItemStyle: { display: "none" },
                 }}
               />
               <Drawer.Screen
-                name="taskModal"
+                name="taskWindow"
                 options={{
                   title: "Task",
                   drawerItemStyle: { display: "none" },
