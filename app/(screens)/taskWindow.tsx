@@ -211,7 +211,7 @@ export default function TaskModal() {
           <Pressable
             onPress={() => {
               setIsEdit(false);
-              router.replace("/(screens)/projectModal");
+              router.replace("/(screens)/projectWindow");
             }}
           >
             <HStack style={{ alignItems: "center" }}>
