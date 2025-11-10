@@ -18,7 +18,7 @@ import {
   ModalFooter,
   Modal,
 } from "@/components/ui/modal";
-import { useState} from "react";
+import { useState } from "react";
 // import {  } from "react-native";
 import React from "react";
 import { TextInput } from "react-native-gesture-handler";
@@ -36,10 +36,9 @@ export default function Sample() {
   const [description, setDescription] = useState("");
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
-    const dimensions = useWindowDimensions(); 
-     const isLargeScreen = dimensions.width >= 1400; // computer UI condition
-     const isMediumScreen = dimensions.width <= 1400 && dimensions.width > 860; // tablet UI condition
-
+  const dimensions = useWindowDimensions();
+  const isLargeScreen = dimensions.width >= 1400; // computer UI condition
+  const isMediumScreen = dimensions.width <= 1400 && dimensions.width > 860; // tablet UI condition
 
   const truncateWords = (text: string, wordLimit: number) => {
     const words = text.split(" ");
@@ -79,22 +78,32 @@ export default function Sample() {
 
   return (
     <>
-      <ScrollView style={{
-        backgroundColor: '#000000',
-        padding: isLargeScreen ? 16 : isMediumScreen ? 12 : 8
-      }}>
+      <ScrollView
+        style={{
+          backgroundColor: "#000000",
+          padding: isLargeScreen ? 16 : isMediumScreen ? 12 : 8,
+        }}
+      >
         <Box style={{ margin: 10 }}>
-          <Heading style={{
-             fontSize: 32,
-             color: 'white',
-             fontFamily: 'roboto, arial',
-             fontWeight: 'bold'
-           }}>Projects</Heading>
-          <Text style={{ 
-            fontSize: 12,
-            fontFamily: 'roboto, arial',
-            color: 'white'
-            }}>Manage and track your project</Text>
+          <Heading
+            style={{
+              fontSize: 32,
+              color: "white",
+              fontFamily: "roboto, arial",
+              fontWeight: "bold",
+            }}
+          >
+            Projects
+          </Heading>
+          <Text
+            style={{
+              fontSize: 12,
+              fontFamily: "roboto, arial",
+              color: "white",
+            }}
+          >
+            Manage and track your project
+          </Text>
         </Box>
         <Box style={{ alignItems: "flex-end", padding: 10 }}>
           <Button style={{ width: 150 }} onPress={() => setShowModal(true)}>
@@ -102,64 +111,91 @@ export default function Sample() {
           </Button>
         </Box>
 
-
-
-
-
-        <Divider orientation="horizontal" style={{ marginTop: isLargeScreen ? 12 : isMediumScreen ? 8 : 4, borderColor: '#1F1F1F', borderWidth: 4, borderRadius: 8}} />
-        <View style={{
-          // backgroundColor: 'white', 
-          marginTop: 10,
-           marginBottom: 30, 
-           height: 'auto', 
-           borderRadius: 12, 
-             flexDirection: isLargeScreen ? 'row' : isMediumScreen ? 'row' : 'column',
-             justifyContent: isLargeScreen ? 'flex-start' : isMediumScreen ? 'flex-start' : 'flex-start',
-             alignItems: isLargeScreen ? 'center' : isMediumScreen ? 'flex-start' : 'flex-start',
-             flexWrap: 'wrap',
-             padding: 12,
-             
-           }}>
-        {project.map((t) => (
-          <Card size="md" variant="outline" className="m-3" key={t.id}
-          style={{ 
-            backgroundColor: 'white',
-             marginBottom: 8, 
-             marginTop: 8, 
-             borderRadius: 12,  
-             width: isLargeScreen ? "30%" : isMediumScreen ? "40%" : "90%",
-             height: isLargeScreen ? 140 : isMediumScreen ? 180 : 120,
-             padding: 12
-            }}
-          >
-            <Pressable
-              onPress={() => {
-                setSelectedProject(t.id);
-                router.push("/projectModal"); // or open modal directly
+        <Divider
+          orientation="horizontal"
+          style={{
+            marginTop: isLargeScreen ? 12 : isMediumScreen ? 8 : 4,
+            borderColor: "#1F1F1F",
+            borderWidth: 4,
+            borderRadius: 8,
+          }}
+        />
+        <View
+          style={{
+            // backgroundColor: 'white',
+            marginTop: 10,
+            marginBottom: 30,
+            height: "auto",
+            borderRadius: 12,
+            flexDirection: isLargeScreen
+              ? "row"
+              : isMediumScreen
+              ? "row"
+              : "column",
+            justifyContent: isLargeScreen
+              ? "flex-start"
+              : isMediumScreen
+              ? "flex-start"
+              : "flex-start",
+            alignItems: isLargeScreen
+              ? "center"
+              : isMediumScreen
+              ? "flex-start"
+              : "flex-start",
+            flexWrap: "wrap",
+            padding: 12,
+          }}
+        >
+          {project.map((t) => (
+            <Card
+              size="md"
+              variant="outline"
+              className="m-3"
+              key={t.id}
+              style={{
+                backgroundColor: "white",
+                marginBottom: 8,
+                marginTop: 8,
+                borderRadius: 12,
+                width: isLargeScreen ? "30%" : isMediumScreen ? "40%" : "90%",
+                height: isLargeScreen ? 140 : isMediumScreen ? 180 : 120,
+                padding: 12,
               }}
-              onHoverIn={() => setHoveredId(t.id)}
-              onHoverOut={() => setHoveredId(null)}
             >
-              <Heading
-                size="md"
-                className="mb-1"
-                style={{
-                  textDecorationLine: hoveredId === t.id ? "underline" : "none",
-                  color: 'black'
+              <Pressable
+                onPress={() => {
+                  setSelectedProject(t.id);
+                  router.push("/projectWindow"); // or open modal directly
                 }}
+                onHoverIn={() => setHoveredId(t.id)}
+                onHoverOut={() => setHoveredId(null)}
               >
-                {t.title}
-              </Heading>
-            </Pressable>
+                <Heading
+                  size="md"
+                  className="mb-1"
+                  style={{
+                    textDecorationLine:
+                      hoveredId === t.id ? "underline" : "none",
+                    color: "black",
+                  }}
+                >
+                  {t.title}
+                </Heading>
+              </Pressable>
 
-            <Text style={{ fontWeight: "black" }}>
-              Created by: {createdByFunction(t.createdBy)}
-            </Text>
-            <Text size="sm">{truncateWords(t.description, 15)}</Text>
-          </Card>
-        ))}
+              <Text style={{ fontWeight: "black" }}>
+                Created by: {createdByFunction(t.createdBy)}
+              </Text>
+              <Text size="sm">{truncateWords(t.description, 15)}</Text>
+            </Card>
+          ))}
         </View>
       </ScrollView>
+
+      <ProjectAddModal
+        visible={showModal}
+        onClose={() => setShowModal(false)}
+      />
     </>
   );
 }
