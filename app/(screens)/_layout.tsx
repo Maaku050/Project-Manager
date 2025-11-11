@@ -8,6 +8,8 @@ import "@/global.css";
 
 import { UserProvider } from "@/context/profileContext";
 import { ProjectProvider } from "@/context/projectContext";
+import { Colors } from "@/constants/Colors";
+import { colorScheme } from "nativewind";
 
 export default function RootLayout() {
  const dimensions = useWindowDimensions();
@@ -15,23 +17,23 @@ export default function RootLayout() {
   const isMediumScreen = dimensions.width <= 1280 && dimensions.width > 768; // tablet UI condition
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView style={{ flex: 1, }}>
       <UserProvider>
         <ProjectProvider>
-          <GluestackUIProvider mode="light">
+          <GluestackUIProvider mode="light" >
             <Drawer
               screenOptions={{
                 drawerType: isLargeScreen ? "permanent" : isMediumScreen ? "slide" : "slide",
                 drawerStyle: isLargeScreen
                   ? {
                       width: 240,
-                      backgroundColor: "#5C5C5C",
+                      backgroundColor: "#1F1F1F",
                       borderRightWidth: 0,
                       borderRightColor: "#ffffff",
                     }
                   : {
                       width: "70%",
-                      backgroundColor: "#5C5C5C",
+                      backgroundColor: "#1F1F1F",
                     },
                 headerShown: true,
                 drawerActiveTintColor: "#000",
@@ -44,19 +46,12 @@ export default function RootLayout() {
                 },
               }}
             >
-              <Drawer.Screen name="index" options={{ title: "Home" }} />
-              <Drawer.Screen
-                name="dashboard"
-                options={{ title: "Dashboard" }}
-              />
+              
+              {/* headerBackground:{"#000000ff"} */}
+              <Drawer.Screen name="index" options={{ title: "Home"}}/>
+              <Drawer.Screen name="dashboard" options={{ title: "Dashboard" }}/>
               <Drawer.Screen name="project" options={{ title: "Project" }} />
-              <Drawer.Screen
-                name="projectWindow"
-                options={{
-                  title: "Project",
-                  drawerItemStyle: { display: "none" },
-                }}
-              />
+              <Drawer.Screen name="projectWindow" options={{title: "Project", drawerItemStyle: { display: "none"}, }}/>
               <Drawer.Screen
                 name="taskWindow"
                 options={{
