@@ -24,12 +24,16 @@ interface UserContextType {
   user: any;
   profile: Profile | null;
   profiles: Profile[];
+  selectedEmployee: string | null;
+  setSelectedEmployee: (id: string | null) => void;
 }
 
 const UserContext = createContext<UserContextType>({
   user: null,
   profile: null,
   profiles: [],
+  selectedEmployee: null,
+  setSelectedEmployee: () => {},
 });
 
 export const useUser = () => useContext(UserContext);
@@ -38,6 +42,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [selectedEmployee, setSelectedEmployee] = useState<string | null>(null);
 
   useEffect(() => {
     console.log("UserContext mounted");
@@ -85,7 +90,9 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   return (
-    <UserContext.Provider value={{ user, profile, profiles }}>
+    <UserContext.Provider
+      value={{ user, profile, profiles, selectedEmployee, setSelectedEmployee }}
+    >
       {children}
     </UserContext.Provider>
   );

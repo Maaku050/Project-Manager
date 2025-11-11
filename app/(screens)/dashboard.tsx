@@ -1,6 +1,11 @@
 import React, { useState } from "react";
 import { Box } from "@/components/ui/box";
-import { Pressable, ScrollView, StyleSheet, useWindowDimensions } from "react-native";
+import {
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  useWindowDimensions,
+} from "react-native";
 import { Text } from "@/components/ui/text";
 import { useRouter } from "expo-router";
 import { View } from "@/components/Themed";
@@ -12,11 +17,16 @@ import { HStack } from "@/components/ui/hstack";
 import { Divider } from "@/components/ui/divider";
 // import { useWindowDimensions } from "react-native";
 import { VStack } from "@/components/ui/vstack";
+import {
+  Avatar,
+  AvatarBadge,
+  AvatarFallbackText,
+} from "@/components/ui/avatar";
 
 export default function Home() {
   const router = useRouter();
   const { profiles } = useUser();
-  const { project } = useProject();
+  const { project, setSelectedProject, assignedUser } = useProject();
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   const dimensions = useWindowDimensions();
@@ -35,7 +45,6 @@ export default function Home() {
     return name?.nickName;
   };
 
-  const myProject = project.filter((t) => {});
   return (
     <>
       {isLargeScreen ? (
@@ -49,15 +58,26 @@ export default function Home() {
           }}
         >
           <Box style={styles.HstackContainer}>
+            <Text>
+              {project.filter((t) => t.status === "Completed").length}
+            </Text>
             <Text>Completed</Text>
           </Box>
           <Box style={styles.HstackContainer}>
-            <Text>In progress</Text>
+            <Text>{project.filter((t) => t.status === "Ongoing").length}</Text>
+            <Text>In Progress</Text>
           </Box>
           <Box style={styles.HstackContainer}>
-            <Text>To Do</Text>
-          </Box>
-          <Box style={styles.HstackContainer}>
+            <Text>
+              {
+                project.filter(
+                  (t) =>
+                    t.status !== "Completed" &&
+                    t.deadline &&
+                    t.deadline.toDate() < new Date()
+                ).length
+              }
+            </Text>
             <Text>Overdue</Text>
           </Box>
         </HStack>
@@ -71,20 +91,27 @@ export default function Home() {
         >
           <VStack>
             <HStack>
-              <Box style={styles.VstackContainer}>
-                <Text>Completed</Text>
+              <Box style={styles.HstackContainer}>
+                <Text>
+                  {project.filter((t) => t.status === "Completed").length}
+                </Text>
               </Box>
-              <Box style={styles.VstackContainer}>
-                <Text>In progress</Text>
+              <Box style={styles.HstackContainer}>
+                <Text>
+                  {project.filter((t) => t.status === "Ongoing").length}
+                </Text>
               </Box>
-            </HStack>
-
-            <HStack>
-              <Box style={styles.VstackContainer}>
-                <Text>To Do</Text>
-              </Box>
-              <Box style={styles.VstackContainer}>
-                <Text>Overdue</Text>
+              <Box style={styles.HstackContainer}>
+                <Text>
+                  {
+                    project.filter(
+                      (t) =>
+                        t.status !== "Completed" &&
+                        t.deadline &&
+                        t.deadline.toDate() < new Date()
+                    ).length
+                  }
+                </Text>
               </Box>
             </HStack>
           </VStack>
@@ -114,31 +141,64 @@ export default function Home() {
 
           <ScrollView>
             {project.map((t) => (
-              <Card size="md" variant="outline" className="m-3" key={t.id}>
+              <Card size="sm" variant="outline" className="m-3" key={t.id}>
                 <Pressable
-                  // onPress={() => {
-                  //   setSelectedProject(t.id);
-                  //   router.push("/projectModal"); // or open modal directly
-                  // }}
+                  onPress={() => {
+                    setSelectedProject(t.id);
+                    router.push("/projectWindow"); // or open modal directly
+                  }}
                   onHoverIn={() => setHoveredId(t.id)}
                   onHoverOut={() => setHoveredId(null)}
                 >
-                  <Heading
-                    size="md"
-                    className="mb-1"
-                    style={{
-                      textDecorationLine:
-                        hoveredId === t.id ? "underline" : "none",
-                    }}
-                  >
-                    {t.title}
-                  </Heading>
-                </Pressable>
+                  <HStack style={{ flex: 1 }}>
+                    <Box style={{ borderWidth: 1 }}>
+                      <Heading
+                        size="md"
+                        className="mb-1"
+                        style={{
+                          textDecorationLine:
+                            hoveredId === t.id ? "underline" : "none",
+                        }}
+                      >
+                        {t.title}
+                      </Heading>
+                    </Box>
+                    <Box
+                      style={{
+                        borderWidth: 1,
+                        flex: 1,
+                        alignContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      {t.status}
+                    </Box>
+                    <Box style={{ borderWidth: 1, flex: 1 }}>
+                      <HStack style={{ gap: 8 }}>
+                        {profiles
+                          .filter((p) =>
+                            assignedUser.some(
+                              (a) => a.projectID === t.id && a.uid === p.uid
+                            )
+                          )
+                          .map((t) => {
+                            return (
+                              <Avatar size="sm" key={t.id}>
+                                <AvatarFallbackText>
+                                  {t.firstName}
+                                </AvatarFallbackText>
 
-                <Text style={{ fontWeight: "black" }}>
-                  Created by: {createdByFunction(t.createdBy)}
-                </Text>
-                <Text size="sm">{truncateWords(t.description, 30)}</Text>
+                                <AvatarBadge />
+                              </Avatar>
+                            );
+                          })}
+                      </HStack>
+                    </Box>
+                    <Box style={{ borderWidth: 1, flex: 1 }}>
+                      {t.deadline?.toDate().toLocaleDateString()}
+                    </Box>
+                  </HStack>
+                </Pressable>
               </Card>
             ))}
           </ScrollView>
