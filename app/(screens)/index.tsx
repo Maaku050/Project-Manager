@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Box } from "@/components/ui/box";
 import { Pressable, ScrollView, useWindowDimensions } from "react-native";
 import { Text } from "@/components/ui/text";
@@ -19,12 +19,20 @@ import { Heading } from "@/components/ui/heading";
 export default function Home() {
   const router = useRouter();
   const { user, profile, profiles } = useUser();
-  const { project, tasks, comment, assignedUser } = useProject();
+  const { project, assignedUser, setSelectedProject } = useProject();
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   const dimensions = useWindowDimensions();
   const isLargeScreen = dimensions.width >= 1280; // computer UI condition
   const isMediumScreen = dimensions.width <= 1280 && dimensions.width > 768; // tablet UI condition
+
+  const currentUserProjects = project.filter((p) =>
+    assignedUser.some((a) => p.id === a.projectID && a.uid === profile?.uid)
+  );
+
+  useEffect(() => {
+    console.log("Home current user projects: ", currentUserProjects);
+  }, []);
 
   const truncateWords = (text: string, wordLimit: number) => {
     const words = text.split(" ");
@@ -41,15 +49,36 @@ export default function Home() {
 
   const myProject = project.filter((t) => {});
   return (
-    <ScrollView style={{ backgroundColor: '#000000ff' }}>
+    <ScrollView style={{ backgroundColor: "#000000ff" }}>
       {/* <View style={{ marginLeft: 50, marginRight: 50, marginTop: 20 }}>
         <Text>{profile ? profile.nickName : ""}</Text>
       </View> */}
-        <Box style={{ marginTop: 20, marginLeft: isLargeScreen ? 80 : isMediumScreen ? 40 : 12, marginRight: isLargeScreen ? 80 : isMediumScreen ? 40 : 12, padding: 10, borderRadius: 12, backgroundColor: '#1F1F1F', height: isLargeScreen ? 60 : 50, justifyContent: 'center', alignItems: 'flex-start'}}>
-            {/* <Image></Image> */}
-             <Text style={{ fontSize: isLargeScreen ? 20 : 16, color: 'white', fontWeight: 'bold', fontFamily: 'roboto, arial' }}>Welcome Home, {profile ? profile.nickName : ""}!</Text>
-        </Box>
-      
+      <Box
+        style={{
+          marginTop: 20,
+          marginLeft: isLargeScreen ? 80 : isMediumScreen ? 40 : 12,
+          marginRight: isLargeScreen ? 80 : isMediumScreen ? 40 : 12,
+          padding: 10,
+          borderRadius: 12,
+          backgroundColor: "#1F1F1F",
+          height: isLargeScreen ? 60 : 50,
+          justifyContent: "center",
+          alignItems: "flex-start",
+        }}
+      >
+        {/* <Image></Image> */}
+        <Text
+          style={{
+            fontSize: isLargeScreen ? 20 : 16,
+            color: "white",
+            fontWeight: "bold",
+            fontFamily: "roboto, arial",
+          }}
+        >
+          Welcome Home, {profile ? profile.nickName : ""}!
+        </Text>
+      </Box>
+
       <View
         style={{
           alignItems: "center",
@@ -59,18 +88,22 @@ export default function Home() {
           paddingTop: 40,
           paddingBottom: 40,
           borderRadius: 12,
-          backgroundColor: '#1F1F1F',
+          backgroundColor: "#1F1F1F",
         }}
       >
-       
-
-
         <Box
           style={{
             marginBottom: 20,
           }}
         >
-          <Text style={{ fontSize: isLargeScreen ? 25 : 20, color: 'white', fontWeight: 'bold', fontFamily: 'roboto, arial' }}>
+          <Text
+            style={{
+              fontSize: isLargeScreen ? 25 : 20,
+              color: "white",
+              fontWeight: "bold",
+              fontFamily: "roboto, arial",
+            }}
+          >
             {profile
               ? profile.firstName +
                 ' "' +
@@ -97,7 +130,14 @@ export default function Home() {
           </Avatar>
         </Box>
         <Box>
-          <Text style={{ fontSize: isLargeScreen ? 16 : 12, color: 'white', fontWeight: 'bold', fontFamily: 'roboto, arial' }}>
+          <Text
+            style={{
+              fontSize: isLargeScreen ? 16 : 12,
+              color: "white",
+              fontWeight: "bold",
+              fontFamily: "roboto, arial",
+            }}
+          >
             {profile?.role}{" "}
           </Text>
         </Box>
@@ -108,46 +148,82 @@ export default function Home() {
           marginLeft: isLargeScreen ? 80 : isMediumScreen ? 40 : 12,
           marginRight: isLargeScreen ? 80 : isMediumScreen ? 40 : 12,
           marginTop: 20,
-          backgroundColor: '#1F1F1F',
+          backgroundColor: "#1F1F1F",
           borderRadius: 12,
           flex: 1,
         }}
       >
-        <Box style={{ marginTop: 20, marginBottom: 12, marginLeft: 20, flex: 1, alignItems: "flex-start", justifyContent: "flex-start"}}>
-          <Text style={{fontSize: isLargeScreen ? 24 : 20, color: 'white', fontWeight: 'bold', fontFamily: 'roboto, arial', flex: 1}}>My Project</Text>
+        <Box
+          style={{
+            marginTop: 20,
+            marginBottom: 12,
+            marginLeft: 20,
+            flex: 1,
+            alignItems: "flex-start",
+            justifyContent: "flex-start",
+          }}
+        >
+          <Text
+            style={{
+              fontSize: isLargeScreen ? 24 : 20,
+              color: "white",
+              fontWeight: "bold",
+              fontFamily: "roboto, arial",
+              flex: 1,
+            }}
+          >
+            My Project
+          </Text>
         </Box>
-        <Box  style={{
-          justifyContent: isLargeScreen ? 'flex-start' : isMediumScreen ? "flex-start" : 'center', // create another condition for justifyContent
-          alignItems: isLargeScreen ? 'flex-start' : isMediumScreen ? "flex-start" : 'center',  // create another condition for alignItems
-          flexDirection: isLargeScreen ? 'row' : isMediumScreen ? 'row' : 'column', 
-          flexWrap: 'wrap', 
-          columnGap: isLargeScreen ? 8 : 0,
-          rowGap: isLargeScreen ? 8 : 4,
-          paddingLeft: isLargeScreen ? 20 : isMediumScreen ? 28 : 0,
-          
-          }}>
-          {project.map((t) => (
-            <Card  variant="outline" className="m-3" key={t.id} 
-            style={{ 
-              width: isLargeScreen ? "30%" : isMediumScreen ? "40%" : "90%",
-              // justifyItems: isLargeScreen ? 'center' : 'center',
-              // flexDirection: 'row',
-              // justifyContent:'flex-start',
-              // alignItems: 'flex-start',
-              // flexWrap: 'wrap',
-              paddingTop: 12, 
-              paddingLeft: 12, 
-              paddingRight: 12, 
-              paddingBottom: 32,
-              height: isLargeScreen ? 140 : isMediumScreen ? 180 : 120, 
-              backgroundColor: 'white', 
-              borderRadius: 12
-              }}>
+        <Box
+          style={{
+            justifyContent: isLargeScreen
+              ? "flex-start"
+              : isMediumScreen
+              ? "flex-start"
+              : "center", // create another condition for justifyContent
+            alignItems: isLargeScreen
+              ? "flex-start"
+              : isMediumScreen
+              ? "flex-start"
+              : "center", // create another condition for alignItems
+            flexDirection: isLargeScreen
+              ? "row"
+              : isMediumScreen
+              ? "row"
+              : "column",
+            flexWrap: "wrap",
+            columnGap: isLargeScreen ? 8 : 0,
+            rowGap: isLargeScreen ? 8 : 4,
+            paddingLeft: isLargeScreen ? 20 : isMediumScreen ? 28 : 0,
+          }}
+        >
+          {currentUserProjects.map((t) => (
+            <Card
+              variant="outline"
+              className="m-3"
+              key={t.id}
+              style={{
+                width: isLargeScreen ? "30%" : isMediumScreen ? "40%" : "90%",
+                // justifyItems: isLargeScreen ? 'center' : 'center',
+                // flexDirection: 'row',
+                // justifyContent:'flex-start',
+                // alignItems: 'flex-start',
+                // flexWrap: 'wrap',
+                paddingTop: 12,
+                paddingLeft: 12,
+                paddingRight: 12,
+                paddingBottom: 32,
+                height: isLargeScreen ? 140 : isMediumScreen ? 180 : 120,
+                backgroundColor: "white",
+                borderRadius: 12,
+              }}
+            >
               <Pressable
-                // onPress={() => {
-                //   setSelectedProject(t.id);
-                //   router.push("/projectModal"); // or open modal directly
-                // }}
+                onPress={() => {
+                  setSelectedProject(t.id);
+                  router.push("/projectWindow"); // or open modal directly
+                }}
                 onHoverIn={() => setHoveredId(t.id)}
                 onHoverOut={() => setHoveredId(null)}
               >
@@ -155,8 +231,8 @@ export default function Home() {
                   size="md"
                   className="mb-1"
                   style={{
-                  textDecorationLine:
-                    hoveredId === t.id ? "underline" : "none",
+                    textDecorationLine:
+                      hoveredId === t.id ? "underline" : "none",
                   }}
                 >
                   {t.title}
@@ -166,10 +242,17 @@ export default function Home() {
               {/* <Text style={{ fontWeight: "black", marginBottom: 5 }}>
                 Created by: {createdByFunction(t.createdBy)}
               </Text> */}
-              <Text style={{
-                fontSize: isLargeScreen ? 14 : isMediumScreen ? 12 : 12,
-                // flexWrap: 'wrap',
-              }}>{truncateWords(t.description, isLargeScreen ? 15 : isMediumScreen ? 12 : 15)}</Text>
+              <Text
+                style={{
+                  fontSize: isLargeScreen ? 14 : isMediumScreen ? 12 : 12,
+                  // flexWrap: 'wrap',
+                }}
+              >
+                {truncateWords(
+                  t.description,
+                  isLargeScreen ? 15 : isMediumScreen ? 12 : 15
+                )}
+              </Text>
             </Card>
           ))}
         </Box>

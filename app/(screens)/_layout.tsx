@@ -10,7 +10,7 @@ import { UserProvider } from "@/context/profileContext";
 import { ProjectProvider } from "@/context/projectContext";
 
 export default function RootLayout() {
- const dimensions = useWindowDimensions();
+  const dimensions = useWindowDimensions();
   const isLargeScreen = dimensions.width >= 1280; // computer UI condition
   const isMediumScreen = dimensions.width <= 1280 && dimensions.width > 768; // tablet UI condition
 
@@ -21,7 +21,11 @@ export default function RootLayout() {
           <GluestackUIProvider mode="light">
             <Drawer
               screenOptions={{
-                drawerType: isLargeScreen ? "permanent" : isMediumScreen ? "slide" : "slide",
+                drawerType: isLargeScreen
+                  ? "permanent"
+                  : isMediumScreen
+                  ? "slide"
+                  : "slide",
                 drawerStyle: isLargeScreen
                   ? {
                       width: 240,
@@ -50,6 +54,7 @@ export default function RootLayout() {
                 options={{ title: "Dashboard" }}
               />
               <Drawer.Screen name="project" options={{ title: "Project" }} />
+              <Drawer.Screen name="employee" options={{ title: "Employee" }} />
               <Drawer.Screen
                 name="projectWindow"
                 options={{
@@ -61,6 +66,13 @@ export default function RootLayout() {
                 name="taskWindow"
                 options={{
                   title: "Task",
+                  drawerItemStyle: { display: "none" },
+                }}
+              />
+              <Drawer.Screen
+                name="employee-window"
+                options={{
+                  title: "Employee",
                   drawerItemStyle: { display: "none" },
                 }}
               />
