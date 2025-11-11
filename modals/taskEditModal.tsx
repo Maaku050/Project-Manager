@@ -121,11 +121,11 @@ export default function TaskEditModal({ visible, onClose }: tasktModalType) {
   return (
     <Modal isOpen={visible} onClose={onClose} size="lg">
       <ModalBackdrop />
-      <ModalContent>
+      <ModalContent style={{backgroundColor: "#1f1f1f", borderWidth: 0}}>
         <ModalHeader>
-          <Heading size="lg">Edit Task</Heading>
+          <Heading size="lg" style={{color: "#ffffffff"}}>Edit Task</Heading>
           <ModalCloseButton>
-            <Icon as={CloseIcon} />
+            <Icon as={CloseIcon} color="white"/>
           </ModalCloseButton>
         </ModalHeader>
         <ModalBody>
@@ -137,13 +137,14 @@ export default function TaskEditModal({ visible, onClose }: tasktModalType) {
             }}
             showsVerticalScrollIndicator={false}>
             <Box style={{ margin: 5 }}>
-              <Text style={{ fontWeight: "bold", marginBottom: 5 }}>Task Title</Text>
+              <Text style={{ fontWeight: "bold", marginBottom: 5, color: "#cdcccccc" }}>Task Title</Text>
               <TextInput
                 style={{
                   borderBottomWidth: 1,
-                  borderColor: "#000",
+                  borderColor: "#ffffffff",
                   paddingVertical: 8,
                   fontSize: 16,
+                  color: "#ffffffff",
                 }}
                 placeholder="Enter the Task Title"
                 placeholderTextColor="#999"
@@ -153,14 +154,17 @@ export default function TaskEditModal({ visible, onClose }: tasktModalType) {
             </Box>
 
             <Box style={{ margin: 5 }}>
-              <Text style={{ fontWeight: "bold", marginBottom: 5 }}>Task Description</Text>
+              <Text style={{ fontWeight: "bold", marginBottom: 5, color: "#cdcccccc" }}>Task Description</Text>
               <Textarea size="sm" isReadOnly={false} isInvalid={false}>
-                <TextareaInput placeholder="Enter the Task Description" value={tempDescription} onChangeText={setTempDescription} />
+                <TextareaInput placeholder="Enter the Task Description" value={tempDescription} onChangeText={setTempDescription} 
+                style={{
+                  backgroundColor: "#ffffff"
+                }} />
               </Textarea>
             </Box>
 
             <Box style={{ margin: 5 }}>
-              <Text style={{ fontWeight: "bold" }}>Task Deadline</Text>
+              <Text style={{ fontWeight: "bold", color: "#cdcccccc" }}>Task Deadline</Text>
               <HStack
                 style={{
                   alignItems: "center",
@@ -182,7 +186,7 @@ export default function TaskEditModal({ visible, onClose }: tasktModalType) {
 
             {/* Members */}
             <Box style={{ margin: 5 }}>
-              <Text style={{ fontWeight: "bold" }}>Task Members</Text>
+              <Text style={{ fontWeight: "bold", color: "#cdcccccc" }}>Task Members</Text>
 
               <Box
                 style={{
@@ -201,7 +205,7 @@ export default function TaskEditModal({ visible, onClose }: tasktModalType) {
                     borderBottomColor: "#000",
                     paddingBottom: 4,
                   }}>
-                  <Text style={{ marginLeft: 8 }}>Select Members</Text>
+                  <Text style={{ marginLeft: 8, color: "#000000ff"}}>Select Members</Text>
                 </Box>
 
                 {/* Members List */}

@@ -612,6 +612,7 @@ export default function ProjectWindow() {
   // Ongoing Project
   return (
     <View style={{ flex: 1, padding: 15, backgroundColor: "black" }}>
+     <View style={{ flex: 1, padding: 15, backgroundColor: "#1F1F1F", borderRadius: 12 }}> 
       <HStack
         style={{
           borderWidth: 0,
@@ -638,15 +639,15 @@ export default function ProjectWindow() {
         <Box style={{ borderWidth: 0 }}>
           <HStack style={{ alignItems: "center" }}>
             <Pressable onPress={() => setShowEditProjectModal(true)}>
-              <SquarePen color={"gray"} />
+              <SquarePen color={"white"} />
             </Pressable>
 
-            <Divider
+            {/* <Divider
               orientation="vertical"
               style={{ marginLeft: 20, marginRight: 20 }}
-            />
+            /> */}
 
-            <Button
+            {/* <Button
               action="positive"
               style={{
                 width: 150,
@@ -655,12 +656,12 @@ export default function ProjectWindow() {
               }}
             >
               <ButtonText>Deploy</ButtonText>
-            </Button>
+            </Button> */}
           </HStack>
         </Box>
       </HStack>
 
-      <View style={{ marginTop: 20, backgroundColor: "#1F1F1F" }}>
+      <View style={{ marginTop: 20, backgroundColor: "transparent" }}>
         <Box
           style={{
             // borderWidth: 1,
@@ -668,11 +669,14 @@ export default function ProjectWindow() {
             alignItems: "stretch",
             alignContent: "space-evenly",
             padding: 10,
+            height: "auto",
           }}
         >
           <HStack
             style={{
+              // borderWidth: 3,
               flex: 1,
+              height: "auto",
               flexDirection: isLargeScreen
                 ? "row"
                 : isMediumScreen
@@ -685,10 +689,11 @@ export default function ProjectWindow() {
                 margin: 4,
                 // borderWidth: 1,
                 // borderColor: "red",
-                borderRadius: 10,
+                borderRadius: 12,
                 padding: 10,
                 flex: 1,
                 backgroundColor: "#5C5C5C",
+                height: "auto",
               }}
             >
               <Box
@@ -703,16 +708,16 @@ export default function ProjectWindow() {
                   {currentProjectData.title}
                 </Text>
               </Box>
-              <Box style={{ borderWidth: 0 }}>
+              <Box style={{ borderWidth: 0, }}>
                 {descriptionPressed ? (
                   <Pressable onPress={() => setDescriptionPressed(false)}>
-                    <Text style={{ fontSize: 16, color: "white" }}>
+                    <Text style={{ fontSize: 16, color: "white", marginTop: 4}}>
                       {truncateWords(currentProjectData.description, 1000)}
                     </Text>
                   </Pressable>
                 ) : (
-                  <Pressable onPress={() => setDescriptionPressed(true)}>
-                    <Text style={{ fontSize: 16, color: "#CDCCCC" }}>
+                  <Pressable onPress={() => setDescriptionPressed(true)} >
+                    <Text style={{ fontSize: 16, color: "#CDCCCC", marginTop: 4 }}>
                       {truncateWords(
                         currentProjectData.description,
                         isLargeScreen ? 50 : isMediumScreen ? 30 : 15
@@ -731,7 +736,7 @@ export default function ProjectWindow() {
                 borderRadius: 10,
                 padding: 10,
                 flex: 1,
-                // alignContent: "flex-start",
+                // alignContent: "center",
                 alignItems: "flex-start",
                 backgroundColor: "#5C5C5C",
               }}
@@ -749,7 +754,6 @@ export default function ProjectWindow() {
                   style={{
                     alignItems: "flex-start",
                     justifyContent: "space-between",
-
                     // borderWidth: 4,
                   }}
                 >
@@ -835,7 +839,7 @@ export default function ProjectWindow() {
                     </Text>
                   </Box>
                   <Box style={{ borderWidth: 0, marginLeft: "auto" }}>
-                    <HStack style={{ gap: 8 }}>
+                    <HStack style={{ gap: isLargeScreen ? 8 : 4 }}>
                       {profiles
                         .filter((p) =>
                           assignedUser.some(
@@ -881,7 +885,7 @@ export default function ProjectWindow() {
             marginBottom: 10,
           }}
         >
-          <Text style={{ fontSize: 20, fontWeight: "bold" }}>Task</Text>
+          <Text style={{ fontSize: 20, fontWeight: "bold", color: "#ffff"}}>Task</Text>
           <Button onPress={() => setShowAddTaskModal(true)}>
             <ButtonText>Add Task</ButtonText>
           </Button>
@@ -1022,7 +1026,7 @@ export default function ProjectWindow() {
                   <Pressable
                     onPress={() => {
                       setSelectedTask(t.id);
-                      router.push("/(screens)/taskWindow");
+                      router.push("/taskWindow");
                     }}
                     onHoverIn={() => setIsHover(t.id)}
                     onHoverOut={() => setIsHover(null)}
@@ -1132,6 +1136,9 @@ export default function ProjectWindow() {
           </Box>
         </HStack>
       </Box>
+      </View>
+
+
 
       <Modal
         isOpen={showTodoConfirmationModal}

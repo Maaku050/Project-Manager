@@ -86,13 +86,14 @@ export default function DateTimePicker({
     };
 
     return (
-      <View style={[styles.container, { position: "relative" }]}>
+      <View style={[styles.container, { position: "relative"}]}>
         {label ? <Text style={styles.label}>{label}</Text> : null}
         <View
           style={{
             position: "relative",
             display: "contents",
             alignItems: "center",
+            
           }}
         >
           <input
@@ -108,10 +109,12 @@ export default function DateTimePicker({
             }
             disabled={loading}
             style={{
-              padding: 10,
-              borderRadius: 6,
+              color: "#ffffff",
+              padding: 12,
+              borderRadius: 8,
               borderWidth: 1,
-              borderColor: "#ccc",
+              borderColor: "#ffffffff",
+              backgroundColor: "#1f1f1f",
               outline: "none",
               opacity: loading ? 0.6 : 1,
             }}

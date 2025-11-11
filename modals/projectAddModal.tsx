@@ -47,6 +47,7 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import DateTimePicker from "@/components/DateTimePicker";
 import { Textarea, TextareaInput } from "@/components/ui/textarea";
+import { red } from "react-native-reanimated/lib/typescript/Colors";
 
 type projectModalType = {
   visible: boolean;
@@ -139,13 +140,13 @@ export default function ProjectAddModal({
   };
 
   return (
-    <Modal isOpen={visible} onClose={onClose} size="lg">
+    <Modal isOpen={visible} onClose={onClose} size="lg" >
       <ModalBackdrop />
-      <ModalContent>
+      <ModalContent style={{borderColor: "red", borderWidth: 0, backgroundColor: "#1f1f1f", paddingLeft: 20}}>
         <ModalHeader>
-          <Heading size="lg">Add Project</Heading>
+          <Heading size="lg" style={{color: "#ffffff"}}>Add Project</Heading>
           <ModalCloseButton>
-            <Icon as={CloseIcon} />
+            <Icon as={CloseIcon} color="#ffffff" />
           </ModalCloseButton>
         </ModalHeader>
         <ModalBody>
@@ -158,15 +159,16 @@ export default function ProjectAddModal({
             showsVerticalScrollIndicator={false}
           >
             <Box style={{ margin: 5 }}>
-              <Text style={{ fontWeight: "bold", marginBottom: 5 }}>
+              <Text style={{ fontWeight: "bold", marginBottom: 5, color: "#ffffff" }}>
                 Project Title
               </Text>
               <TextInput
                 style={{
                   borderBottomWidth: 1,
-                  borderColor: "#000",
+                  borderColor: "#ffffffff",
                   paddingVertical: 8,
                   fontSize: 16,
+                  color:"#ffffff",
                 }}
                 placeholder="Enter your Project Title"
                 placeholderTextColor="#999"
@@ -176,10 +178,14 @@ export default function ProjectAddModal({
             </Box>
 
             <Box style={{ margin: 5 }}>
-              <Text style={{ fontWeight: "bold", marginBottom: 5 }}>
+              <Text style={{ fontWeight: "bold", marginBottom: 5, color: "#ffffff" }}>
                 Project Description
               </Text>
-              <Textarea size="sm" isReadOnly={false} isInvalid={false}>
+              <Textarea size="sm" isReadOnly={false} isInvalid={false} 
+              style={{
+                backgroundColor: "#ffffff",
+                // borderColor: "#cdcccc"
+              }}>
                 <TextareaInput
                   placeholder="Enter your Project Description"
                   value={tempDescription}
@@ -189,7 +195,7 @@ export default function ProjectAddModal({
             </Box>
 
             <Box style={{ margin: 5 }}>
-              <Text style={{ fontWeight: "bold" }}>Project Deadline</Text>
+              <Text style={{ fontWeight: "bold", color: "#ffffff"  }}>Project Deadline</Text>
               <DateTimePicker
                 value={tempDeadline}
                 onChange={setTempDeadline}
@@ -200,7 +206,7 @@ export default function ProjectAddModal({
 
             {/* Members */}
             <Box style={{ margin: 5 }}>
-              <Text style={{ fontWeight: "bold" }}>Project Members</Text>
+              <Text style={{ fontWeight: "bold",  color: "#ffffff"  }}>Project Members</Text>
 
               <Box
                 style={{
