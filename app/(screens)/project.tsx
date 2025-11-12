@@ -3,42 +3,37 @@ import { Pressable, ScrollView, useWindowDimensions, View } from "react-native";
 import { Text } from "@/components/ui/text";
 import { Button, ButtonText } from "@/components/ui/button";
 import { useRouter } from "expo-router";
-import { CloseIcon, Icon } from "@/components/ui/icon";
 import { useUser } from "@/context/profileContext";
 import { useProject } from "@/context/projectContext";
 import { Card } from "@/components/ui/card";
 import { Heading } from "@/components/ui/heading";
 import { Divider } from "@/components/ui/divider";
-import {
-  ModalBackdrop,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  ModalFooter,
-  Modal,
-} from "@/components/ui/modal";
 import { useState } from "react";
-// import {  } from "react-native";
 import React from "react";
-import { TextInput } from "react-native-gesture-handler";
 import { db, auth } from "@/firebase/firebaseConfig";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
-import { isValidRubberBandConfig } from "react-native-reanimated/lib/typescript/animation/decay/utils";
+import { addDoc, collection } from "firebase/firestore";
 import ProjectAddModal from "@/modals/projectAddModal";
+import {
+  Avatar,
+  AvatarFallbackText,
+  AvatarBadge,
+} from "@/components/ui/avatar";
+import { HStack } from "@/components/ui/hstack";
+import { Progress, ProgressFilledTrack } from "@/components/ui/progress";
+import { VStack } from "@/components/ui/vstack";
 
 export default function Sample() {
   const router = useRouter();
   const { profiles } = useUser();
-  const { project, setSelectedProject } = useProject();
+  const { project, setSelectedProject, tasks, assignedUser } = useProject();
   const [showModal, setShowModal] = useState(false);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [hoveredId, setHoveredId] = useState<string | null>(null);
-  
-    const dimensions = useWindowDimensions(); 
-    const isLargeScreen = dimensions.width >= 1280; // computer UI condition
-    const isMediumScreen = dimensions.width <= 1280 && dimensions.width > 768; // tablet UI condition
+
+  const dimensions = useWindowDimensions();
+  const isLargeScreen = dimensions.width >= 1280; // computer UI condition
+  const isMediumScreen = dimensions.width <= 1280 && dimensions.width > 768; // tablet UI condition
 
   const truncateWords = (text: string, wordLimit: number) => {
     const words = text.split(" ");
@@ -74,6 +69,26 @@ export default function Sample() {
 
     setTitle("");
     setDescription("");
+  };
+
+  const progressCalculation = (projectID: string) => {
+    const currentProjectTasks = tasks.filter((t) => t.projectID === projectID);
+
+    const ongoingTasks = currentProjectTasks.filter(
+      (t) => t.status === "Ongoing"
+    );
+
+    const completedTasks = currentProjectTasks.filter(
+      (t) => t.status === "Completed"
+    );
+
+    const totalTasks = currentProjectTasks.length;
+
+    const progress =
+      ((ongoingTasks.length * 0.5 + completedTasks.length * 1) / totalTasks) *
+      100;
+
+    return progress;
   };
 
   return (
@@ -182,11 +197,48 @@ export default function Sample() {
                   {t.title}
                 </Heading>
               </Pressable>
+              <HStack>
+                <Box style={{ flex: 1, borderWidth: 0 }}>
+                  <VStack>
+                    <Text style={{ color: "black" }}>
+                      {progressCalculation(t.id).toFixed(0)}%
+                    </Text>
+                    <Progress
+                      value={progressCalculation(t.id)}
+                      size="xs"
+                      orientation="horizontal"
+                    >
+                      <ProgressFilledTrack />
+                    </Progress>
+                  </VStack>
+                </Box>
+                <Box
+                  style={{
+                    flex: 1,
+                    borderWidth: 0,
+                  }}
+                >
+                  <HStack style={{ justifyContent: "flex-end" }}>
+                    {profiles
+                      .filter((p) =>
+                        assignedUser.some(
+                          (a) => a.projectID === t.id && a.uid === p.uid
+                        )
+                      )
+                      .map((t) => {
+                        return (
+                          <Avatar size="sm" key={t.id}>
+                            <AvatarFallbackText>
+                              {t.firstName}
+                            </AvatarFallbackText>
 
-              <Text style={{ fontWeight: "black" }}>
-                Created by: {createdByFunction(t.createdBy)}
-              </Text>
-              <Text size="sm">{truncateWords(t.description, 15)}</Text>
+                            <AvatarBadge />
+                          </Avatar>
+                        );
+                      })}
+                  </HStack>
+                </Box>
+              </HStack>
             </Card>
           ))}
         </View>

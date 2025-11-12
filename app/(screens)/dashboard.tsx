@@ -15,18 +15,18 @@ import { Card } from "@/components/ui/card";
 import { Heading } from "@/components/ui/heading";
 import { HStack } from "@/components/ui/hstack";
 import { Divider } from "@/components/ui/divider";
-// import { useWindowDimensions } from "react-native";
 import { VStack } from "@/components/ui/vstack";
 import {
   Avatar,
   AvatarBadge,
   AvatarFallbackText,
 } from "@/components/ui/avatar";
+import { Progress, ProgressFilledTrack } from "@/components/ui/progress";
 
 export default function Home() {
   const router = useRouter();
   const { profiles } = useUser();
-  const { project, setSelectedProject, assignedUser } = useProject();
+  const { project, setSelectedProject, assignedUser, tasks } = useProject();
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   const dimensions = useWindowDimensions();
@@ -43,6 +43,26 @@ export default function Home() {
     if (!profiles) return null;
     const name = profiles.find((t) => t.uid === uid) || null;
     return name?.nickName;
+  };
+
+  const progressCalculation = (projectID: string) => {
+    const currentProjectTasks = tasks.filter((t) => t.projectID === projectID);
+
+    const ongoingTasks = currentProjectTasks.filter(
+      (t) => t.status === "Ongoing"
+    );
+
+    const completedTasks = currentProjectTasks.filter(
+      (t) => t.status === "Completed"
+    );
+
+    const totalTasks = currentProjectTasks.length;
+
+    const progress =
+      ((ongoingTasks.length * 0.5 + completedTasks.length * 1) / totalTasks) *
+      100;
+
+    return progress;
   };
 
   return (
@@ -169,9 +189,20 @@ export default function Home() {
                         flex: 1,
                         alignContent: "center",
                         alignItems: "center",
+                        paddingLeft: 20,
+                        paddingRight: 20,
                       }}
                     >
-                      {t.status}
+                      <Text style={{ color: "black" }}>
+                        {progressCalculation(t.id).toFixed(0)}%
+                      </Text>
+                      <Progress
+                        value={progressCalculation(t.id)}
+                        size="xs"
+                        orientation="horizontal"
+                      >
+                        <ProgressFilledTrack />
+                      </Progress>
                     </Box>
                     <Box style={{ borderWidth: 1, flex: 1 }}>
                       <HStack style={{ gap: 8 }}>
