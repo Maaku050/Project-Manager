@@ -17,10 +17,10 @@ export default function RootLayout() {
   const isMediumScreen = dimensions.width <= 1280 && dimensions.width > 768; // tablet UI condition
 
   return (
-    <GestureHandlerRootView style={{ flex: 1, }}>
-      <UserProvider>
-        <ProjectProvider>
-          <GluestackUIProvider mode="light" >
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: "black" }}>
+      <UserProvider >
+        <ProjectProvider >
+          <GluestackUIProvider mode="light"  >
             <Drawer
               screenOptions={{
                 drawerType: isLargeScreen
@@ -47,6 +47,18 @@ export default function RootLayout() {
                   fontSize: isLargeScreen ? 16 : 14,
                   fontWeight: "bold",
                   fontFamily: "roboto, arial",
+                  // color: "white",
+                },
+                headerStyle: {
+                  backgroundColor: "#1f1f1f",
+                  borderColor: "#000000ff",
+                },
+                headerTitleStyle: {
+                  fontWeight: "bold",
+                  fontSize: 24,
+                  fontFamily: "roboto, arial",
+                  color: "#ffffff",
+                  borderColor: undefined,
                 },
               }}
             >

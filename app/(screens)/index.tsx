@@ -19,7 +19,7 @@ import { Heading } from "@/components/ui/heading";
 export default function Home() {
   const router = useRouter();
   const { user, profile, profiles } = useUser();
-  const { project, assignedUser, setSelectedProject } = useProject();
+  const { project, assignedUser, setSelectedProject, tasks } = useProject();
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   const dimensions = useWindowDimensions();
@@ -29,6 +29,8 @@ export default function Home() {
   const currentUserProjects = project.filter((p) =>
     assignedUser.some((a) => p.id === a.projectID && a.uid === profile?.uid)
   );
+
+ 
 
   useEffect(() => {
     console.log("Home current user projects: ", currentUserProjects);
@@ -41,15 +43,16 @@ export default function Home() {
       : text;
   };
 
-  const createdByFunction = (uid: string) => {
-    if (!profiles) return null;
-    const name = profiles.find((t) => t.uid === uid) || null;
-    return name?.nickName;
-  };
+  // const createdByFunction = (uid: string) => {
+  //   if (!profiles) return null;
+  //   const name = profiles.find((t) => t.uid === uid) || null;
+  //   return name?.nickName;
+  // };
 
-  const myProject = project.filter((t) => {});
+  // const myProject = project.filter((t) => {});
+
   return (
-    <ScrollView style={{ backgroundColor: "#000000ff" }}>
+    <ScrollView style={{ backgroundColor: "#000000ff", paddingBottom: 16}}>
       {/* <View style={{ marginLeft: 50, marginRight: 50, marginTop: 20 }}>
         <Text>{profile ? profile.nickName : ""}</Text>
       </View> */}
@@ -183,18 +186,13 @@ export default function Home() {
           // columnGap: isLargeScreen ? 4 : 0,
           // rowGap: isLargeScreen ? 4 : 0,
           paddingLeft: isLargeScreen ? 20 : isMediumScreen ? 120 : 0,
-          paddingBottom: isLargeScreen ? 20 : isMediumScreen ? 12 : 32,
+          paddingBottom: isLargeScreen ? 40 : isMediumScreen ? 32 : 40,
           paddingRight: isLargeScreen ? 20 : isMediumScreen ? 0 : 0,
           }}>
           {project.map((t) => (
             <Card  variant="outline" className="m-3" key={t.id} 
             style={{ 
               width: isLargeScreen ? "30%" : isMediumScreen ? "40%" : "90%",
-              // justifyItems: isLargeScreen ? 'center' : 'center',
-              // flexDirection: 'row',
-              // justifyContent:'flex-start',
-              // alignItems: 'flex-start',
-              // flexWrap: 'wrap',
               marginBottom: 0,
               marginRight: -2,
               marginLeft: 12,

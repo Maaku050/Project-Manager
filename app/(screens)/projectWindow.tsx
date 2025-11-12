@@ -981,8 +981,8 @@ export default function ProjectWindow() {
                                 flexWrap: "wrap",
                                 fontWeight: isHover ? "bold" : "normal",
                                 color: "black",
-                              }}
-                            >
+                              }}>
+                                
                               {t.title ? String(t.title) : ""}
                             </Text>
                           </VStack>

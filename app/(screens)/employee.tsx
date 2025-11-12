@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, Pressable } from "react-native";
+import { View, Text, Pressable, useWindowDimensions } from "react-native";
 import { useUser } from "@/context/profileContext";
 import { useProject } from "@/context/projectContext";
 import { Card } from "@/components/ui/card";
@@ -19,12 +19,25 @@ export default function EmployeeScreen() {
   const { project } = useProject();
   const { profiles, setSelectedEmployee } = useUser();
 
+  const dimensions = useWindowDimensions();
+  const isLargeScreen = dimensions.width >= 1280;
+  const isMediumScreen = dimensions.width <= 1280 && dimensions.width > 768;
+
   const [cardIdHover, setCardIdHover] = useState("");
   const [showProfileModal, setProfileModal] = useState(false);
 
   return (
-    <View style={{ flex: 1, alignItems: "center" }}>
-      <HStack>
+    <View style={{ flex: 1, alignItems: "flex-start", backgroundColor: "black", padding: 12}}>
+      <HStack style={{
+        alignContent: "flex-start",
+        gap: isLargeScreen ? 12 : isMediumScreen ? 12 : 8, 
+        padding: 12, 
+        margin: 12, 
+        flexDirection: "row",
+        flexWrap: "wrap",
+        borderWidth: 2,
+        }}>
+
         {profiles.map((t) => (
           <Pressable
             onPress={() => {
@@ -41,6 +54,9 @@ export default function EmployeeScreen() {
                 borderColor: "black",
                 alignItems: "center",
                 alignContent: "center",
+                width: isLargeScreen ? 200 : isMediumScreen ? 200 : 200,
+                height: 200,
+                // flex: 1,
               }}
             >
               <Avatar size="lg">

@@ -295,7 +295,7 @@ export default function TaskModal() {
               <Text style={{fontSize: isLargeScreen ? 20 : isMediumScreen ? 20 : 16, fontWeight: "bold", marginBottom: 5, color: "#ffffff" }}>
                 Task description
               </Text>
-              <Box style={{ borderWidth: 0, paddingRight: 10, color: "#ffffff" }}>
+              <Box style={{ borderWidth: 0, paddingRight: 10}}>
                 <ScrollView>
                   {descriptionPressed ? (
                     <Pressable onPress={() => setDescriptionPressed(false)}>
