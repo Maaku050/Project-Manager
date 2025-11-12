@@ -16,14 +16,21 @@ import { useRouter } from "expo-router";
 
 export default function EmployeeScreen() {
   const router = useRouter();
-  const { project } = useProject();
   const { profiles, setSelectedEmployee } = useUser();
 
   const [cardIdHover, setCardIdHover] = useState("");
-  const [showProfileModal, setProfileModal] = useState(false);
 
   return (
-    <View style={{ flex: 1, alignItems: "center" }}>
+    <View style={{ flex: 1 }}>
+      <Box style={{ alignItems: "flex-end" }}>
+        <Button
+          action="positive"
+          size="sm"
+          onPress={() => router.push("/create-account-window")}
+        >
+          <ButtonText>Create New Account</ButtonText>
+        </Button>
+      </Box>
       <HStack>
         {profiles.map((t) => (
           <Pressable

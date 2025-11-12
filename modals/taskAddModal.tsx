@@ -21,17 +21,7 @@ import { useEffect, useState } from "react";
 import React from "react";
 import { TextInput } from "react-native-gesture-handler";
 import { auth, db } from "@/firebase/firebaseConfig";
-import {
-  addDoc,
-  collection,
-  deleteDoc,
-  doc,
-  getDocs,
-  query,
-  Timestamp,
-  updateDoc,
-  where,
-} from "firebase/firestore";
+import { addDoc, collection, Timestamp } from "firebase/firestore";
 import { HStack } from "@/components/ui/hstack";
 import {
   Checkbox,
@@ -149,9 +139,11 @@ export default function TaskAddModal({ visible, onClose }: tasktModalType) {
   return (
     <Modal isOpen={visible} onClose={onClose} size="lg">
       <ModalBackdrop />
-      <ModalContent style={{backgroundColor: "#1f1f1f", borderWidth: 0}}>
+      <ModalContent style={{ backgroundColor: "#1f1f1f", borderWidth: 0 }}>
         <ModalHeader>
-          <Heading size="lg" style={{color: "#ffffffff"}}>Add Task</Heading>
+          <Heading size="lg" style={{ color: "#ffffffff" }}>
+            Add Task
+          </Heading>
           <ModalCloseButton>
             <Icon as={CloseIcon} color="white" />
           </ModalCloseButton>
@@ -166,7 +158,13 @@ export default function TaskAddModal({ visible, onClose }: tasktModalType) {
             showsVerticalScrollIndicator={false}
           >
             <Box style={{ margin: 5 }}>
-              <Text style={{ fontWeight: "bold", marginBottom: 5, color: "#ffffffff" }}>
+              <Text
+                style={{
+                  fontWeight: "bold",
+                  marginBottom: 5,
+                  color: "#ffffffff",
+                }}
+              >
                 Task Title
               </Text>
               <TextInput
@@ -175,7 +173,7 @@ export default function TaskAddModal({ visible, onClose }: tasktModalType) {
                   borderColor: "#ffffffff",
                   paddingVertical: 8,
                   fontSize: 16,
-                  color:"#ffffff",
+                  color: "#ffffff",
                 }}
                 placeholder="Enter the Task Title"
                 placeholderTextColor="#999"
@@ -184,20 +182,28 @@ export default function TaskAddModal({ visible, onClose }: tasktModalType) {
             </Box>
 
             <Box style={{ margin: 5 }}>
-              <Text style={{ fontWeight: "bold", marginBottom: 5, color: "#ffffffff" }}>
+              <Text
+                style={{
+                  fontWeight: "bold",
+                  marginBottom: 5,
+                  color: "#ffffffff",
+                }}
+              >
                 Task Description
               </Text>
               <Textarea size="sm" isReadOnly={false} isInvalid={false}>
                 <TextareaInput
                   placeholder="Enter the Task Description"
                   onChangeText={setTempDescription}
-                  style={{backgroundColor: "#ffffff"}}
+                  style={{ backgroundColor: "#ffffff" }}
                 />
               </Textarea>
             </Box>
 
             <Box style={{ margin: 5 }}>
-              <Text style={{ fontWeight: "bold", color: "#ffffffff" }}>Task Deadline</Text>
+              <Text style={{ fontWeight: "bold", color: "#ffffffff" }}>
+                Task Deadline
+              </Text>
               <HStack
                 style={{
                   alignItems: "center",
@@ -230,7 +236,9 @@ export default function TaskAddModal({ visible, onClose }: tasktModalType) {
 
             {/* Members */}
             <Box style={{ margin: 5 }}>
-              <Text style={{ fontWeight: "bold", color: "#ffffffff" }}>Task Members</Text>
+              <Text style={{ fontWeight: "bold", color: "#ffffffff" }}>
+                Task Members
+              </Text>
 
               <Box
                 style={{
