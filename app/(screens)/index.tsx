@@ -36,6 +36,8 @@ export default function Home() {
     assignedUser.some((a) => p.id === a.projectID && a.uid === profile?.uid)
   );
 
+ 
+
   useEffect(() => {
     console.log("Home current user projects: ", currentUserProjects);
   }, []);

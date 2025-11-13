@@ -45,6 +45,18 @@ export default function RootLayout() {
                   fontSize: isLargeScreen ? 16 : 14,
                   fontWeight: "bold",
                   fontFamily: "roboto, arial",
+                  // color: "white",
+                },
+                headerStyle: {
+                  backgroundColor: "#1f1f1f",
+                  borderColor: "#000000ff",
+                },
+                headerTitleStyle: {
+                  fontWeight: "bold",
+                  fontSize: 24,
+                  fontFamily: "roboto, arial",
+                  color: "#ffffff",
+                  borderColor: undefined,
                 },
               }}
             >
