@@ -103,8 +103,11 @@ export default function ProjectWindow() {
   const [descriptionPressed, setDescriptionPressed] = useState(false);
   const [showEditProjectModal, setShowEditProjectModal] = useState(false);
   const [showConfirmationModal, setConfirmationModal] = useState(false);
+  const [showDeleteConfirmationModal, setDeleteConfirmationModal] =
+    useState(false);
   const [todoOrOngoing, setTodoOrOngoing] = useState(true);
   const [taskID, setTaskID] = useState("");
+  const [taskIdToDelete, setTaskIdToDelete] = useState("");
 
   const projectDeadline =
     currentProjectData?.deadline && "toDate" in currentProjectData.deadline
@@ -221,6 +224,23 @@ export default function ProjectWindow() {
     }
 
     setConfirmationModal(false);
+  };
+
+  const handleDeleteTask = async () => {
+    if (!taskIdToDelete) return;
+    setLoading(true);
+
+    try {
+      await updateDoc(doc(db, "tasks", taskIdToDelete), {
+        status: "Archive",
+      });
+    } catch (error) {
+      console.log("Erron deleting task: ", error);
+    } finally {
+      setLoading(false);
+    }
+
+    setDeleteConfirmationModal(false);
   };
 
   if (!currentProjectData) {
@@ -978,6 +998,17 @@ export default function ProjectWindow() {
                               <ButtonText>Start</ButtonText>
                             </Button>
 
+                            <Button
+                              action="negative"
+                              size="xs"
+                              onPress={() => {
+                                setTaskIdToDelete(t.id);
+                                setDeleteConfirmationModal(true);
+                              }}
+                            >
+                              <ButtonText>Delete</ButtonText>
+                            </Button>
+
                             <Divider
                               orientation="vertical"
                               style={{ backgroundColor: "black" }}
@@ -1109,6 +1140,17 @@ export default function ProjectWindow() {
                               }}
                             >
                               <ButtonText>Done</ButtonText>
+                            </Button>
+
+                            <Button
+                              action="negative"
+                              size="xs"
+                              onPress={() => {
+                                setTaskIdToDelete(t.id);
+                                setDeleteConfirmationModal(true);
+                              }}
+                            >
+                              <ButtonText>Delete</ButtonText>
                             </Button>
 
                             <Divider
@@ -1244,6 +1286,17 @@ export default function ProjectWindow() {
                               <ButtonText>Revert</ButtonText>
                             </Button>
 
+                            <Button
+                              action="negative"
+                              size="xs"
+                              onPress={() => {
+                                setTaskIdToDelete(t.id);
+                                setDeleteConfirmationModal(true);
+                              }}
+                            >
+                              <ButtonText>Delete</ButtonText>
+                            </Button>
+
                             <Divider
                               orientation="vertical"
                               style={{ backgroundColor: "black" }}
@@ -1357,6 +1410,53 @@ export default function ProjectWindow() {
                   todoOrOngoing ? "Ongoing" : "Completed"
                 );
               }}
+              size="sm"
+              className="flex-grow"
+              action="positive"
+            >
+              <ButtonText>
+                {loading ? <Spinner size="small" color="grey" /> : "Yes"}
+              </ButtonText>
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      <Modal
+        isOpen={showDeleteConfirmationModal}
+        onClose={() => {
+          setDeleteConfirmationModal(false);
+        }}
+      >
+        <ModalBackdrop />
+        <ModalContent className="max-w-[305px] items-center">
+          <ModalHeader>
+            <Box className="w-[56px] h-[56px] rounded-full bg-background-error items-center justify-center">
+              <Icon as={InfoIcon} className="stroke-error-600" size="xl" />
+            </Box>
+          </ModalHeader>
+          <ModalBody className="mt-0 mb-4">
+            <Heading size="md" className="text-typography-950 mb-2 text-center">
+              Confirmation
+            </Heading>
+            <Text size="sm" className="text-typography-500 text-center">
+              Are you sure you want to delete this task?
+            </Text>
+          </ModalBody>
+          <ModalFooter className="w-full">
+            <Button
+              variant="outline"
+              action="secondary"
+              size="sm"
+              onPress={() => {
+                setDeleteConfirmationModal(false);
+              }}
+              className="flex-grow"
+            >
+              <ButtonText>No</ButtonText>
+            </Button>
+            <Button
+              onPress={handleDeleteTask}
               size="sm"
               className="flex-grow"
               action="positive"

@@ -17,12 +17,16 @@ import { Card } from "@/components/ui/card";
 import { Heading } from "@/components/ui/heading";
 import { Progress, ProgressFilledTrack } from "@/components/ui/progress";
 import { VStack } from "@/components/ui/vstack";
+import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
+import { SquarePen } from "lucide-react-native";
+import ProfileEditModal from "@/modals/profileEditModal";
 
 export default function Home() {
   const router = useRouter();
   const { user, profile, profiles } = useUser();
   const { project, assignedUser, setSelectedProject, tasks } = useProject();
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   const dimensions = useWindowDimensions();
   const isLargeScreen = dimensions.width >= 1280; // computer UI condition
@@ -35,19 +39,6 @@ export default function Home() {
   useEffect(() => {
     console.log("Home current user projects: ", currentUserProjects);
   }, []);
-
-  const truncateWords = (text: string, wordLimit: number) => {
-    const words = text.split(" ");
-    return words.length > wordLimit
-      ? words.slice(0, wordLimit).join(" ") + "..."
-      : text;
-  };
-
-  const createdByFunction = (uid: string) => {
-    if (!profiles) return null;
-    const name = profiles.find((t) => t.uid === uid) || null;
-    return name?.nickName;
-  };
 
   const myProject = project.filter((p) =>
     assignedUser.some((a) => a.projectID === p.id && a.uid === profile?.uid)
@@ -75,9 +66,6 @@ export default function Home() {
 
   return (
     <ScrollView style={{ backgroundColor: "#000000ff" }}>
-      {/* <View style={{ marginLeft: 50, marginRight: 50, marginTop: 20 }}>
-        <Text>{profile ? profile.nickName : ""}</Text>
-      </View> */}
       <Box
         style={{
           marginTop: 20,
@@ -87,21 +75,31 @@ export default function Home() {
           borderRadius: 12,
           backgroundColor: "#1F1F1F",
           height: isLargeScreen ? 60 : 50,
-          justifyContent: "center",
-          alignItems: "flex-start",
         }}
       >
-        {/* <Image></Image> */}
-        <Text
+        <HStack
           style={{
-            fontSize: isLargeScreen ? 20 : 16,
-            color: "white",
-            fontWeight: "bold",
-            fontFamily: "roboto, arial",
+            flex: 1,
+            alignItems: "center",
+            justifyContent: "space-between",
           }}
         >
-          Welcome Home, {profile ? profile.nickName : ""}!
-        </Text>
+          <Text
+            style={{
+              fontSize: isLargeScreen ? 20 : 16,
+              color: "white",
+              fontWeight: "bold",
+              fontFamily: "roboto, arial",
+            }}
+          >
+            Welcome Home, {profile ? profile.nickName : ""}!
+          </Text>
+          <Button onPress={() => setShowEditModal(true)}>
+            <ButtonText>
+              <SquarePen color={"white"} />
+            </ButtonText>
+          </Button>
+        </HStack>
       </Box>
 
       <View
@@ -307,6 +305,11 @@ export default function Home() {
           ))}
         </Box>
       </View>
+
+      <ProfileEditModal
+        visible={showEditModal}
+        onClose={() => setShowEditModal(false)}
+      />
     </ScrollView>
   );
 }
