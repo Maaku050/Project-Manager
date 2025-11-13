@@ -32,6 +32,8 @@ export default function Home() {
     assignedUser.some((a) => p.id === a.projectID && a.uid === profile?.uid)
   );
 
+ 
+
   useEffect(() => {
     console.log("Home current user projects: ", currentUserProjects);
   }, []);
@@ -43,11 +45,13 @@ export default function Home() {
       : text;
   };
 
-  const createdByFunction = (uid: string) => {
-    if (!profiles) return null;
-    const name = profiles.find((t) => t.uid === uid) || null;
-    return name?.nickName;
-  };
+  // const createdByFunction = (uid: string) => {
+  //   if (!profiles) return null;
+  //   const name = profiles.find((t) => t.uid === uid) || null;
+  //   return name?.nickName;
+  // };
+
+  // const myProject = project.filter((t) => {});
 
   const myProject = project.filter((p) =>
     assignedUser.some((a) => a.projectID === p.id && a.uid === profile?.uid)
@@ -74,7 +78,7 @@ export default function Home() {
   };
 
   return (
-    <ScrollView style={{ backgroundColor: "#000000ff" }}>
+    <ScrollView style={{ backgroundColor: "#000000ff", paddingBottom: 16}}>
       {/* <View style={{ marginLeft: 50, marginRight: 50, marginTop: 20 }}>
         <Text>{profile ? profile.nickName : ""}</Text>
       </View> */}

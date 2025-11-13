@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, Pressable } from "react-native";
+import { View, Text, Pressable, useWindowDimensions } from "react-native";
 import { useUser } from "@/context/profileContext";
 import { useProject } from "@/context/projectContext";
 import { Card } from "@/components/ui/card";
@@ -18,9 +18,24 @@ export default function EmployeeScreen() {
   const router = useRouter();
   const { profiles, setSelectedEmployee } = useUser();
 
+  const dimensions = useWindowDimensions();
+  const isLargeScreen = dimensions.width >= 1280;
+  const isMediumScreen = dimensions.width <= 1280 && dimensions.width > 768;
+
   const [cardIdHover, setCardIdHover] = useState("");
 
   return (
+    <View style={{ flex: 1, alignItems: "flex-start", backgroundColor: "black", padding: 12}}>
+      <HStack style={{
+        alignContent: "flex-start",
+        gap: isLargeScreen ? 12 : isMediumScreen ? 12 : 8, 
+        padding: 12, 
+        margin: 12, 
+        flexDirection: "row",
+        flexWrap: "wrap",
+        borderWidth: 2,
+        }}>
+
     <View style={{ flex: 1 }}>
       <Box style={{ alignItems: "flex-end" }}>
         <Button
@@ -48,6 +63,9 @@ export default function EmployeeScreen() {
                 borderColor: "black",
                 alignItems: "center",
                 alignContent: "center",
+                width: isLargeScreen ? 200 : isMediumScreen ? 200 : 200,
+                height: 200,
+                // flex: 1,
               }}
             >
               <Avatar size="lg">

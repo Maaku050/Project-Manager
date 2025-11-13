@@ -1009,39 +1009,24 @@ export default function ProjectWindow() {
                             </Pressable>
                             <Box
                               style={{
-                                flex: 1,
-                                alignItems: "flex-end",
-                                borderWidth: 0,
-                              }}
-                            >
-                              <Button
-                                hitSlop={{
-                                  top: 10,
-                                  bottom: 10,
-                                  left: 10,
-                                  right: 10,
-                                }}
-                                size="xs"
-                                className="h-6 px-1"
-                                variant="outline"
-                                style={{
-                                  backgroundColor: "transparent",
-                                  borderWidth: 0,
-                                }}
-                              >
-                                <ButtonText>
-                                  <EllipsisVertical size={15} />
-                                </ButtonText>
-                              </Button>
-                            </Box>
-                          </HStack>
-                        </Card>
-                      </Center>
-                    </View>
-                  ))}
-                </ScrollView>
-              </Box>
-            </VStack>
+                                padding: 4,
+                                fontSize: 16,
+                                flexWrap: "wrap",
+                                fontWeight: isHover ? "bold" : "normal",
+                                color: "black",
+                              }}>
+                                
+                              {t.title ? String(t.title) : ""}
+                            </Text>
+                          </VStack>
+                        </Pressable>
+                      </HStack>
+                    </Card>
+                  </Center>
+                </View>
+              ))}
+            </ScrollView>
+          </Box>
 
             {/* Ongoing Tasks */}
             <VStack style={{ flex: 1 }}>
