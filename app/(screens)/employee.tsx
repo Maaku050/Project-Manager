@@ -16,7 +16,6 @@ import { useRouter } from "expo-router";
 
 export default function EmployeeScreen() {
   const router = useRouter();
-  const { project } = useProject();
   const { profiles, setSelectedEmployee } = useUser();
 
   const dimensions = useWindowDimensions();
@@ -24,7 +23,6 @@ export default function EmployeeScreen() {
   const isMediumScreen = dimensions.width <= 1280 && dimensions.width > 768;
 
   const [cardIdHover, setCardIdHover] = useState("");
-  const [showProfileModal, setProfileModal] = useState(false);
 
   return (
     <View style={{ flex: 1, alignItems: "flex-start", backgroundColor: "black", padding: 12}}>
@@ -38,6 +36,17 @@ export default function EmployeeScreen() {
         borderWidth: 2,
         }}>
 
+    <View style={{ flex: 1 }}>
+      <Box style={{ alignItems: "flex-end" }}>
+        <Button
+          action="positive"
+          size="sm"
+          onPress={() => router.push("/create-account-window")}
+        >
+          <ButtonText>Create New Account</ButtonText>
+        </Button>
+      </Box>
+      <HStack>
         {profiles.map((t) => (
           <Pressable
             onPress={() => {

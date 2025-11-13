@@ -21,16 +21,12 @@ import {
   AvatarBadge,
   AvatarFallbackText,
 } from "@/components/ui/avatar";
-// import { red } from "react-native-reanimated/lib/typescript/Colors";
-
-
-
-
+import { Progress, ProgressFilledTrack } from "@/components/ui/progress";
 
 export default function Home() {
   const router = useRouter();
   const { profiles } = useUser();
-  const { project, setSelectedProject, assignedUser } = useProject();
+  const { project, setSelectedProject, assignedUser, tasks } = useProject();
   const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   const dimensions = useWindowDimensions();
@@ -50,6 +46,26 @@ export default function Home() {
     if (!profiles) return null;
     const name = profiles.find((t) => t.uid === uid) || null;
     return name?.nickName;
+  };
+
+  const progressCalculation = (projectID: string) => {
+    const currentProjectTasks = tasks.filter((t) => t.projectID === projectID);
+
+    const ongoingTasks = currentProjectTasks.filter(
+      (t) => t.status === "Ongoing"
+    );
+
+    const completedTasks = currentProjectTasks.filter(
+      (t) => t.status === "Completed"
+    );
+
+    const totalTasks = currentProjectTasks.length;
+
+    const progress =
+      ((ongoingTasks.length * 0.5 + completedTasks.length * 1) / totalTasks) *
+      100;
+
+    return progress;
   };
 
   return (
@@ -244,7 +260,16 @@ export default function Home() {
                         justifyContent: "center",
                       }}
                     >
-                      {t.status}
+                      <Text style={{ color: "black" }}>
+                        {progressCalculation(t.id).toFixed(0)}%
+                      </Text>
+                      <Progress
+                        value={progressCalculation(t.id)}
+                        size="xs"
+                        orientation="horizontal"
+                      >
+                        <ProgressFilledTrack />
+                      </Progress>
                     </Box>
                     <Box style={{ borderWidth: 0, flex: 1, borderColor: "red", justifyContent: "center"}}>
                       <HStack style={{ gap: isLargeScreen ? 8 : isMediumScreen ? 4 : 0, alignSelf: "center"}}>

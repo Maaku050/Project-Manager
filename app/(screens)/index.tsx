@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
 import { Heading } from "@/components/ui/heading";
+import { Progress, ProgressFilledTrack } from "@/components/ui/progress";
+import { VStack } from "@/components/ui/vstack";
 
 export default function Home() {
   const router = useRouter();
@@ -50,6 +52,30 @@ export default function Home() {
   // };
 
   // const myProject = project.filter((t) => {});
+
+  const myProject = project.filter((p) =>
+    assignedUser.some((a) => a.projectID === p.id && a.uid === profile?.uid)
+  );
+
+  const progressCalculation = (projectID: string) => {
+    const currentProjectTasks = tasks.filter((t) => t.projectID === projectID);
+
+    const ongoingTasks = currentProjectTasks.filter(
+      (t) => t.status === "Ongoing"
+    );
+
+    const completedTasks = currentProjectTasks.filter(
+      (t) => t.status === "Completed"
+    );
+
+    const totalTasks = currentProjectTasks.length;
+
+    const progress =
+      ((ongoingTasks.length * 0.5 + completedTasks.length * 1) / totalTasks) *
+      100;
+
+    return progress;
+  };
 
   return (
     <ScrollView style={{ backgroundColor: "#000000ff", paddingBottom: 16}}>
@@ -178,32 +204,48 @@ export default function Home() {
             My Project
           </Text>
         </Box>
-        <Box  style={{
-          justifyContent: isLargeScreen ? 'flex-start' : isMediumScreen ? "flex-start" : 'center', // create another condition for justifyContent
-          alignItems: isLargeScreen ? 'flex-start' : isMediumScreen ? "flex-start" : 'center',  // create another condition for alignItems
-          flexDirection: isLargeScreen ? 'row' : isMediumScreen ? 'row' : 'column', 
-          flexWrap: 'wrap', 
-          // columnGap: isLargeScreen ? 4 : 0,
-          // rowGap: isLargeScreen ? 4 : 0,
-          paddingLeft: isLargeScreen ? 20 : isMediumScreen ? 120 : 0,
-          paddingBottom: isLargeScreen ? 40 : isMediumScreen ? 32 : 40,
-          paddingRight: isLargeScreen ? 20 : isMediumScreen ? 0 : 0,
-          }}>
-          {project.map((t) => (
-            <Card  variant="outline" className="m-3" key={t.id} 
-            style={{ 
-              width: isLargeScreen ? "30%" : isMediumScreen ? "40%" : "90%",
-              marginBottom: 0,
-              marginRight: -2,
-              marginLeft: 12,
-              paddingTop: 12, 
-              paddingLeft: isLargeScreen ? 12 : isMediumScreen ? 20 : 8, 
-              paddingRight: 12, 
-              paddingBottom: 32,
-              height: isLargeScreen ? 140 : isMediumScreen ? 180 : 120, 
-              backgroundColor: 'white', 
-              borderRadius: isLargeScreen ? 12 : isMediumScreen ? 12 : 8,
-              }}>
+        <Box
+          style={{
+            justifyContent: isLargeScreen
+              ? "flex-start"
+              : isMediumScreen
+              ? "flex-start"
+              : "center", // create another condition for justifyContent
+            alignItems: isLargeScreen
+              ? "flex-start"
+              : isMediumScreen
+              ? "flex-start"
+              : "center", // create another condition for alignItems
+            flexDirection: isLargeScreen
+              ? "row"
+              : isMediumScreen
+              ? "row"
+              : "column",
+            flexWrap: "wrap",
+            paddingLeft: isLargeScreen ? 20 : isMediumScreen ? 120 : 0,
+            paddingBottom: isLargeScreen ? 20 : isMediumScreen ? 12 : 32,
+            paddingRight: isLargeScreen ? 20 : isMediumScreen ? 0 : 0,
+          }}
+        >
+          {myProject.map((t) => (
+            <Card
+              variant="outline"
+              className="m-3"
+              key={t.id}
+              style={{
+                width: isLargeScreen ? "30%" : isMediumScreen ? "40%" : "90%",
+                marginBottom: 0,
+                marginRight: -2,
+                marginLeft: 12,
+                paddingTop: 12,
+                paddingLeft: isLargeScreen ? 12 : isMediumScreen ? 20 : 8,
+                paddingRight: 12,
+                paddingBottom: 32,
+                height: isLargeScreen ? 140 : isMediumScreen ? 180 : 120,
+                backgroundColor: "white",
+                borderRadius: isLargeScreen ? 12 : isMediumScreen ? 12 : 8,
+              }}
+            >
               <Pressable
                 onPress={() => {
                   setSelectedProject(t.id);
@@ -223,21 +265,48 @@ export default function Home() {
                   {t.title}
                 </Heading>
               </Pressable>
+              <HStack>
+                <Box style={{ flex: 1, borderWidth: 0 }}>
+                  <VStack>
+                    <Text style={{ color: "black" }}>
+                      {progressCalculation(t.id).toFixed(0)}%
+                    </Text>
+                    <Progress
+                      value={progressCalculation(t.id)}
+                      size="xs"
+                      orientation="horizontal"
+                    >
+                      <ProgressFilledTrack />
+                    </Progress>
+                  </VStack>
+                </Box>
+                <Box
+                  style={{
+                    flex: 1,
+                    borderWidth: 0,
+                  }}
+                >
+                  <HStack style={{ justifyContent: "flex-end" }}>
+                    {profiles
+                      .filter((p) =>
+                        assignedUser.some(
+                          (a) => a.projectID === t.id && a.uid === p.uid
+                        )
+                      )
+                      .map((t) => {
+                        return (
+                          <Avatar size="sm" key={t.id}>
+                            <AvatarFallbackText>
+                              {t.firstName}
+                            </AvatarFallbackText>
 
-              {/* <Text style={{ fontWeight: "black", marginBottom: 5 }}>
-                Created by: {createdByFunction(t.createdBy)}
-              </Text> */}
-              <Text
-                style={{
-                  fontSize: isLargeScreen ? 14 : isMediumScreen ? 12 : 12,
-                  // flexWrap: 'wrap',
-                }}
-              >
-                {truncateWords(
-                  t.description,
-                  isLargeScreen ? 15 : isMediumScreen ? 12 : 15
-                )}
-              </Text>
+                            <AvatarBadge />
+                          </Avatar>
+                        );
+                      })}
+                  </HStack>
+                </Box>
+              </HStack>
             </Card>
           ))}
         </Box>

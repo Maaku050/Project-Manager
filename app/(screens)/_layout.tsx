@@ -8,8 +8,6 @@ import "@/global.css";
 
 import { UserProvider } from "@/context/profileContext";
 import { ProjectProvider } from "@/context/projectContext";
-import { Colors } from "@/constants/Colors";
-import { colorScheme } from "nativewind";
 
 export default function RootLayout() {
   const dimensions = useWindowDimensions();
@@ -17,10 +15,10 @@ export default function RootLayout() {
   const isMediumScreen = dimensions.width <= 1280 && dimensions.width > 768; // tablet UI condition
 
   return (
-    <GestureHandlerRootView style={{ flex: 1, backgroundColor: "black" }}>
-      <UserProvider >
-        <ProjectProvider >
-          <GluestackUIProvider mode="light"  >
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <UserProvider>
+        <ProjectProvider>
+          <GluestackUIProvider mode="light">
             <Drawer
               screenOptions={{
                 drawerType: isLargeScreen
@@ -62,10 +60,12 @@ export default function RootLayout() {
                 },
               }}
             >
-              
               {/* headerBackground:{"#000000ff"} */}
-              <Drawer.Screen name="index" options={{ title: "Home"}}/>
-              <Drawer.Screen name="dashboard" options={{ title: "Dashboard" }}/>
+              <Drawer.Screen name="index" options={{ title: "Home" }} />
+              <Drawer.Screen
+                name="dashboard"
+                options={{ title: "Dashboard" }}
+              />
               <Drawer.Screen name="project" options={{ title: "Project" }} />
               <Drawer.Screen name="employee" options={{ title: "Employee" }} />
               <Drawer.Screen
@@ -86,6 +86,13 @@ export default function RootLayout() {
                 name="employee-window"
                 options={{
                   title: "Employee",
+                  drawerItemStyle: { display: "none" },
+                }}
+              />
+              <Drawer.Screen
+                name="create-account-window"
+                options={{
+                  title: "Create Account",
                   drawerItemStyle: { display: "none" },
                 }}
               />
