@@ -26,17 +26,6 @@ export default function EmployeeScreen() {
 
   return (
     <View style={{ flex: 1, alignItems: "flex-start", backgroundColor: "black", padding: 12}}>
-      <HStack style={{
-        alignContent: "flex-start",
-        gap: isLargeScreen ? 12 : isMediumScreen ? 12 : 8, 
-        padding: 12, 
-        margin: 12, 
-        flexDirection: "row",
-        flexWrap: "wrap",
-        borderWidth: 2,
-        }}>
-
-    <View style={{ flex: 1 }}>
       <Box style={{ alignItems: "flex-end" }}>
         <Button
           action="positive"
@@ -46,7 +35,15 @@ export default function EmployeeScreen() {
           <ButtonText>Create New Account</ButtonText>
         </Button>
       </Box>
-      <HStack>
+      <HStack style={{
+        alignContent: "flex-start",
+        gap: isLargeScreen ? 12 : isMediumScreen ? 12 : 8, 
+        padding: 12, 
+        margin: 12, 
+        flexDirection: "row",
+        flexWrap: "wrap",
+        borderWidth: 2,
+        }}>
         {profiles.map((t) => (
           <Pressable
             onPress={() => {

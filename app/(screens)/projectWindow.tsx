@@ -1038,19 +1038,6 @@ export default function ProjectWindow() {
                                 </Text>
                               </VStack>
                             </Pressable>
-                            <Box
-                              style={{
-                                padding: 4,
-                                fontSize: 16,
-                                flexWrap: "wrap",
-                                fontWeight: isHover ? "bold" : "normal",
-                                color: "black",
-                              }}>
-                                
-                              {t.title ? String(t.title) : ""}
-                            </Text>
-                          </VStack>
-                        </Pressable>
                       </HStack>
                     </Card>
                   </Center>
@@ -1058,6 +1045,7 @@ export default function ProjectWindow() {
               ))}
             </ScrollView>
           </Box>
+          </VStack>
 
             {/* Ongoing Tasks */}
             <VStack style={{ flex: 1 }}>
