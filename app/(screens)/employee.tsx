@@ -25,7 +25,14 @@ export default function EmployeeScreen() {
   const [cardIdHover, setCardIdHover] = useState("");
 
   return (
-    <View style={{ flex: 1, alignItems: "flex-start", backgroundColor: "black", padding: 12}}>
+    <View
+      style={{
+        flex: 1,
+        alignItems: "flex-start",
+        backgroundColor: "black",
+        padding: 12,
+      }}
+    >
       <Box style={{ alignItems: "flex-end" }}>
         <Button
           action="positive"
@@ -35,15 +42,17 @@ export default function EmployeeScreen() {
           <ButtonText>Create New Account</ButtonText>
         </Button>
       </Box>
-      <HStack style={{
-        alignContent: "flex-start",
-        gap: isLargeScreen ? 12 : isMediumScreen ? 12 : 8, 
-        padding: 12, 
-        margin: 12, 
-        flexDirection: "row",
-        flexWrap: "wrap",
-        borderWidth: 2,
-        }}>
+      <HStack
+        style={{
+          alignContent: "flex-start",
+          gap: isLargeScreen ? 12 : isMediumScreen ? 12 : 8,
+          padding: 12,
+          margin: 12,
+          flexDirection: "row",
+          flexWrap: "wrap",
+          borderWidth: 2,
+        }}
+      >
         {profiles.map((t) => (
           <Pressable
             onPress={() => {

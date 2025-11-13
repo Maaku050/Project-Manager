@@ -698,8 +698,8 @@ export default function ProjectWindow() {
                 flexDirection: isLargeScreen
                   ? "row"
                   : isMediumScreen
-                  ? "row"
-                  : "column",
+                    ? "row"
+                    : "column",
               }}
             >
               <View

@@ -24,8 +24,8 @@ export default function RootLayout() {
                 drawerType: isLargeScreen
                   ? "permanent"
                   : isMediumScreen
-                  ? "slide"
-                  : "slide",
+                    ? "slide"
+                    : "slide",
                 drawerStyle: isLargeScreen
                   ? {
                       width: 240,

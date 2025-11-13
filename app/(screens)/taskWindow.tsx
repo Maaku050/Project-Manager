@@ -38,6 +38,67 @@ import {
 import { Spinner } from "@/components/ui/spinner";
 import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
+import SyntaxHighlighter from "react-native-syntax-highlighter";
+import { atomOneDark } from "react-syntax-highlighter/styles/hljs";
+import {
+  html as beautifyHTML,
+  css as beautifyCSS,
+  js as beautifyJs,
+} from "js-beautify";
+
+// Prettier-like options for js-beautify
+const beautifyOptions = {
+  indent_size: 2,
+  space_in_empty_paren: false,
+  jslint_happy: true,
+  end_with_newline: true,
+  preserve_newlines: true,
+  max_preserve_newlines: 2,
+  wrap_line_length: 80,
+  indent_with_tabs: false,
+  space_before_conditional: true,
+  unescape_strings: true,
+  break_chained_methods: false,
+};
+
+// --- Update helpers ---
+const isCodeBlock = (text: string) => text.trim().startsWith("```");
+
+const detectLanguage = (text: string) => {
+  const match = text.match(/^```(\w+)/);
+  return match ? match[1].toLowerCase() : "text";
+};
+
+const extractCode = (text: string) => {
+  const cleaned = text
+    .replace(/^```[\w]*\n?/, "")
+    .replace(/```$/, "")
+    .trim();
+  return cleaned;
+};
+
+const formatCode = (code: string, lang: string) => {
+  try {
+    switch (lang) {
+      case "js":
+      case "javascript":
+      case "ts":
+      case "typescript":
+        return beautifyJs(code, beautifyOptions);
+      case "json":
+        return JSON.stringify(JSON.parse(code), null, 2);
+      case "html":
+        return beautifyHTML(code, beautifyOptions);
+      case "css":
+        return beautifyCSS(code, beautifyOptions);
+      default:
+        return code;
+    }
+  } catch (err) {
+    console.warn("Format failed:", err);
+    return code;
+  }
+};
 
 export default function TaskModal() {
   const { selectedProject, comment, tasks, selectedTask, assignedUser } =
@@ -236,14 +297,6 @@ export default function TaskModal() {
     setConfirmationModal(false);
   };
 
-  const isCodeBlock = (text: string) => {
-    return text.startsWith("```") && text.endsWith("```");
-  };
-
-  const extractCode = (text: string) => {
-    return text.replace(/^```/, "").replace(/```$/, "").trim();
-  };
-
   return (
     <View
       style={{
@@ -324,8 +377,8 @@ export default function TaskModal() {
                 {currentTask?.status === "To-do"
                   ? "Start"
                   : currentTask?.status === "Ongoing"
-                  ? "Complete"
-                  : "Revert"}
+                    ? "Complete"
+                    : "Revert"}
               </ButtonText>
             </Button>
           </HStack>
@@ -353,8 +406,8 @@ export default function TaskModal() {
             flexDirection: isLargeScreen
               ? "row"
               : isMediumScreen
-              ? "column"
-              : "column",
+                ? "column"
+                : "column",
             borderWidth: 0,
             gap: 8,
           }}
@@ -551,7 +604,7 @@ export default function TaskModal() {
 
                               <AvatarBadge />
                             </Avatar>
-                            <Text style={{ marginLeft: 15 }}>
+                            <Text style={{ marginLeft: 15, color: "#ffffff" }}>
                               {t.firstName} {t.lastName}
                             </Text>
                           </>
@@ -577,8 +630,8 @@ export default function TaskModal() {
           backgroundColor: isLargeScreen
             ? "#5C5C5C"
             : isMediumScreen
-            ? "#5C5C5C"
-            : "#1F1F1F",
+              ? "#5C5C5C"
+              : "#1F1F1F",
         }}
       >
         <Text
@@ -595,7 +648,6 @@ export default function TaskModal() {
           <HStack style={{ alignItems: "center" }}>
             <Avatar size="sm" style={{ position: "absolute", marginLeft: 15 }}>
               <AvatarFallbackText>{profile?.firstName}</AvatarFallbackText>
-              <AvatarBadge />
             </Avatar>
 
             <TextInput
@@ -649,8 +701,8 @@ export default function TaskModal() {
                     backgroundColor: isLargeScreen
                       ? "#00000052"
                       : isMediumScreen
-                      ? "#00000052"
-                      : "transparent",
+                        ? "#00000052"
+                        : "transparent",
                     marginBottom: -20,
                   }}
                 >
@@ -672,7 +724,6 @@ export default function TaskModal() {
                           <AvatarFallbackText>
                             {user?.firstName}
                           </AvatarFallbackText>
-                          <AvatarBadge />
                         </Avatar>
                       </Box>
 
@@ -699,26 +750,22 @@ export default function TaskModal() {
                         </HStack>
 
                         {isCodeBlock(t.text) ? (
-                          <View
-                            style={{
-                              backgroundColor: "#1e1e1e",
-                              padding: 10,
-                              borderRadius: 6,
-                              marginTop: 5,
-                              borderWidth: 1,
-                              borderColor: "#333",
+                          <SyntaxHighlighter
+                            highlighter="hljs"
+                            language={detectLanguage(t.text)}
+                            style={atomOneDark}
+                            customStyle={{
+                              borderRadius: 8,
+                              marginTop: 6,
+                              padding: 12,
+                              fontSize: 13,
                             }}
                           >
-                            <Text
-                              style={{
-                                fontFamily: "monospace",
-                                color: "#9cdcfe",
-                                fontSize: 13,
-                              }}
-                            >
-                              {extractCode(t.text)}
-                            </Text>
-                          </View>
+                            {formatCode(
+                              extractCode(t.text),
+                              detectLanguage(t.text)
+                            )}
+                          </SyntaxHighlighter>
                         ) : (
                           <Text style={{ color: "#CDCCCC" }}>{t.text}</Text>
                         )}

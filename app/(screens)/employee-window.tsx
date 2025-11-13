@@ -1,12 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, useWindowDimensions, Pressable, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  useWindowDimensions,
+  Pressable,
+  StyleSheet,
+} from "react-native";
 import { useUser } from "@/context/profileContext";
 import { useProject } from "@/context/projectContext";
 
 import { HStack } from "@/components/ui/hstack";
 import { VStack } from "@/components/ui/vstack";
 import { Box } from "@/components/ui/box";
-import { Avatar, AvatarFallbackText, AvatarBadge } from "@/components/ui/avatar";
+import {
+  Avatar,
+  AvatarFallbackText,
+  AvatarBadge,
+} from "@/components/ui/avatar";
 import { Divider } from "@/components/ui/divider";
 import { Card } from "@/components/ui/card";
 import { Heading } from "@/components/ui/heading";
@@ -19,11 +29,9 @@ import { Icon, ArrowLeftIcon } from "@/components/ui/icon";
 import { ScrollView } from "react-native-gesture-handler";
 import { Progress, ProgressFilledTrack } from "@/components/ui/progress";
 
-
 export default function EmployeeWindow() {
   const { selectedEmployee, profiles} = useUser();
   const { project, assignedUser, setSelectedProject, tasks } = useProject();
-  
 
    const progressCalculation = (projectID: string) => {
     const currentProjectTasks = tasks.filter((t) => t.projectID === projectID);
@@ -47,7 +55,7 @@ export default function EmployeeWindow() {
 
   const currentUser = profiles.find((t) => t.uid === selectedEmployee);
 
-    const currentUserProjects = project.filter((p) =>
+  const currentUserProjects = project.filter((p) =>
     assignedUser.some((a) => p.id === a.projectID && a.uid === currentUser?.uid)
   );
 
@@ -55,22 +63,22 @@ export default function EmployeeWindow() {
   const onCompleteProject = currentUserProjects.filter((p) => p.status === "Complete" || p.status === "Completed");
 
 
-  
+  const [cardIdHover, setCardIdHover] = useState("");
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
 
-    const [cardIdHover, setCardIdHover] = useState("");
-    const [hoveredId, setHoveredId] = useState<string | null>(null);
-    
   const truncateWords = (text: string, wordLimit: number) => {
     const words = text.split(" ");
     return words.length > wordLimit
       ? words.slice(0, wordLimit).join(" ") + "..."
       : text;
   };
-  
+
   const dimensions = useWindowDimensions();
   const isLargeScreen = dimensions.width >= 1280;
   const isMediumScreen = dimensions.width <= 1280 && dimensions.width > 768;
 
+  const progressCalculation = (projectID: string) => {
+    const currentProjectTasks = tasks.filter((t) => t.projectID === projectID);
 
   return (
     <View style={{ flex: 1, backgroundColor: "#000000ff", paddingTop: 0, paddingLeft: 20, paddingRight: 20, paddingBottom: 40}}>
@@ -90,7 +98,9 @@ export default function EmployeeWindow() {
                 className="text-typography-500 w-7 h-7 "
                 color="#ffffffff"
               />
-              <Text style={{ fontSize: 23, fontWeight: "bold", color: "#ffffffff" }}>
+              <Text
+                style={{ fontSize: 23, fontWeight: "bold", color: "#ffffffff" }}
+              >
                 Back
               </Text>
             </HStack>
@@ -191,9 +201,37 @@ export default function EmployeeWindow() {
                     gap: isLargeScreen ? 8 : isMediumScreen ? 8 : 8,            
                     }}>
 
-                    {onProgressProject.map((t) => (
-                      <View 
-                      key={t.id}
+            {onProgressProject.map((t) => (
+              <View
+                key={t.id}
+                style={{
+                  backgroundColor: "transparent",
+                  borderColor: "#b63d3dff",
+                  borderWidth: 1,
+                  margin: 4,
+                  padding: 4,
+                  flexWrap: "wrap",
+                }}
+              >
+                <Pressable
+                  style={{ borderWidth: 1, width: "100%" }}
+                  onPress={() => {
+                    setSelectedProject(t.id);
+                    router.replace("/(screens)/projectWindow");
+                  }}
+                >
+                  <Card
+                    size="lg"
+                    className="p-5 w-full m1"
+                    style={{
+                      borderRadius: 12,
+                      borderWidth: 2,
+                      backgroundColor: "#ffffffff", //hoverable content
+                      padding: 12,
+                      width: "100%",
+                    }}
+                  >
+                    <Text
                       style={{
                         backgroundColor: "transparent",
                         borderColor: "#b63d3dff",
@@ -292,61 +330,79 @@ export default function EmployeeWindow() {
                      <Text style={{color: "#ffffff", fontSize: 12, fontWeight: "bold", alignSelf: "center"}}>Let's complete some projects!</Text>
 
 
-                     {onCompleteProject.map((t) => (
-                      <View 
-                      key={t.id}
+            {/* Completed CONTENT HERE */}
+            <Text
+              style={{ color: "#ffffff", fontSize: 12, fontWeight: "bold" }}
+            >
+              I have no complete project yet.
+            </Text>
+
+            {onCompleteProject.map((t) => (
+              <View
+                key={t.id}
+                style={{
+                  backgroundColor: "transparent",
+                  borderColor: "#b63d3dff",
+                  borderWidth: 1,
+                  margin: 4,
+                  padding: 4,
+                }}
+              >
+                <Pressable>
+                  <Card
+                    size="lg"
+                    className="p-5 w-full m1"
+                    style={{
+                      borderRadius: 12,
+                      borderWidth: 2,
+                      backgroundColor: "#1F1F1F", //hoverable content
+                      padding: 12,
+                    }}
+                  >
+                    <Text
                       style={{
-                        backgroundColor: "transparent",
-                        borderColor: "#b63d3dff",
-                        borderWidth: 1,
-                        margin: 4,
-                        padding: 4,
-                        
-                      }}>
+                        fontWeight: "bold",
+                        fontSize: 16,
+                        color: "#ffffffff",
+                      }}
+                    >
+                      {t.title ? String(t.title) : ""}
+                    </Text>
 
-                          <Pressable>
-                            <Card
-                            size="lg"
-                            className="p-5 w-full m1"
-                            style={{
-                              borderRadius: 12,
-                              borderWidth: 2,
-                              backgroundColor: "#1F1F1F", //hoverable content
-                              padding: 12,
-                              
-                            }}>
-                            
-                              <Text style={{
-                                fontWeight:"bold",
-                                fontSize: 16,
-                                color: "#ffffffff"
-                              }}>{t.title ? String(t.title) : ""}</Text>
-
-                              <HStack style={styles.AvatarMargin}>
-                                {profiles.filter((p) => assignedUser.some((a) => a.projectID === t.id && a.uid === p.uid)).map((t) => {
-                                  return (
-                                    <Avatar style={{backgroundColor: "#CDCCCC", marginLeft: 4}}>
-                                      <AvatarFallbackText size="sm" key={t.id} style={{color: "#000000"}}>
-                                        {t.firstName}
-                                      </AvatarFallbackText>
-                                    </Avatar>
-                                  );
-                                })}
-                              </HStack>
-                            </Card>
-                          </Pressable>
-
-                      </View>
-                    ))}
-
-
-
-
-              </ScrollView>
-            </HStack>
-         </VStack>
+                    <HStack style={styles.AvatarMargin}>
+                      {profiles
+                        .filter((p) =>
+                          assignedUser.some(
+                            (a) => a.projectID === t.id && a.uid === p.uid
+                          )
+                        )
+                        .map((t) => {
+                          return (
+                            <Avatar
+                              style={{
+                                backgroundColor: "#CDCCCC",
+                                marginLeft: 4,
+                              }}
+                            >
+                              <AvatarFallbackText
+                                size="sm"
+                                key={t.id}
+                                style={{ color: "#000000" }}
+                              >
+                                {t.firstName}
+                              </AvatarFallbackText>
+                            </Avatar>
+                          );
+                        })}
+                    </HStack>
+                  </Card>
+                </Pressable>
+              </View>
+            ))}
+          </ScrollView>
+        </HStack>
+      </VStack>
     </View>
-    
   );
 }
 
@@ -356,4 +412,4 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     flex: 1
   },
-})
+});

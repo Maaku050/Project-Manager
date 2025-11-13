@@ -36,8 +36,6 @@ export default function Home() {
     assignedUser.some((a) => p.id === a.projectID && a.uid === profile?.uid)
   );
 
- 
-
   useEffect(() => {
     console.log("Home current user projects: ", currentUserProjects);
   }, []);
@@ -214,8 +212,8 @@ export default function Home() {
             flexDirection: isLargeScreen
               ? "row"
               : isMediumScreen
-              ? "row"
-              : "column",
+                ? "row"
+                : "column",
             flexWrap: "wrap",
             paddingLeft: isLargeScreen ? 16 : isMediumScreen ? 16 : 0,
             paddingTop: 20,
