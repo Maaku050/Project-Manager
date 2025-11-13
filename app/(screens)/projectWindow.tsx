@@ -1038,14 +1038,14 @@ export default function ProjectWindow() {
                                 </Text>
                               </VStack>
                             </Pressable>
-                          </HStack>
-                        </Card>
-                      </Center>
-                    </View>
-                  ))}
-                </ScrollView>
-              </Box>
-            </VStack>
+                      </HStack>
+                    </Card>
+                  </Center>
+                </View>
+              ))}
+            </ScrollView>
+          </Box>
+          </VStack>
 
             {/* Ongoing Tasks */}
             <VStack style={{ flex: 1 }}>

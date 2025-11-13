@@ -140,23 +140,15 @@ export default function Sample() {
             // backgroundColor: 'white',
             marginTop: 10,
             marginBottom: 30,
-            height: "auto",
+            // height: "auto",
             borderRadius: 12,
             flexDirection: isLargeScreen
               ? "row"
               : isMediumScreen
               ? "row"
               : "column",
-            justifyContent: isLargeScreen
-              ? "flex-start"
-              : isMediumScreen
-              ? "flex-start"
-              : "flex-start",
-            alignItems: isLargeScreen
-              ? "center"
-              : isMediumScreen
-              ? "flex-start"
-              : "flex-start",
+            justifyContent: "flex-start",
+            alignItems: "stretch",
             flexWrap: "wrap",
             padding: 12,
           }}
@@ -172,9 +164,12 @@ export default function Sample() {
                 marginBottom: 8,
                 marginTop: 8,
                 borderRadius: 12,
-                width: isLargeScreen ? "30%" : isMediumScreen ? "40%" : "90%",
-                height: isLargeScreen ? 140 : isMediumScreen ? 180 : 120,
+                // width: isLargeScreen ? "30%" : isMediumScreen ? "40%" : "90%",
+                // height: isLargeScreen ? 140 : isMediumScreen ? 180 : 120,
                 padding: 12,
+                flexBasis: isLargeScreen ? "30.5%" : isMediumScreen ? "30%" : "10%",
+                minWidth: isLargeScreen || isMediumScreen ? undefined : "90%",
+                minHeight: 120,
               }}
             >
               <Pressable
