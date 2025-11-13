@@ -110,20 +110,23 @@ export default function Home() {
           marginLeft: isLargeScreen ? 80 : isMediumScreen ? 40 : 12,
           marginRight: isLargeScreen ? 80 : isMediumScreen ? 40 : 12,
           marginTop: isLargeScreen ? 8 : 4,
-          paddingTop: 40,
-          paddingBottom: 40,
+          paddingTop: 20,
+          paddingBottom: 12,
           borderRadius: 12,
+          borderWidth: 0,
+          borderColor: "#ffffff",
           backgroundColor: "#1F1F1F",
         }}
       >
         <Box
           style={{
             marginBottom: 20,
+            borderWidth: 0,
           }}
         >
           <Text
             style={{
-              fontSize: isLargeScreen ? 25 : 20,
+              fontSize: isLargeScreen ? 32 : isMediumScreen ? 24 : 20,
               color: "white",
               fontWeight: "bold",
               fontFamily: "roboto, arial",
@@ -141,7 +144,7 @@ export default function Home() {
         <Box
           style={{
             borderWidth: 0,
-            marginBottom: 20,
+            marginTop: isLargeScreen ? 32 : isMediumScreen ? 20 : 12,
           }}
         >
           <Avatar size="2xl">
@@ -151,19 +154,20 @@ export default function Home() {
                 uri: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80",
               }}
             />
-            <AvatarBadge />
+            {/* <AvatarBadge /> */}
           </Avatar>
         </Box>
         <Box>
           <Text
             style={{
-              fontSize: isLargeScreen ? 16 : 12,
+              fontSize: isLargeScreen ? 20 : isMediumScreen ? 16 : 12,
+              marginTop: isLargeScreen ? 32 : isMediumScreen ? 20 : 12,
               color: "white",
               fontWeight: "bold",
               fontFamily: "roboto, arial",
             }}
           >
-            {profile?.role}{" "}
+            {profile?.role.toUpperCase()}{" "}
           </Text>
         </Box>
       </View>
@@ -206,21 +210,19 @@ export default function Home() {
               ? "flex-start"
               : isMediumScreen
               ? "flex-start"
-              : "center", // create another condition for justifyContent
-            alignItems: isLargeScreen
-              ? "flex-start"
-              : isMediumScreen
-              ? "flex-start"
-              : "center", // create another condition for alignItems
+              : "center", 
             flexDirection: isLargeScreen
               ? "row"
               : isMediumScreen
               ? "row"
               : "column",
             flexWrap: "wrap",
-            paddingLeft: isLargeScreen ? 20 : isMediumScreen ? 120 : 0,
-            paddingBottom: isLargeScreen ? 20 : isMediumScreen ? 12 : 32,
-            paddingRight: isLargeScreen ? 20 : isMediumScreen ? 0 : 0,
+            paddingLeft: isLargeScreen ? 16 : isMediumScreen ? 16 : 0,
+            paddingTop: 20,
+            paddingBottom: 20,
+            paddingRight: isLargeScreen ? 16 : isMediumScreen ? 16 : 0,
+            gap: 0,
+            borderWidth: 0,
           }}
         >
           {myProject.map((t) => (
@@ -229,17 +231,13 @@ export default function Home() {
               className="m-3"
               key={t.id}
               style={{
-                width: isLargeScreen ? "30%" : isMediumScreen ? "40%" : "90%",
-                marginBottom: 0,
-                marginRight: -2,
-                marginLeft: 12,
-                paddingTop: 12,
-                paddingLeft: isLargeScreen ? 12 : isMediumScreen ? 20 : 8,
-                paddingRight: 12,
-                paddingBottom: 32,
-                height: isLargeScreen ? 140 : isMediumScreen ? 180 : 120,
+                flexBasis: isLargeScreen ? "31.5%" : isMediumScreen ? "47%" : "auto",
+                minHeight: 120,
+                padding: 12,
+                margin: 8,
                 backgroundColor: "white",
                 borderRadius: isLargeScreen ? 12 : isMediumScreen ? 12 : 8,
+                justifyContent: "space-between",
               }}
             >
               <Pressable
@@ -315,3 +313,5 @@ export default function Home() {
     </ScrollView>
   );
 }
+
+
