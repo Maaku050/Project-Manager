@@ -240,8 +240,24 @@ export default function TaskModal() {
     return text.startsWith("```") && text.endsWith("```");
   };
 
+  // const formatCode = (code: string) => {
+  //   try {
+  //     return prettier.format(code, {
+  //       parser: "babel",
+  //       plugins: [parsers],
+  //     });
+  //   } catch (e) {
+  //     console.warn("Prettier format failed:", e);
+  //     return code; // fallback
+  //   }
+  // };
+
   const extractCode = (text: string) => {
-    return text.replace(/^```/, "").replace(/```$/, "").trim();
+    const code = text
+      .replace(/^```[\w]*\n?/, "")
+      .replace(/```$/, "")
+      .trim();
+    return code;
   };
 
   return (
@@ -324,8 +340,8 @@ export default function TaskModal() {
                 {currentTask?.status === "To-do"
                   ? "Start"
                   : currentTask?.status === "Ongoing"
-                  ? "Complete"
-                  : "Revert"}
+                    ? "Complete"
+                    : "Revert"}
               </ButtonText>
             </Button>
           </HStack>
@@ -353,8 +369,8 @@ export default function TaskModal() {
             flexDirection: isLargeScreen
               ? "row"
               : isMediumScreen
-              ? "column"
-              : "column",
+                ? "column"
+                : "column",
             borderWidth: 0,
             gap: 8,
           }}
@@ -577,8 +593,8 @@ export default function TaskModal() {
           backgroundColor: isLargeScreen
             ? "#5C5C5C"
             : isMediumScreen
-            ? "#5C5C5C"
-            : "#1F1F1F",
+              ? "#5C5C5C"
+              : "#1F1F1F",
         }}
       >
         <Text
@@ -649,8 +665,8 @@ export default function TaskModal() {
                     backgroundColor: isLargeScreen
                       ? "#00000052"
                       : isMediumScreen
-                      ? "#00000052"
-                      : "transparent",
+                        ? "#00000052"
+                        : "transparent",
                     marginBottom: -20,
                   }}
                 >
@@ -699,14 +715,12 @@ export default function TaskModal() {
                         </HStack>
 
                         {isCodeBlock(t.text) ? (
-                          <View
+                          <ScrollView
                             style={{
                               backgroundColor: "#1e1e1e",
-                              padding: 10,
                               borderRadius: 6,
+                              padding: 10,
                               marginTop: 5,
-                              borderWidth: 1,
-                              borderColor: "#333",
                             }}
                           >
                             <Text
@@ -718,7 +732,7 @@ export default function TaskModal() {
                             >
                               {extractCode(t.text)}
                             </Text>
-                          </View>
+                          </ScrollView>
                         ) : (
                           <Text style={{ color: "#CDCCCC" }}>{t.text}</Text>
                         )}

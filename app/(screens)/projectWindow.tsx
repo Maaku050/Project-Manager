@@ -698,8 +698,8 @@ export default function ProjectWindow() {
                 flexDirection: isLargeScreen
                   ? "row"
                   : isMediumScreen
-                  ? "row"
-                  : "column",
+                    ? "row"
+                    : "column",
               }}
             >
               <View
@@ -1038,26 +1038,14 @@ export default function ProjectWindow() {
                                 </Text>
                               </VStack>
                             </Pressable>
-                            <Box
-                              style={{
-                                padding: 4,
-                                fontSize: 16,
-                                flexWrap: "wrap",
-                                fontWeight: isHover ? "bold" : "normal",
-                                color: "black",
-                              }}>
-                                
-                              {t.title ? String(t.title) : ""}
-                            </Text>
-                          </VStack>
-                        </Pressable>
-                      </HStack>
-                    </Card>
-                  </Center>
-                </View>
-              ))}
-            </ScrollView>
-          </Box>
+                          </HStack>
+                        </Card>
+                      </Center>
+                    </View>
+                  ))}
+                </ScrollView>
+              </Box>
+            </VStack>
 
             {/* Ongoing Tasks */}
             <VStack style={{ flex: 1 }}>
