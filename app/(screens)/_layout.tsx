@@ -1,18 +1,22 @@
 // app/_layout.tsx
 import React from "react";
+import { Text } from "react-native";
 import { useWindowDimensions } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 import { Drawer } from "expo-router/drawer";
 import "@/global.css";
 
-import { UserProvider } from "@/context/profileContext";
+import { UserProvider, useUser } from "@/context/profileContext";
 import { ProjectProvider } from "@/context/projectContext";
+
+import { HeaderUserEmail } from "./home";
 
 export default function RootLayout() {
   const dimensions = useWindowDimensions();
   const isLargeScreen = dimensions.width >= 1280; // computer UI condition
   const isMediumScreen = dimensions.width <= 1280 && dimensions.width > 768; // tablet UI condition
+  const { profile } = useUser();
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -61,18 +65,50 @@ export default function RootLayout() {
               }}
             >
               {/* headerBackground:{"#000000ff"} */}
-              <Drawer.Screen name="index" options={{ title: "Home" }} />
+              <Drawer.Screen
+                name="home"
+                options={{
+                  title: "Home",
+                  headerTitle: () => null,
+                  headerRight: () => <HeaderUserEmail />,
+                  headerTintColor: "white",
+                }}
+              />
               <Drawer.Screen
                 name="dashboard"
-                options={{ title: "Dashboard" }}
+                options={{
+                  title: "Dashboard",
+                  headerTitle: () => null,
+                  headerRight: () => <HeaderUserEmail />,
+                  headerTintColor: "white",
+                }}
               />
-              <Drawer.Screen name="project" options={{ title: "Project" }} />
-              <Drawer.Screen name="employee" options={{ title: "Employee" }} />
+              <Drawer.Screen
+                name="project"
+                options={{
+                  title: "Project",
+                  headerTitle: () => null,
+                  headerRight: () => <HeaderUserEmail />,
+                  headerTintColor: "white",
+                }}
+              />
+              <Drawer.Screen
+                name="employee"
+                options={{
+                  title: "Employee",
+                  headerTitle: () => null,
+                  headerRight: () => <HeaderUserEmail />,
+                  headerTintColor: "white",
+                }}
+              />
               <Drawer.Screen
                 name="projectWindow"
                 options={{
                   title: "Project",
                   drawerItemStyle: { display: "none" },
+                  headerTitle: () => null,
+                  headerRight: () => <HeaderUserEmail />,
+                  headerTintColor: "white",
                 }}
               />
               <Drawer.Screen
@@ -80,6 +116,9 @@ export default function RootLayout() {
                 options={{
                   title: "Task",
                   drawerItemStyle: { display: "none" },
+                  headerTitle: () => null,
+                  headerRight: () => <HeaderUserEmail />,
+                  headerTintColor: "white",
                 }}
               />
               <Drawer.Screen
@@ -87,6 +126,9 @@ export default function RootLayout() {
                 options={{
                   title: "Employee",
                   drawerItemStyle: { display: "none" },
+                  headerTitle: () => null,
+                  headerRight: () => <HeaderUserEmail />,
+                  headerTintColor: "white",
                 }}
               />
               <Drawer.Screen
@@ -94,6 +136,9 @@ export default function RootLayout() {
                 options={{
                   title: "Create Account",
                   drawerItemStyle: { display: "none" },
+                  headerTitle: () => null,
+                  headerRight: () => <HeaderUserEmail />,
+                  headerTintColor: "white",
                 }}
               />
             </Drawer>
