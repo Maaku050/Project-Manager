@@ -51,10 +51,27 @@ import { EllipsisVertical, SquarePen } from "lucide-react-native";
 import ProjectEditModal from "@/modals/projectEditModal";
 import TaskAddModal from "@/modals/taskAddModal";
 import { Star } from 'lucide-react-native';
+import StarsPointsModal from "@/modals/starsPointsModal";
+import { Menu, MenuItem, MenuItemLabel } from '@/components/ui/menu';
+import {
+  AddIcon,
+  GlobeIcon,
+  PlayIcon,
+  SettingsIcon,
+} from '@/components/ui/icon';
+
 
 export default function ProjectWindow() {
-  const { selectedProject, project, tasks, assignedUser, setSelectedTask } =
-    useProject();
+  const { 
+    selectedProject, 
+    project, 
+    tasks,
+    assignedUser, 
+    setSelectedTask, 
+    selectedTask,
+    starsPoints
+  } = useProject();
+
   const { profiles } = useUser();
   const currentProjectData = project.find((t) => t.id === selectedProject);
   const currentProjectTasks = tasks.filter(
@@ -109,6 +126,31 @@ export default function ProjectWindow() {
   const [todoOrOngoing, setTodoOrOngoing] = useState(true);
   const [taskID, setTaskID] = useState("");
   const [taskIdToDelete, setTaskIdToDelete] = useState("");
+
+  // const [setStarsPoints function]--------------------------------------------------
+  
+  const startVal = [1, 2, 3, 4, 5];
+
+  const [showStarsPointsModal, setShowStarsPointsModal ] = useState(false);
+  const [starID, setStarID] = useState("");
+
+  const starRate = starsPoints?.points;
+  // const starTaskID = starsPoints?.taskID;
+  const starDataID = starsPoints?.taskID;
+  const currentTaskStar = tasks.find((t) => t.id === starDataID);
+
+  // Handles updating the star rating for a task.
+  // Call this function with the desired star value (1-5) to update the rating for the currently selected task.
+  const starValue = (state: number) => {
+    if (!selectedTask) return;
+    // TODO: Implement logic to update the star rating in Firestore or local state.
+  };
+
+
+
+  // star points-----------------------------------------------------------------
+
+
 
   const projectDeadline =
     currentProjectData?.deadline && "toDate" in currentProjectData.deadline
@@ -670,12 +712,12 @@ export default function ProjectWindow() {
                             </Pressable>
 
 
+
                                     {/* --------------------------star-------------------------- */}
-                            <Pressable style={{alignItems: "flex-start", alignSelf: "baseline" }}>
+                            <Pressable style={{alignItems: "flex-start", alignSelf: "baseline" }}  onPress={() => setShowStarsPointsModal(true)}>
                               <Star color={"gold"}  fill={"gold"} style={{height: 32, width: 32}} />
                               <Text style={{position: "absolute", top: 3.5, right: 12}}>5</Text> 
                                     {/* --------------------------star-------------------------- */}
-
                             </Pressable>
 
                       </HStack>
@@ -716,7 +758,7 @@ export default function ProjectWindow() {
                                             borderWidth: 1, 
                                             borderColor: "#1f1f1f"
                                             }} >
-                                              
+
                                             <AvatarFallbackText>
                                               {t.firstName}
                                             </AvatarFallbackText>
@@ -1009,9 +1051,26 @@ export default function ProjectWindow() {
           </HStack>
         </Box>
 {/* ----------------------------end of the three doom------------------------------- */}
-
-
       </ScrollView>
+
+                                  
+                                  
+      {/* --------------------------star Menu-------------------------- */}
+     {/* <Menu placement="bottom right">
+        <MenuItem onPress={() => setShowEditProjectModal(true)}>
+          <MenuItemLabel>
+            <HStack style={{ alignItems: "center", gap: 8 }}>
+              <Pressable style={{alignItems: "flex-start", alignSelf: "baseline" }}  onPress={() => setShowStarsPointsModal(true)}>
+                <Star color={"gold"}  fill={"gold"} style={{height: 32, width: 32}} />
+                <Text style={{position: "absolute", top: 3.5, right: 12}}>5</Text> 
+              </Pressable>
+            </HStack>
+          </MenuItemLabel>
+        </MenuItem>
+      </Menu> */}
+      {/* --------------------------star Menu-------------------------- */}
+
+
 
       <Modal
         isOpen={showConfirmationModal}
@@ -1117,49 +1176,15 @@ export default function ProjectWindow() {
         </ModalContent>
       </Modal>
 
-      {/* <Modal
-        isOpen={showTodoConfirmationModal}
-        onClose={() => {
-          setTodoConfirmationModal(false);
-        }}
-        size="md"
-      >
-        <ModalBackdrop />
-        <ModalContent>
-          <ModalHeader>
-            <Heading size="lg">Confirmation</Heading>
-            <ModalCloseButton>
-              <Icon as={CloseIcon} />
-            </ModalCloseButton>
-          </ModalHeader>
-          <ModalBody>
-            <Text>This is the modal body. You can add any content here.</Text>
-          </ModalBody>
-          <ModalFooter>
-            <Button
-              variant="outline"
-              action="secondary"
-              className="mr-3"
-              onPress={() => {
-                setTodoConfirmationModal(false);
-              }}
-            >
-              <ButtonText>Cancel</ButtonText>
-            </Button>
-            <Button
-              onPress={() => {
-                setTodoConfirmationModal(false);
-              }}
-            >
-              <ButtonText>Save</ButtonText>
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal> */}
 
       <ProjectEditModal
         visible={showEditProjectModal}
         onClose={() => setShowEditProjectModal(false)}
+      />
+
+      <StarsPointsModal
+        visible={showStarsPointsModal}
+        onClose={() => setShowStarsPointsModal(false)}
       />
 
       <TaskAddModal

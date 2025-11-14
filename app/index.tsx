@@ -184,7 +184,7 @@ export default function LoginScreen() {
       setLoading(true);
       await signInWithEmailAndPassword(auth, email, password);
       // handleToastSuccess();
-      router.replace("/(screens)"); // 👈 Go to your main to-do page
+      router.replace("/(screens)/home"); // 👈 Go to your main to-do page
     } catch (error: any) {
       handleToastError(error.message);
     } finally {
