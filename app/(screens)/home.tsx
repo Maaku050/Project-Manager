@@ -18,8 +18,9 @@ import { Heading } from "@/components/ui/heading";
 import { Progress, ProgressFilledTrack } from "@/components/ui/progress";
 import { VStack } from "@/components/ui/vstack";
 import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
-import { SquarePen } from "lucide-react-native";
+import { LogOut, SquarePen } from "lucide-react-native";
 import ProfileEditModal from "@/modals/profileEditModal";
+import LogoutModal from "@/modals/logoutModal";
 
 export default function Home() {
   const router = useRouter();
@@ -207,8 +208,8 @@ export default function Home() {
             justifyContent: isLargeScreen
               ? "flex-start"
               : isMediumScreen
-              ? "flex-start"
-              : "center", 
+                ? "flex-start"
+                : "center",
             flexDirection: isLargeScreen
               ? "row"
               : isMediumScreen
@@ -229,7 +230,11 @@ export default function Home() {
               className="m-3"
               key={t.id}
               style={{
-                flexBasis: isLargeScreen ? "31.5%" : isMediumScreen ? "47%" : "auto",
+                flexBasis: isLargeScreen
+                  ? "31.5%"
+                  : isMediumScreen
+                    ? "47%"
+                    : "auto",
                 minHeight: 120,
                 padding: 12,
                 margin: 8,
@@ -312,4 +317,28 @@ export default function Home() {
   );
 }
 
+export function HeaderUserEmail() {
+  const { profile } = useUser();
+  const [isLogoutPress, setIsLogoutPress] = useState(false);
 
+  return (
+    <>
+      <HStack style={{ alignItems: "center", marginRight: 20 }}>
+        <VStack style={{ alignItems: "flex-end", marginRight: 20 }}>
+          <Text style={{ color: "white", fontSize: 12 }}>
+            {profile?.firstName} {profile?.lastName}
+          </Text>
+          <Text style={{ color: "white", fontSize: 12 }}>{profile?.email}</Text>
+        </VStack>
+        <Pressable onPress={() => setIsLogoutPress(true)}>
+          <LogOut color={"white"} />
+        </Pressable>
+      </HStack>
+
+      <LogoutModal
+        visible={isLogoutPress}
+        onClose={() => setIsLogoutPress(false)}
+      />
+    </>
+  );
+}

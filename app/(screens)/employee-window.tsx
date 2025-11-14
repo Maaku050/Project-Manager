@@ -21,11 +21,11 @@ import { Progress, ProgressFilledTrack } from "@/components/ui/progress";
 
 
 export default function EmployeeWindow() {
-  const { selectedEmployee, profiles} = useUser();
+  const { selectedEmployee, profiles } = useUser();
   const { project, assignedUser, setSelectedProject, tasks } = useProject();
   
 
-   const progressCalculation = (projectID: string) => {
+  const progressCalculation = (projectID: string) => {
     const currentProjectTasks = tasks.filter((t) => t.projectID === projectID);
 
     const ongoingTasks = currentProjectTasks.filter(
@@ -51,9 +51,12 @@ export default function EmployeeWindow() {
     assignedUser.some((a) => p.id === a.projectID && a.uid === currentUser?.uid)
   );
 
-  const onProgressProject = currentUserProjects.filter((p) => p.status === "Pending" || p.status === "Ongoing");
-  const onCompleteProject = currentUserProjects.filter((p) => p.status === "Complete" || p.status === "Completed");
-
+  const onProgressProject = currentUserProjects.filter(
+    (p) => p.status === "Pending" || p.status === "Ongoing"
+  );
+  const onCompleteProject = currentUserProjects.filter(
+    (p) => p.status === "Complete" || p.status === "Completed"
+  );
 
   
 
@@ -164,21 +167,19 @@ export default function EmployeeWindow() {
 
 
 
-                {/* user info. */}
-              <ScrollView style={{
-                flex: 2, 
-                borderWidth: 0, 
-                borderColor: "#727070ff", 
-                height: "100%",
-                borderRadius: 12,
-                paddingTop: 12,
-                paddingRight: isLargeScreen ? 32 : isMediumScreen ? 20 : 20,
-                paddingLeft: isLargeScreen ? 32 : isMediumScreen ? 20 : 20,
-                paddingBottom: 12,
-                backgroundColor: "#1f1f1f"
-                }}>
-                <Text style={{
-                  fontSize: isLargeScreen ? 40 : isMediumScreen ? 32 : 20,
+            <HStack
+              style={{
+                justifyContent: "space-between",
+                alignItems: "center",
+                flexWrap: "wrap",
+                borderWidth: 0,
+                // marginBottom: isLargeScreen ? 20 : isMediumScreen ? 20 : 16,
+                marginTop: isLargeScreen ? 20 : isMediumScreen ? 16 : 12,
+                marginBottom: isLargeScreen ? 20 : isMediumScreen ? 16 : 12,
+              }}
+            >
+              <Text
+                style={{
                   fontFamily: "roboto, arial",
                   fontWeight: "bold",
                   color: "#ffffffff"
@@ -213,8 +214,7 @@ export default function EmployeeWindow() {
                       <View 
                       key={t.id}
                       style={{
-                        backgroundColor: "transparent",
-                        borderColor: "#b63d3dff",
+                        borderRadius: 12,
                         borderWidth: 0,
                         margin: 0,
                         padding: 4,
@@ -377,6 +377,6 @@ const styles = StyleSheet.create({
   AvatarMargin: {
     marginTop: 12,
     marginBottom: 12,
-    flex: 1
+    flex: 1,
   },
 })
