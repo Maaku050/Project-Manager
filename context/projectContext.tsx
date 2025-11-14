@@ -44,6 +44,13 @@ interface AssignedUser {
   uid: string;
 }
 
+interface StarsPoints {
+  id: string;
+  taskID: string;
+  points: number;
+  stars: number;
+}
+
 interface ProjectContextType {
   project: Project[];
   tasks: Task[];
@@ -53,7 +60,10 @@ interface ProjectContextType {
   setSelectedProject: (id: string | null) => void;
   selectedTask: string | null;
   setSelectedTask: (id: string | null) => void;
+  starsPoints: StarsPoints | null;
+  setStarsPoints: (value: StarsPoints | null) => void;
 }
+
 
 // === CONTEXT ===
 const ProjectContext = createContext<ProjectContextType>({
@@ -65,6 +75,8 @@ const ProjectContext = createContext<ProjectContextType>({
   setSelectedProject: () => {},
   selectedTask: null,
   setSelectedTask: () => {},
+  starsPoints: null,
+  setStarsPoints: () => {},
 });
 
 export const useProject = () => useContext(ProjectContext);
@@ -81,6 +93,7 @@ export const ProjectProvider = ({
   const [assignedUser, setAssignedUser] = useState<AssignedUser[]>([]);
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
   const [selectedTask, setSelectedTask] = useState<string | null>(null);
+  const [starsPoints, setStarsPoints] = useState<StarsPoints | null>(null);
 
   useEffect(() => {
     console.log("✅ ProjectContext Mounted");
@@ -130,12 +143,26 @@ export const ProjectProvider = ({
       }
     );
 
+    // --- Stars Points ---
+    const unsubStarsPoints = onSnapshot(
+      collection(db, "starsPoints"),
+      (snapshot) => {
+        const list: StarsPoints[] = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...(doc.data() as Omit<StarsPoints, "id">),
+        }));
+        setStarsPoints(list[0] || null);
+      }
+    );
+
     // --- Cleanup ---
     return () => {
       unsubProject();
       unsubTasks();
       unsubComments();
       unsubAssignedUsers();
+      unsubStarsPoints();
+      console.log("❌ ProjectContext Unmounted");
     };
   }, []);
 
@@ -150,6 +177,8 @@ export const ProjectProvider = ({
         setSelectedProject,
         selectedTask,
         setSelectedTask,
+        starsPoints,
+        setStarsPoints,
       }}
     >
       {children}
