@@ -8,12 +8,13 @@ import {
   StyleSheet,
   SafeAreaView,
   Pressable,
+  Image,
 } from "react-native";
 import {
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
 } from "firebase/auth";
-import { auth, db } from "../firebase/firebaseConfig";
+import { auth, db } from "@/firebase/firebaseConfig";
 import { useRouter } from "expo-router";
 import { Center } from "@/components/ui/center";
 import {
@@ -184,7 +185,7 @@ export default function LoginScreen() {
       setLoading(true);
       await signInWithEmailAndPassword(auth, email, password);
       // handleToastSuccess();
-      router.replace("/(screens)"); // 👈 Go to your main to-do page
+      router.replace("/(screens)/home"); // 👈 Go to your main to-do page
     } catch (error: any) {
       handleToastError(error.message);
     } finally {
@@ -221,8 +222,8 @@ export default function LoginScreen() {
   const [isCreateAccountPressed, setIsCreateAccountPressed] = useState(false);
   const [showModal, setShowModal] = React.useState(false);
   return (
-    <>
-      <Center style={{ flex: 1 }}>
+    <HStack style={{ flex: 1 }}>
+      {/* <Center style={{ flex: 1 }}>
         <Box
           style={{
             borderRadius: 12,
@@ -233,7 +234,6 @@ export default function LoginScreen() {
         >
           <View style={{ padding: 30, alignContent: "center" }}>
             <Center>
-              {/* not needed center tag */}
               <Text
                 style={{
                   fontSize: 20,
@@ -322,7 +322,132 @@ export default function LoginScreen() {
             </Button>
           </View>
         </Box>
-      </Center>
+      </Center> */}
+
+      {/* Login Section */}
+      <Box
+        style={{
+          width: 600,
+          backgroundColor: "black",
+          borderWidth: 0,
+          alignItems: "center",
+          justifyContent: "center",
+          paddingHorizontal: 50,
+        }}
+      >
+        {/* Header */}
+        <Box style={{ marginBottom: 30 }}>
+          <Text style={{ color: "white", fontSize: 24 }}>
+            Login to your account
+          </Text>
+          <Text style={{ color: "white", fontSize: 14 }}>
+            Welcome back, Please enter your details
+          </Text>
+        </Box>
+
+        {/* Inputs */}
+        <Box style={{ borderWidth: 0, width: 320 }}>
+          <Text style={styles.label}>Email</Text>
+          <TextInput
+            placeholder="Enter Your Email"
+            value={email}
+            onChangeText={setEmail}
+            autoCapitalize="none"
+            keyboardType="email-address"
+            style={styles.inputs}
+          />
+
+          <Text style={styles.label}>Password</Text>
+          <TextInput
+            placeholder="Enter Your Password"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            onSubmitEditing={handleLogin}
+            autoCapitalize="none"
+            style={styles.inputs}
+          />
+        </Box>
+
+        {/* Forgot Password Button */}
+        <Box
+          style={{
+            width: 320,
+            alignItems: "flex-end",
+            borderWidth: 0,
+            marginTop: 10,
+          }}
+        >
+          <Text style={{ color: "white", fontSize: 14 }}>Forgot Password?</Text>
+        </Box>
+
+        {/* Login Button */}
+        <Box
+          style={{
+            width: 320,
+            borderWidth: 0,
+            marginTop: 30,
+            marginBottom: 30,
+          }}
+        >
+          <Button
+            style={{ backgroundColor: "#CDCCCC", borderRadius: 8, height: 36 }}
+          >
+            <ButtonText style={{ color: "black", fontSize: 14 }}>
+              {loading ? (
+                <Spinner size="small" color="black" style={{ marginTop: 7 }} />
+              ) : (
+                "Log in"
+              )}
+            </ButtonText>
+          </Button>
+        </Box>
+
+        <Divider
+          orientation="horizontal"
+          style={{ backgroundColor: "white", width: 400 }}
+        />
+
+        {/* Create Account Button */}
+        <Box
+          style={{
+            width: 320,
+            borderWidth: 0,
+            marginTop: 30,
+            marginBottom: 30,
+          }}
+        >
+          <Button
+            style={{ backgroundColor: "#5C5C5C", borderRadius: 8, height: 36 }}
+          >
+            <ButtonText style={{ color: "white", fontSize: 14 }}>
+              Create account
+            </ButtonText>
+          </Button>
+        </Box>
+      </Box>
+
+      {/* Company Logo Section */}
+      <Box
+        style={{
+          flex: 1,
+          backgroundColor: "white",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Box style={{ borderWidth: 0, height: 500, width: 500 }}>
+          <Image
+            source={require("@/assets/images/Innoendo Logo_Main Logo.png")}
+            alt="image"
+            style={{
+              width: "100%",
+              height: "100%",
+              resizeMode: "contain",
+            }}
+          />
+        </Box>
+      </Box>
 
       <Modal
         isOpen={showModal}
@@ -380,7 +505,7 @@ export default function LoginScreen() {
           </ModalFooter>
         </ModalContent>
       </Modal>
-    </>
+    </HStack>
   );
 }
 
@@ -408,16 +533,14 @@ const styles = StyleSheet.create({
   },
   inputs: {
     borderWidth: 1,
-    borderColor: "#0000005b",
+    borderColor: "white",
     borderRadius: 8,
-    padding: 10,
-    marginBottom: 15,
-    color: "#000000ff",
+    padding: 8,
+    color: "#ffffffff",
   },
   label: {
-    fontSize: 13,
-    marginBottom: 4,
-    marginTop: 5,
-    color: "gray",
+    fontSize: 14,
+    marginVertical: 10,
+    color: "white",
   },
 });
