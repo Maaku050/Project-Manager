@@ -12,6 +12,7 @@ import {
   AvatarFallbackText,
   AvatarImage,
   AvatarBadge,
+  AvatarGroup,
 } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
 import { Heading } from "@/components/ui/heading";
@@ -21,6 +22,7 @@ import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
 import { LogOut, SquarePen } from "lucide-react-native";
 import ProfileEditModal from "@/modals/profileEditModal";
 import LogoutModal from "@/modals/logoutModal";
+import { green } from "react-native-reanimated/lib/typescript/Colors";
 
 export default function Home() {
   const router = useRouter();
@@ -44,32 +46,45 @@ export default function Home() {
   const myProject = project.filter((p) =>
     assignedUser.some((a) => a.projectID === p.id && a.uid === profile?.uid)
   );
+  
 
   const progressCalculation = (projectID: string) => {
     const currentProjectTasks = tasks.filter((t) => t.projectID === projectID);
+    // const ongoingTasks = currentProjectTasks.filter(
+      //     (t) => t.status === "Ongoing"
+      //   );
 
-    const ongoingTasks = currentProjectTasks.filter(
-      (t) => t.status === "Ongoing"
-    );
+      // const completedTasks = currentProjectTasks.filter(
+      //     (t) => t.status === "Completed"
+      //   );
 
-    const completedTasks = currentProjectTasks.filter(
-      (t) => t.status === "Completed"
-    );
+    const currentStateOfProject = project.find((p) => p.id === projectID);
+    if (currentStateOfProject?.status === "Ongoing") {
+      return "Ongoing";
+    } else if (currentStateOfProject?.status === "Completed") {
+      return "Completed";
+    } else if (currentStateOfProject?.status === "Pending") {
+      return "Pending";
+    } else {
+      return 0;
+    }                    
 
-    const totalTasks = currentProjectTasks.length;
+    // const totalTasks = currentProjectTasks.length;
 
-    const progress =
-      ((ongoingTasks.length * 0.5 + completedTasks.length * 1) / totalTasks) *
-      100;
+    // const progress =
+    //   ((ongoingTasks.length * 0.5 + completedTasks.length * 1) / totalTasks) *
+    //   100;
 
-    return progress;
+    // return progress;
   };
+
+ 
 
   return (
     <ScrollView className="bg-black shadow-md flex-1" 
     // style={{ backgroundColor: "#000000ff" }}
     >
-      <Box
+      {/* <Box
         style={{
           marginTop: 20,
           marginLeft: isLargeScreen ? 80 : isMediumScreen ? 40 : 12,
@@ -103,24 +118,43 @@ export default function Home() {
             </ButtonText>
           </Button>
         </HStack>
-      </Box>
+      </Box> */}
 
       <View
         style={{
+          justifyContent: "center",
           alignItems: "center",
-          marginLeft: isLargeScreen ? 80 : isMediumScreen ? 40 : 12,
-          marginRight: isLargeScreen ? 80 : isMediumScreen ? 40 : 12,
-          marginTop: isLargeScreen ? 8 : 4,
-          paddingTop: 20,
-          paddingBottom: 12,
+          marginLeft: isLargeScreen ? 24 : isMediumScreen ? 24 : 12,
+          marginRight: isLargeScreen ? 24 : isMediumScreen ? 24 : 12,
+          marginTop: isLargeScreen ? 24 : 12,
+          paddingTop: 28,
+          paddingBottom: 28,
           borderRadius: 12,
           borderWidth: 0,
+          minHeight: 400,
+          maxHeight: 600,
           borderColor: "#ffffff",
           backgroundColor: "#1F1F1F",
         }}
       >
+          <Box
+            style={{
+              position: "absolute",
+              top: 12,
+              right: 12,
+            }}
+          >
+            <Button onPress={() => setShowEditModal(true)}>
+                <ButtonText>
+                  <SquarePen color={"white"} />
+                </ButtonText>
+              </Button>
+          </Box>
+
+
         <Box
           style={{
+            marginTop: 20,
             marginBottom: 20,
             borderWidth: 0,
           }}
@@ -149,12 +183,12 @@ export default function Home() {
           }}
         >
           <Avatar size="2xl">
-            <AvatarFallbackText>Jane Doe</AvatarFallbackText>
-            <AvatarImage
+            <AvatarFallbackText>{profile?.firstName}</AvatarFallbackText>
+            {/* <AvatarImage
               source={{
                 uri: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80",
               }}
-            />
+            /> */}
             {/* <AvatarBadge /> */}
           </Avatar>
         </Box>
@@ -170,25 +204,30 @@ export default function Home() {
           >
             {profile?.role.toUpperCase()}{" "}
           </Text>
+
+          
         </Box>
       </View>
 
       <View
         style={{
-          marginLeft: isLargeScreen ? 80 : isMediumScreen ? 40 : 12,
-          marginRight: isLargeScreen ? 80 : isMediumScreen ? 40 : 12,
-          marginTop: 20,
+          marginLeft: isLargeScreen ? 24 : isMediumScreen ? 24 : 12,
+          marginRight: isLargeScreen ? 24 : isMediumScreen ? 24 : 12,
+          marginTop: 16,
           backgroundColor: "#1F1F1F",
           borderRadius: 12,
+          minHeight: 400,
+          maxHeight: "100%",
           flex: 1,
+          padding: 28,
+          gap: 28,
         }}
+        
       >
         <Box
           style={{
-            marginTop: 20,
-            marginBottom: 12,
-            marginLeft: 20,
-            flex: 1,
+            borderWidth: 0,
+            // flex: 1,
             alignItems: "flex-start",
             justifyContent: "flex-start",
           }}
@@ -218,18 +257,14 @@ export default function Home() {
                 ? "row"
                 : "column",
             flexWrap: "wrap",
-            paddingLeft: isLargeScreen ? 16 : isMediumScreen ? 16 : 0,
-            paddingTop: 20,
-            paddingBottom: 20,
-            paddingRight: isLargeScreen ? 16 : isMediumScreen ? 16 : 0,
-            gap: 0,
             borderWidth: 0,
+            gap: 0,
           }}
         >
           {myProject.map((t) => (
             <Card
               variant="outline"
-              className="m-3"
+              className="m-3 bg-black"
               key={t.id}
               style={{
                 flexBasis: isLargeScreen
@@ -240,9 +275,17 @@ export default function Home() {
                 minHeight: 120,
                 padding: 12,
                 margin: 8,
-                backgroundColor: "white",
                 borderRadius: isLargeScreen ? 12 : isMediumScreen ? 12 : 8,
                 justifyContent: "space-between",
+                borderColor: t.status === "Ongoing"
+                  ? "#2f9c46ff"
+                  : t.status === "Completed"
+                    ? "#3b82f6ff"
+                    : t.status === "Pending"
+                      ? "#6b7280ff"
+                      : "#ffffff",
+                borderWidth: 1,
+                borderLeftWidth: 8,
               }}
             >
               <Pressable
@@ -259,13 +302,15 @@ export default function Home() {
                   style={{
                     textDecorationLine:
                       hoveredId === t.id ? "underline" : "none",
+                      color: "white",
                   }}
+                  
                 >
                   {t.title}
                 </Heading>
               </Pressable>
               <HStack>
-                <Box style={{ flex: 1, borderWidth: 0 }}>
+                {/* <Box style={{ flex: 1, borderWidth: 0 }}>
                   <VStack>
                     <Text style={{ color: "black" }}>
                       {progressCalculation(t.id).toFixed(0)}%
@@ -278,31 +323,54 @@ export default function Home() {
                       <ProgressFilledTrack />
                     </Progress>
                   </VStack>
+                </Box> */}
+
+                <Box style={{ borderWidth: 1, padding: 4, borderRadius: 4, minWidth: 80, alignItems: "center", justifyContent: "center"  }} className="bg-white">
+                  <Text
+                    style={{
+                      color:t.status === "Ongoing"
+                        ? "#2f9c46ff"
+                        : t.status === "Completed"
+                          ? "#3b82f6ff"
+                          : t.status === "Pending"
+                            ? "#6b7280ff"
+                            : "#ffffff",
+                      fontSize: 12,
+                      fontFamily: "roboto, arial",
+                    }}
+                    className="typography-regular"
+                  >
+                    {progressCalculation(t.id).toString().toUpperCase()}
+                  </Text>
                 </Box>
+
                 <Box
                   style={{
                     flex: 1,
                     borderWidth: 0,
+                    
                   }}
                 >
-                  <HStack style={{ justifyContent: "flex-end" }}>
-                    {profiles
-                      .filter((p) =>
-                        assignedUser.some(
-                          (a) => a.projectID === t.id && a.uid === p.uid
+                  <HStack style={{ justifyContent: "flex-end"}}>
+                    <AvatarGroup style={{  gap: 20 }}>
+                      {profiles
+                        .filter((p) =>
+                          assignedUser.some(
+                            (a) => a.projectID === t.id && a.uid === p.uid
+                          )
                         )
-                      )
-                      .map((t) => {
-                        return (
-                          <Avatar size="sm" key={t.id}>
-                            <AvatarFallbackText>
-                              {t.firstName}
-                            </AvatarFallbackText>
+                        .map((t) => {
+                          return (
+                            <Avatar size="sm" key={t.id}>
+                              <AvatarFallbackText>
+                                {t.firstName}
+                              </AvatarFallbackText>
 
-                            <AvatarBadge />
-                          </Avatar>
-                        );
-                      })}
+                              {/* <AvatarBadge /> */}
+                            </Avatar>
+                          );
+                        })}
+                    </AvatarGroup>
                   </HStack>
                 </Box>
               </HStack>
