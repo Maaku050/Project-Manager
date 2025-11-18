@@ -92,11 +92,14 @@ export default function Sample() {
   };
 
   return (
-    <>
+
       <ScrollView
         style={{
           backgroundColor: "#000000",
           padding: isLargeScreen ? 16 : isMediumScreen ? 12 : 8,
+          minHeight: "100%",
+          borderColor: "red",
+          borderWidth: 0,
         }}
       >
         <Box style={{ margin: 10 }}>
@@ -136,11 +139,15 @@ export default function Sample() {
           }}
         />
         <View
+          
           style={{
             // backgroundColor: 'white',
             marginTop: 10,
             marginBottom: 30,
-            // height: "auto",
+            minHeight: "auto",
+            maxHeight: "100%",
+            borderWidth: 0,
+            borderColor: "white",
             borderRadius: 12,
             flexDirection: isLargeScreen
               ? "row"
@@ -237,12 +244,13 @@ export default function Sample() {
             </Card>
           ))}
         </View>
-      </ScrollView>
 
-      <ProjectAddModal
+          <ProjectAddModal
         visible={showModal}
         onClose={() => setShowModal(false)}
       />
-    </>
+
+      </ScrollView>
+
   );
 }

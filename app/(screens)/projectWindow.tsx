@@ -59,6 +59,13 @@ import {
   PlayIcon,
   SettingsIcon,
 } from '@/components/ui/icon';
+import { ref } from "firebase/storage";
+// import { Menu } from "@/components/ui/menu";
+
+type Props = {
+  value: number;
+  onChange: (value: number) => void;
+};
 
 
 export default function ProjectWindow() {
@@ -127,24 +134,32 @@ export default function ProjectWindow() {
   const [taskID, setTaskID] = useState("");
   const [taskIdToDelete, setTaskIdToDelete] = useState("");
 
+
+
   // const [setStarsPoints function]--------------------------------------------------
   
-  const startVal = [1, 2, 3, 4, 5];
-
-  const [showStarsPointsModal, setShowStarsPointsModal ] = useState(false);
-  const [starID, setStarID] = useState("");
-
-  const starRate = starsPoints?.points;
-  // const starTaskID = starsPoints?.taskID;
-  const starDataID = starsPoints?.taskID;
-  const currentTaskStar = tasks.find((t) => t.id === starDataID);
-
-  // Handles updating the star rating for a task.
-  // Call this function with the desired star value (1-5) to update the rating for the currently selected task.
-  const starValue = (state: number) => {
-    if (!selectedTask) return;
-    // TODO: Implement logic to update the star rating in Firestore or local state.
+  
+  const taskStarpoint = async (taskID: string, starsPoints: number) => {
+    if (taskID === taskID) {
+      try {
+        const starsPointsRef = collection(db, "starsPoints");
+        const q = query(starsPointsRef, where("taskID", "==", taskID));
+        const snapshot = await getDocs(q);
+        if (!snapshot.empty) {}
+        await addDoc(starsPointsRef, { 
+          taskID: taskID,
+          stars: starsPoints,
+          points: 0,
+          });
+      } catch (error) {
+        console.log("Error setting star points: ", error);
+      } finally {
+        console.log("Star points set to: ", starsPoints);
+      }
   };
+}
+
+
 
 
 
@@ -666,7 +681,7 @@ export default function ProjectWindow() {
                           className="p-5 w-full m-1"
                           style={{
                             borderRadius: 12,
-                            borderWidth: 1,
+                            borderWidth: 0,
                             backgroundColor: "#CDCCCC",
                             padding: 12,
                             borderLeftWidth: 10,
@@ -714,11 +729,47 @@ export default function ProjectWindow() {
 
 
                                     {/* --------------------------star-------------------------- */}
-                            <Pressable style={{alignItems: "flex-start", alignSelf: "baseline" }}  onPress={() => setShowStarsPointsModal(true)}>
-                              <Star color={"gold"}  fill={"gold"} style={{height: 32, width: 32}} />
-                              <Text style={{position: "absolute", top: 3.5, right: 12}}>5</Text> 
+
+                            
+                            
+                             
+                                    {/* <Menu
+                                      placement="left"
+                                      // offset={1}
+                                      trigger={({ ...triggerProps }) => {
+                                        return (
+                                          <Pressable {...triggerProps}>
+                                            <Star color={"gold"}  fill={"gold"} style={{height: 32, width: 32}} />
+                                            <Text style={styles.starnum}></Text> 
+                                          </Pressable>
+                                        );
+                                    }} 
+                                    className="bg-gray-500 p6 rounded-lg min-w-[50] display-flex flex-row centered"
+                                    style={styles.starMenuDrawer}>
+                                        <MenuItem key="1" textValue="1"  className="min-w-[50] max-w-[50] centered" onPress={() => taskStarpoint(t.id, 1)}>
+                                            <Star color={"gold"}  fill={"gold"} style={{height: 32, width: 32}} />
+                                            <Text style={styles.starnum}>1</Text> 
+                                        </MenuItem>
+                                        <MenuItem key="2" textValue="2"  className="min-w-[50] max-w-[50] centered" onPress={() => taskStarpoint(t.id, 2)}>
+                                            <Star color={"gold"}  fill={"gold"} style={{height: 32, width: 32}} />
+                                            <Text style={styles.starnum}>2</Text> 
+                                        </MenuItem>
+                                        <MenuItem key="3" textValue="3"   className="min-w-[50] max-w-[50] centered" onPress={() => taskStarpoint(t.id, 3)}>
+                                          <Star color={"gold"}  fill={"gold"} style={{height: 32, width: 32}} />
+                                          <Text style={styles.starnum}>3</Text> 
+                                        </MenuItem>
+                                        <MenuItem key="4" textValue="4"  className="min-w-[50] max-w-[50] centered" onPress={() => taskStarpoint(t.id, 4)}>
+                                          <Star color={"gold"}  fill={"gold"} style={{height: 32, width: 32}} />
+                                          <Text style={styles.starnum}>4</Text> 
+                                        </MenuItem>
+                                        <MenuItem key="5" textValue="5"  className="min-w-[50] max-w-[50] centered" onPress={() => taskStarpoint(t.id, 5)}>
+                                          <Star color={"gold"}  fill={"gold"} style={{height: 32, width: 32}} />
+                                          <Text style={styles.starnum}>5</Text> 
+                                        </MenuItem>
+                                  </Menu> */}
+
+                             
                                     {/* --------------------------star-------------------------- */}
-                            </Pressable>
 
                       </HStack>
 
@@ -730,7 +781,7 @@ export default function ProjectWindow() {
                               alignItems: "stretch"
                             }}>
 
-                              <HStack style={{
+                               <HStack style={{
                                 gap: 12,
                               }}>
 
@@ -738,14 +789,14 @@ export default function ProjectWindow() {
                                   {t.end?.toDate().toLocaleDateString()}
                                 </Text>
 
-                                <Box style={{ borderWidth: 0, marginLeft: "auto" }}>
+                                <Box style={{ borderWidth: 0}}>
                                   <HStack style={{borderWidth: 0}}>
                                     {profiles
                                       .filter((p) =>
                                         assignedUser.some(
                                           (a) =>
-                                            a.projectID === selectedProject &&
-                                            a.uid === p.uid
+                                            a.taskID === t.id &&
+                                            a.uid === p.uid 
                                         )
                                       )
                                       .map((t) => {
@@ -775,30 +826,30 @@ export default function ProjectWindow() {
                               
 
                               
-                            <HStack style={{gap: 4}}>
-                                <Button
-                                  action="positive"
-                                  size="xs"
-                                  onPress={() => {
-                                    setTaskID(t.id);
-                                    setTodoOrOngoing(true);
-                                    setConfirmationModal(true);
-                                  }}
-                                >
-                                  <ButtonText>Start</ButtonText>
-                                </Button>
+                                <HStack style={{gap: 4}}>
+                                    <Button
+                                      action="positive"
+                                      size="xs"
+                                      onPress={() => {
+                                        setTaskID(t.id);
+                                        setTodoOrOngoing(true);
+                                        setConfirmationModal(true);
+                                      }}
+                                    >
+                                      <ButtonText>Start</ButtonText>
+                                    </Button>
 
-                                <Button
-                                  action="negative"
-                                  size="xs"
-                                  onPress={() => {
-                                    setTaskIdToDelete(t.id);
-                                    setDeleteConfirmationModal(true);
-                                  }}
-                                >
-                                  <ButtonText>Delete</ButtonText>
-                                </Button>
-                            </HStack>
+                                    <Button
+                                      action="negative"
+                                      size="xs"
+                                      onPress={() => {
+                                        setTaskIdToDelete(t.id);
+                                        setDeleteConfirmationModal(true);
+                                      }}
+                                    >
+                                      <ButtonText>Delete</ButtonText>
+                                    </Button>
+                                </HStack>
 
                             </HStack>
 
@@ -852,7 +903,7 @@ export default function ProjectWindow() {
                           className="p-5 w-full m-1"
                           style={{
                             borderRadius: 12,
-                            borderWidth: 1,
+                            borderWidth: 0,
                             backgroundColor: "#CDCCCC",
                             padding: 15,
                             borderLeftWidth: 10,
@@ -860,15 +911,137 @@ export default function ProjectWindow() {
                               t.end && t.end.toDate() < new Date()
                                 ? "red"
                                 : "green",
+                            justifyContent: "space-between",
+                            flex: 1,
                           }}
                         >
-                          <HStack
+                          <VStack
                             style={{
-                              alignItems: "center",
+                              alignItems: "flex-start",
                             }}
                             space="md"
                           >
-                            <Button
+                            
+                            <HStack style={{alignItems: "center", flex: 1, borderWidth: 0,}} space="md">
+                                    <Pressable
+                                  onPress={() => {
+                                    setSelectedTask(t.id);
+                                    router.push("/(screens)/taskWindow");
+                                  }}
+                                      onHoverIn={() => setIsHover(t.id)}
+                                      onHoverOut={() => setIsHover(null)}
+                                      style={{flex: 1}}
+                                    >
+                                      
+                                        <Text
+                                          style={{
+                                            fontSize: 17,
+                                            flexWrap: "wrap",
+                                            fontWeight:
+                                              isHover === t.id ? "bold" : "normal",
+                                            color: "black",
+                                            flex: 1,
+                                          }}
+                                        >
+                                          {t.title ? String(t.title) : ""}
+                                        </Text>
+                                      
+                                    </Pressable>
+
+                                     {/* --------------------------star-------------------------- */}
+
+                            
+                            
+{/*                              
+                                    <Menu
+                                      placement="left"
+                                      // offset={1}
+                                      trigger={({ ...triggerProps }) => {
+                                        return (
+                                          <Pressable {...triggerProps}>
+                                            <Star color={"gold"}  fill={"gold"} style={{height: 32, width: 32}} />
+                                            <Text style={styles.starnum}></Text> 
+                                          </Pressable>
+                                        );
+                                    }}
+                                    className="bg-gray-500 p6 rounded-lg min-w-[50] display-flex flex-row centered"
+                                    style={styles.starMenuDrawer}>
+
+                                    
+                                        <MenuItem key="1" textValue="1"  className="min-w-[50] max-w-[50] centered" onPress={() => taskStarpoint(t.id, 1)}>
+                                            <Star color={"gold"}  fill={"gold"} style={{height: 32, width: 32}} />
+                                            <Text style={styles.starnum}>1</Text> 
+                                        </MenuItem>
+                                        <MenuItem key="2" textValue="2"  className="min-w-[50] max-w-[50] centered" onPress={() => taskStarpoint(t.id, 2)}>
+                                            <Star color={"gold"}  fill={"gold"} style={{height: 32, width: 32}} />
+                                            <Text style={styles.starnum}>2</Text> 
+                                        </MenuItem>
+                                        <MenuItem key="3" textValue="3"   className="min-w-[50] max-w-[50] centered" onPress={() => taskStarpoint(t.id, 3)}>
+                                          <Star color={"gold"}  fill={"gold"} style={{height: 32, width: 32}} />
+                                          <Text style={styles.starnum}>3</Text> 
+                                        </MenuItem>
+                                        <MenuItem key="4" textValue="4"  className="min-w-[50] max-w-[50] centered" onPress={() => taskStarpoint(t.id, 4)}>
+                                          <Star color={"gold"}  fill={"gold"} style={{height: 32, width: 32}} />
+                                          <Text style={styles.starnum}>4</Text> 
+                                        </MenuItem>
+                                        <MenuItem key="5" textValue="5"  className="min-w-[50] max-w-[50] centered" onPress={() => taskStarpoint(t.id, 5)}>
+                                          <Star color={"gold"}  fill={"gold"} style={{height: 32, width: 32}} />
+                                          <Text style={styles.starnum}>5</Text> 
+                                        </MenuItem>
+                                  </Menu> */}
+
+                             
+                                    {/* --------------------------star-------------------------- */}
+
+                            </HStack>
+
+                          <HStack style={{
+                                    gap: 12,
+                                    width: "100%",
+                                    justifyContent: "space-between",
+                            }}>
+                                     
+
+                                  <HStack style={{borderWidth: 0}}>
+                                    <Text style={{ fontSize: 13, marginRight: 12}}>
+                                      {t.end?.toDate().toLocaleDateString()}
+                                    </Text>
+
+                                    {profiles
+                                      .filter((p) =>
+                                        assignedUser.some(
+                                          (a) =>
+                                            a.taskID === t.id &&
+                                            a.uid === p.uid 
+                                        )
+                                      )
+                                      .map((t) => {
+                                        return (
+                                          <Avatar 
+                                          size={isLargeScreen ? "sm" : isMediumScreen ? "sm" : "xs"}  
+                                          key={t.id} 
+                                          style={{
+                                            marginLeft: isLargeScreen ? -8 : isMediumScreen ? 8 : 2,
+                                            borderWidth: 1, 
+                                            borderColor: "#1f1f1f"
+                                            }} >
+
+                                            <AvatarFallbackText>
+                                              {t.firstName}
+                                            </AvatarFallbackText>
+
+                                            {/* <AvatarBadge /> */}
+                                          </Avatar>
+                                        );
+                                      })}
+                                    
+                                  </HStack>
+
+
+                                <HStack style={{
+                                  gap: 4,
+                                }}>
+                                   <Button
                               action="positive"
                               size="xs"
                               onPress={() => {
@@ -891,36 +1064,12 @@ export default function ProjectWindow() {
                               <ButtonText>Delete</ButtonText>
                             </Button>
 
-                            <Divider
-                              orientation="vertical"
-                              style={{ backgroundColor: "black" }}
-                            />
-                            <Pressable
-                              onPress={() => {
-                                setSelectedTask(t.id);
-                                router.push("/(screens)/taskWindow");
-                              }}
-                              onHoverIn={() => setIsHover(t.id)}
-                              onHoverOut={() => setIsHover(null)}
-                            >
-                              <VStack style={{ flex: 1 }}>
-                                <Text
-                                  style={{
-                                    fontSize: 17,
-                                    flexWrap: "wrap",
-                                    fontWeight:
-                                      isHover === t.id ? "bold" : "normal",
-                                    color: "black",
-                                  }}
-                                >
-                                  {t.title ? String(t.title) : ""}
-                                </Text>
-                                <Text style={{ fontSize: 13 }}>
-                                  {t.end?.toDate().toLocaleDateString()}
-                                </Text>
-                              </VStack>
-                            </Pressable>
+                                </HStack>
+                                
                           </HStack>
+
+
+                          </VStack>
                         </Card>
                       </Center>
                     </View>
@@ -1035,9 +1184,47 @@ export default function ProjectWindow() {
                                 >
                                   {t.title ? String(t.title) : ""}
                                 </Text>
-                                <Text style={{ fontSize: 13 }}>
-                                  {t.end?.toDate().toLocaleDateString()}
-                                </Text>
+
+                                    <HStack style={{gap: 12,}}>
+                                        <Text style={{ fontSize: 13 }}>
+                                          {t.end?.toDate().toLocaleDateString()}
+                                        </Text>
+
+
+                                          <Box style={{ borderWidth: 0}}>
+                                            <HStack style={{borderWidth: 0}}>
+                                              {profiles
+                                                .filter((p) =>
+                                                  assignedUser.some(
+                                                    (a) =>
+                                                      a.taskID === t.id &&
+                                                      a.uid === p.uid 
+                                                  )
+                                                )
+                                                .map((t) => {
+                                                  return (
+                                                    <Avatar 
+                                                    size={isLargeScreen ? "sm" : isMediumScreen ? "sm" : "xs"}  
+                                                    key={t.id} 
+                                                    style={{
+                                                      marginLeft: isLargeScreen ? -8 : isMediumScreen ? 8 : 2,
+                                                      borderWidth: 1, 
+                                                      borderColor: "#1f1f1f"
+                                                      }} >
+
+                                                      <AvatarFallbackText>
+                                                        {t.firstName}
+                                                      </AvatarFallbackText>
+
+                                                      {/* <AvatarBadge /> */}
+                                                    </Avatar>
+                                                  );
+                                                })}
+                                            </HStack>
+                                          </Box>
+                                    </HStack>
+
+
                               </VStack>
                             </Pressable>
                           </HStack>
@@ -1055,20 +1242,6 @@ export default function ProjectWindow() {
 
                                   
                                   
-      {/* --------------------------star Menu-------------------------- */}
-     {/* <Menu placement="bottom right">
-        <MenuItem onPress={() => setShowEditProjectModal(true)}>
-          <MenuItemLabel>
-            <HStack style={{ alignItems: "center", gap: 8 }}>
-              <Pressable style={{alignItems: "flex-start", alignSelf: "baseline" }}  onPress={() => setShowStarsPointsModal(true)}>
-                <Star color={"gold"}  fill={"gold"} style={{height: 32, width: 32}} />
-                <Text style={{position: "absolute", top: 3.5, right: 12}}>5</Text> 
-              </Pressable>
-            </HStack>
-          </MenuItemLabel>
-        </MenuItem>
-      </Menu> */}
-      {/* --------------------------star Menu-------------------------- */}
 
 
 
@@ -1182,11 +1355,6 @@ export default function ProjectWindow() {
         onClose={() => setShowEditProjectModal(false)}
       />
 
-      <StarsPointsModal
-        visible={showStarsPointsModal}
-        onClose={() => setShowStarsPointsModal(false)}
-      />
-
       <TaskAddModal
         visible={showAddTaskModal}
         onClose={() => setShowAddTaskModal(false)}
@@ -1242,5 +1410,15 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 15,
     backgroundColor: "#dbdbdbff",
     // flex: 1,
+  },
+  starMenuDrawer: {
+    // flexDirection: "row",
+    // alignItems: "center",
+    flex: 1,
+    gap: 0,
+  },
+  starnum: {
+    position: "absolute",
+    left: 21,
   },
 });

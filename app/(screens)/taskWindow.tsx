@@ -712,9 +712,9 @@ export default function TaskModal() {
                   >
                     <HStack
                       style={{
-                        backgroundColor: isHovered
-                          ? "#353535cc"
-                          : "transparent",
+                        // backgroundColor: isHovered
+                        //   ? "#353535cc"
+                        //   : "transparent",
                         padding: 12,
                         height: "auto",
                       }}

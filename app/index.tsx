@@ -392,6 +392,7 @@ export default function LoginScreen() {
         >
           <Button
             style={{ backgroundColor: "#CDCCCC", borderRadius: 8, height: 36 }}
+            onPress={handleLogin}
           >
             <ButtonText style={{ color: "black", fontSize: 14 }}>
               {loading ? (
