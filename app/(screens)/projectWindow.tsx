@@ -62,10 +62,6 @@ import {
 import { ref } from "firebase/storage";
 // import { Menu } from "@/components/ui/menu";
 
-type Props = {
-  value: number;
-  onChange: (value: number) => void;
-};
 
 
 export default function ProjectWindow() {
@@ -134,33 +130,33 @@ export default function ProjectWindow() {
   const [taskID, setTaskID] = useState("");
   const [taskIdToDelete, setTaskIdToDelete] = useState("");
 
+  const [starID, setStarID] = useState("");
+  const [confirmStar, setStarConfirm] = useState(true);
+
 
 
   // const [setStarsPoints function]--------------------------------------------------
   
   
-  const taskStarpoint = async (taskID: string, starsPoints: number) => {
-    if (taskID === taskID) {
-      try {
-        const starsPointsRef = collection(db, "starsPoints");
-        const q = query(starsPointsRef, where("taskID", "==", taskID));
-        const snapshot = await getDocs(q);
-        if (!snapshot.empty) {}
-        await addDoc(starsPointsRef, { 
-          taskID: taskID,
-          stars: starsPoints,
-          points: 0,
-          });
-      } catch (error) {
-        console.log("Error setting star points: ", error);
-      } finally {
-        console.log("Star points set to: ", starsPoints);
-      }
-  };
-}
-
-
-
+//   const taskStarpoint = async (taskID: string, starsPoints: number) => {
+//     if (taskID === taskID) {
+//       try {
+//         const starsPointsRef = collection(db, "starsPoints");
+//         const q = query(starsPointsRef, where("taskID", "==", taskID));
+//         const snapshot = await getDocs(q);
+//         if (!snapshot.empty) {}
+//         await addDoc(starsPointsRef, { 
+//           taskID: taskID,
+//           stars: starsPoints,
+//           points: 0,
+//           });
+//       } catch (error) {
+//         console.log("Error setting star points: ", error);
+//       } finally {
+//         console.log("Star points set to: ", starsPoints);
+//       }
+//   };
+// }
 
 
   // star points-----------------------------------------------------------------
@@ -189,6 +185,10 @@ export default function ProjectWindow() {
       .map((a) => a.uid);
     setTempAssigned(assignedUids);
   }, [assignedUser, selectedProject]);
+
+  // useEffect(() => {
+  //   const
+  // }, );
 
   const handleSave = async () => {
     setLoading(true);
@@ -282,6 +282,12 @@ export default function ProjectWindow() {
     }
 
     setConfirmationModal(false);
+  };
+
+
+  const handleSelectedStar = async (value: number) => {
+    if(!starID) return;
+    setLoading(true);
   };
 
   const handleDeleteTask = async () => {
@@ -746,23 +752,23 @@ export default function ProjectWindow() {
                                     }} 
                                     className="bg-gray-500 p6 rounded-lg min-w-[50] display-flex flex-row centered"
                                     style={styles.starMenuDrawer}>
-                                        <MenuItem key="1" textValue="1"  className="min-w-[50] max-w-[50] centered" onPress={() => taskStarpoint(t.id, 1)}>
+                                        <MenuItem key="1" textValue="1"  className="min-w-[50] max-w-[50] centered" onPress={() => setStarID(t.id)}>
                                             <Star color={"gold"}  fill={"gold"} style={{height: 32, width: 32}} />
                                             <Text style={styles.starnum}>1</Text> 
                                         </MenuItem>
-                                        <MenuItem key="2" textValue="2"  className="min-w-[50] max-w-[50] centered" onPress={() => taskStarpoint(t.id, 2)}>
+                                        <MenuItem key="2" textValue="2"  className="min-w-[50] max-w-[50] centered" onPress={() => setStarID(t.id)}>
                                             <Star color={"gold"}  fill={"gold"} style={{height: 32, width: 32}} />
                                             <Text style={styles.starnum}>2</Text> 
                                         </MenuItem>
-                                        <MenuItem key="3" textValue="3"   className="min-w-[50] max-w-[50] centered" onPress={() => taskStarpoint(t.id, 3)}>
+                                        <MenuItem key="3" textValue="3"   className="min-w-[50] max-w-[50] centered" onPress={() => setStarID(t.id)}>
                                           <Star color={"gold"}  fill={"gold"} style={{height: 32, width: 32}} />
                                           <Text style={styles.starnum}>3</Text> 
                                         </MenuItem>
-                                        <MenuItem key="4" textValue="4"  className="min-w-[50] max-w-[50] centered" onPress={() => taskStarpoint(t.id, 4)}>
+                                        <MenuItem key="4" textValue="4"  className="min-w-[50] max-w-[50] centered" onPress={() => setStarID(t.id)}>
                                           <Star color={"gold"}  fill={"gold"} style={{height: 32, width: 32}} />
                                           <Text style={styles.starnum}>4</Text> 
                                         </MenuItem>
-                                        <MenuItem key="5" textValue="5"  className="min-w-[50] max-w-[50] centered" onPress={() => taskStarpoint(t.id, 5)}>
+                                        <MenuItem key="5" textValue="5"  className="min-w-[50] max-w-[50] centered" onPress={() => setStarID(t.id)}>
                                           <Star color={"gold"}  fill={"gold"} style={{height: 32, width: 32}} />
                                           <Text style={styles.starnum}>5</Text> 
                                         </MenuItem>
@@ -968,7 +974,7 @@ export default function ProjectWindow() {
                                     style={styles.starMenuDrawer}>
 
                                     
-                                        <MenuItem key="1" textValue="1"  className="min-w-[50] max-w-[50] centered" onPress={() => taskStarpoint(t.id, 1)}>
+                                        <MenuItem key="1" textValue="1"  className="min-w-[50] max-w-[50] centered" onPress={() => starID(t.id);}>
                                             <Star color={"gold"}  fill={"gold"} style={{height: 32, width: 32}} />
                                             <Text style={styles.starnum}>1</Text> 
                                         </MenuItem>
