@@ -50,7 +50,7 @@ export default function EmployeeScreen() {
           margin: 12,
           flexDirection: "row",
           flexWrap: "wrap",
-          borderWidth: 2,
+          borderWidth: 0,
         }}
       >
         {profiles.map((t) => (

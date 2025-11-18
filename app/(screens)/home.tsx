@@ -66,7 +66,9 @@ export default function Home() {
   };
 
   return (
-    <ScrollView style={{ backgroundColor: "#000000ff" }}>
+    <ScrollView className="bg-black shadow-md flex-1" 
+    // style={{ backgroundColor: "#000000ff" }}
+    >
       <Box
         style={{
           marginTop: 20,

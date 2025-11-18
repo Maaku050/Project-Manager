@@ -21,11 +21,11 @@ import { Progress, ProgressFilledTrack } from "@/components/ui/progress";
 
 
 export default function EmployeeWindow() {
-  const { selectedEmployee, profiles } = useUser();
+  const { selectedEmployee, profiles} = useUser();
   const { project, assignedUser, setSelectedProject, tasks } = useProject();
   
 
-  const progressCalculation = (projectID: string) => {
+   const progressCalculation = (projectID: string) => {
     const currentProjectTasks = tasks.filter((t) => t.projectID === projectID);
 
     const ongoingTasks = currentProjectTasks.filter(
@@ -51,12 +51,9 @@ export default function EmployeeWindow() {
     assignedUser.some((a) => p.id === a.projectID && a.uid === currentUser?.uid)
   );
 
-  const onProgressProject = currentUserProjects.filter(
-    (p) => p.status === "Pending" || p.status === "Ongoing"
-  );
-  const onCompleteProject = currentUserProjects.filter(
-    (p) => p.status === "Complete" || p.status === "Completed"
-  );
+  const onProgressProject = currentUserProjects.filter((p) => p.status === "Pending" || p.status === "Ongoing");
+  const onCompleteProject = currentUserProjects.filter((p) => p.status === "Complete" || p.status === "Completed");
+
 
   
 
@@ -76,31 +73,17 @@ export default function EmployeeWindow() {
 
 
   return (
-    <View style={{ 
-      flex: 1,
-      backgroundColor: "#000000ff", 
-      paddingTop: 0, 
-      paddingLeft: 20, 
-      paddingRight: 20, 
-      paddingBottom: 40,
-      borderWidth: 0, 
-      borderColor: "green",
-      }}>
+    <View style={{ flex: 1, backgroundColor: "#000000ff", paddingTop: 0, paddingLeft: 20, paddingRight: 20, paddingBottom: 40}}>
 
         <VStack style={{
           borderWidth: 0,
           borderColor: "red", 
+          minHeight: "100%",
           padding: 12, 
           gap: isLargeScreen ? 16 : isMediumScreen ? 12 : 8,
-          minHeight: "100%",
           }}>
 
-          <Box style={{
-            height: 50,
-            width: "100%", 
-            backgroundColor: "transparent", 
-            justifyContent: "center"
-            }}>
+          <Box style={{height: 70, width: "100%", backgroundColor: "transparent", justifyContent: "center", padding: 12}}>
             <Pressable onPress={() =>  router.replace("/(screens)/employee")}>
                 <HStack style={{ alignItems: "center" }}>
               <Icon
@@ -122,7 +105,9 @@ export default function EmployeeWindow() {
               alignItems: "center", 
               justifyContent: "center", 
               gap: isLargeScreen ? 12 : isMediumScreen ? 12 : 8,
-              height: "100%",
+              // marginTop: 32,
+              minHeight: "100%",
+              // flexDirection: isLargeScreen ? "row" : isMediumScreen ? "row" : "column",
               }}>     
             
                 {/* profile area  */}
@@ -132,7 +117,7 @@ export default function EmployeeWindow() {
                 borderColor: "gray", 
                 justifyContent: "center", 
                 alignItems: "center", 
-                height: "100%", 
+                minHeight: "100%", 
                 backgroundColor: "#1f1f1f",
                 borderRadius: 12,
                 }}>
@@ -140,14 +125,13 @@ export default function EmployeeWindow() {
                 {/* PROFILE OF USER CLICKED HERE:  */}
                   <Avatar size="2xl" style={{backgroundColor: "#333333"}}>
                   <AvatarFallbackText style={{color: "#ffffffff"}}>{currentUser?.firstName}</AvatarFallbackText>
-                  {/* <Text style={{color: "#ffffff"}}>{currentUser?.nickName}</Text> */}
                   </Avatar>
                   <Heading style={{
                     marginTop: isLargeScreen ? 16 : isMediumScreen ? 16 : 12,
                     fontSize: isLargeScreen ? 32 : isMediumScreen ? 28 : 24, 
                     fontFamily: "roboto, arial", 
                     color: "#ffffffff"
-                    }}>{ currentUser?.firstName + " " + currentUser?.lastName}</Heading>
+                    }}>{currentUser?.firstName + " " + currentUser?.lastName}</Heading>
                  <Box style={{
                   borderWidth: 0, 
                   padding: 12, 
@@ -167,19 +151,21 @@ export default function EmployeeWindow() {
 
 
 
-            <HStack
-              style={{
-                justifyContent: "space-between",
-                alignItems: "center",
-                flexWrap: "wrap",
-                borderWidth: 0,
-                // marginBottom: isLargeScreen ? 20 : isMediumScreen ? 20 : 16,
-                marginTop: isLargeScreen ? 20 : isMediumScreen ? 16 : 12,
-                marginBottom: isLargeScreen ? 20 : isMediumScreen ? 16 : 12,
-              }}
-            >
-              <Text
-                style={{
+                {/* user info. */}
+              <ScrollView style={{
+                flex: 2, 
+                borderWidth: 0, 
+                borderColor: "#727070ff", 
+                minHeight: "100%",
+                borderRadius: 12,
+                paddingTop: 12,
+                paddingRight: isLargeScreen ? 32 : isMediumScreen ? 20 : 20,
+                paddingLeft: isLargeScreen ? 32 : isMediumScreen ? 20 : 20,
+                paddingBottom: 12,
+                backgroundColor: "#1f1f1f"
+                }}>
+                <Text style={{
+                  fontSize: isLargeScreen ? 40 : isMediumScreen ? 32 : 20,
                   fontFamily: "roboto, arial",
                   fontWeight: "bold",
                   color: "#ffffffff"
@@ -207,14 +193,14 @@ export default function EmployeeWindow() {
                     justifyContent: "flex-start",
                     alignItems: "stretch",
                     gap: isLargeScreen ? 8 : isMediumScreen ? 8 : 8,            
-                    // minHeight: "100%",
                     }}>
 
                     {onProgressProject.map((t) => (
                       <View 
                       key={t.id}
                       style={{
-                        borderRadius: 12,
+                        backgroundColor: "transparent",
+                        borderColor: "#b63d3dff",
                         borderWidth: 0,
                         margin: 0,
                         padding: 4,
@@ -307,12 +293,7 @@ export default function EmployeeWindow() {
 
 
                   {/* Completed CONTENT HERE */}
-                     <Text style={{
-                      color: "#ffffff", 
-                      fontSize: isLargeScreen ? 20 : isMediumScreen ? 18 : 16, 
-                      fontWeight: "bold", 
-                      alignSelf: "center"
-                      }}>hey {currentUser?.nickName}, Let's complete some projects!</Text>
+                     <Text style={{color: "#ffffff", fontSize: 12, fontWeight: "bold", alignSelf: "center"}}>Let's complete some projects!</Text>
 
 
                      {onCompleteProject.map((t) => (
@@ -362,6 +343,7 @@ export default function EmployeeWindow() {
                       </View>
                     ))}
 
+                
 
 
 
@@ -377,6 +359,6 @@ const styles = StyleSheet.create({
   AvatarMargin: {
     marginTop: 12,
     marginBottom: 12,
-    flex: 1,
+    flex: 1
   },
 })
