@@ -1,15 +1,21 @@
-import React from "react";
+import React, { useState } from "react";
 import { Text } from "react-native";
 import { HStack } from "./ui/hstack";
 import { useProject } from "@/context/projectContext";
 import { Heading } from "./ui/heading";
+import { Button, ButtonIcon, ButtonText } from "./ui/button";
+import { PlusIcon } from "lucide-react-native";
+import { Progress, ProgressFilledTrack } from "./ui/progress";
+import TaskAddModal from "@/modals/taskAddModal";
 
 type TaskProgressBarType = {
   projectID: string;
 };
 
 export default function TaskProgressBar({ projectID }: TaskProgressBarType) {
+  const [showAddTaskModal, setShowAddTaskModal] = useState(false);
   const { tasks } = useProject();
+
   const currentProjectTasks = tasks.filter(
     (t) =>
       t.projectID === projectID &&
@@ -37,13 +43,33 @@ export default function TaskProgressBar({ projectID }: TaskProgressBarType) {
       : 0;
 
   return (
-    <HStack style={{ alignItems: "center" }} space="sm">
-      <Text style={{ color: "white", fontWeight: "bold", fontSize: 20 }}>
-        {currentTotalTasks} total tasks
-      </Text>
-      <Text style={{ color: "white", fontSize: 20 }}>
-        ({progress.toFixed(0)}% complete)
-      </Text>
-    </HStack>
+    <>
+      <HStack style={{ justifyContent: "space-between", marginBottom: 10 }}>
+        <HStack style={{ alignItems: "center" }} space="sm">
+          <Text style={{ color: "white", fontWeight: "bold", fontSize: 18 }}>
+            {currentTotalTasks} total tasks
+          </Text>
+          <Text style={{ color: "white", fontSize: 18 }}>
+            ({progress.toFixed(0)}% complete)
+          </Text>
+        </HStack>
+        <Button
+          action="secondary"
+          style={{ backgroundColor: "white" }}
+          onPress={() => setShowAddTaskModal(true)}
+        >
+          <ButtonIcon as={PlusIcon} />
+          <ButtonText>Add Task</ButtonText>
+        </Button>
+      </HStack>
+      <Progress value={progress} size="sm" orientation="horizontal">
+        <ProgressFilledTrack />
+      </Progress>
+
+      <TaskAddModal
+        visible={showAddTaskModal}
+        onClose={() => setShowAddTaskModal(false)}
+      />
+    </>
   );
 }
