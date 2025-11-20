@@ -25,55 +25,41 @@ import {
 } from "@/components/ui/modal";
 import { useEffect, useState } from "react";
 import React from "react";
-import { db, auth } from "@/firebase/firebaseConfig";
-import {
-  addDoc,
-  collection,
-  deleteDoc,
-  doc,
-  getDocs,
-  query,
-  Timestamp,
-  updateDoc,
-  where,
-} from "firebase/firestore";
+import { db } from "@/firebase/firebaseConfig";
+import { doc, updateDoc } from "firebase/firestore";
 import { HStack } from "@/components/ui/hstack";
 import { Progress, ProgressFilledTrack } from "@/components/ui/progress";
 import { Center } from "@/components/ui/center";
 import { VStack } from "@/components/ui/vstack";
-import {
-  Avatar,
-  AvatarFallbackText,
-  AvatarBadge,
-} from "@/components/ui/avatar";
+import { Avatar, AvatarFallbackText } from "@/components/ui/avatar";
 import { Spinner } from "@/components/ui/spinner";
 import { EllipsisVertical, SquarePen } from "lucide-react-native";
 import ProjectEditModal from "@/modals/projectEditModal";
 import TaskAddModal from "@/modals/taskAddModal";
-import { Star } from 'lucide-react-native';
-import StarsPointsModal from "@/modals/starsPointsModal";
-import { Menu, MenuItem, MenuItemLabel } from '@/components/ui/menu';
-import {
-  AddIcon,
-  GlobeIcon,
-  PlayIcon,
-  SettingsIcon,
-} from '@/components/ui/icon';
-import { ref } from "firebase/storage";
-// import { Menu } from "@/components/ui/menu";
-
-
+import ProjectUsers from "@/components/projectAssignedUsers";
+import TaskSummary from "@/components/taskSummary";
+import TaskProgressBar from "@/components/taskProgressBar";
 
 export default function ProjectWindow() {
-  const { 
-    selectedProject, 
-    project, 
-    tasks,
-    assignedUser, 
-    setSelectedTask, 
-    selectedTask,
-    starsPoints
-  } = useProject();
+  const dimensions = useWindowDimensions();
+  const isLargeScreen = dimensions.width >= 1400; // computer UI condition
+  const isMediumScreen = dimensions.width <= 1400 && dimensions.width > 860; // tablet UI condition
+
+  const router = useRouter();
+  const [showAddTaskModal, setShowAddTaskModal] = useState(false);
+  const [tempAssigned, setTempAssigned] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [isHover, setIsHover] = useState<string | null>(null);
+  const [descriptionPressed, setDescriptionPressed] = useState(false);
+  const [showEditProjectModal, setShowEditProjectModal] = useState(false);
+  const [showConfirmationModal, setConfirmationModal] = useState(false);
+  const [showDeleteConfirmationModal, setDeleteConfirmationModal] =
+    useState(false);
+  const [todoOrOngoing, setTodoOrOngoing] = useState(true);
+  const [taskID, setTaskID] = useState("");
+  const [taskIdToDelete, setTaskIdToDelete] = useState("");
+  const { selectedProject, project, tasks, assignedUser, setSelectedTask } =
+    useProject();
 
   const { profiles } = useUser();
   const currentProjectData = project.find((t) => t.id === selectedProject);
@@ -92,7 +78,6 @@ export default function ProjectWindow() {
   );
 
   const totalTasks = currentProjectTasks.length;
-  const completedCount = completedTasks.length;
 
   const progress =
     ((ongoingTasks.length * 0.5 + completedTasks.length * 1) / totalTasks) *
@@ -103,70 +88,6 @@ export default function ProjectWindow() {
       (a) => a.projectID === selectedProject && a.uid === profile.uid
     )
   );
-
-  const dimensions = useWindowDimensions();
-  const isLargeScreen = dimensions.width >= 1400; // computer UI condition
-  const isMediumScreen = dimensions.width <= 1400 && dimensions.width > 860; // tablet UI condition
-
-  const pendingProject = project.filter(
-    (t) => t.id === selectedProject && t.status === "Pending"
-  );
-  const router = useRouter();
-  const [showAddTaskModal, setShowAddTaskModal] = useState(false);
-  const [titleInput, setTitleInput] = useState("");
-  const [isEditing, setIsEditing] = useState(false);
-  const [tempAssigned, setTempAssigned] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [showPicker, setShowPicker] = useState(false);
-  const [deadline, setDeadline] = useState<Date | null>(null);
-  const [saving, setSaving] = useState(false);
-  const [isHover, setIsHover] = useState<string | null>(null);
-  const [descriptionPressed, setDescriptionPressed] = useState(false);
-  const [showEditProjectModal, setShowEditProjectModal] = useState(false);
-  const [showConfirmationModal, setConfirmationModal] = useState(false);
-  const [showDeleteConfirmationModal, setDeleteConfirmationModal] =
-    useState(false);
-  const [todoOrOngoing, setTodoOrOngoing] = useState(true);
-  const [taskID, setTaskID] = useState("");
-  const [taskIdToDelete, setTaskIdToDelete] = useState("");
-
-  const [starID, setStarID] = useState("");
-  const [confirmStar, setStarConfirm] = useState(true);
-
-
-
-  // const [setStarsPoints function]--------------------------------------------------
-  
-  
-//   const taskStarpoint = async (taskID: string, starsPoints: number) => {
-//     if (taskID === taskID) {
-//       try {
-//         const starsPointsRef = collection(db, "starsPoints");
-//         const q = query(starsPointsRef, where("taskID", "==", taskID));
-//         const snapshot = await getDocs(q);
-//         if (!snapshot.empty) {}
-//         await addDoc(starsPointsRef, { 
-//           taskID: taskID,
-//           stars: starsPoints,
-//           points: 0,
-//           });
-//       } catch (error) {
-//         console.log("Error setting star points: ", error);
-//       } finally {
-//         console.log("Star points set to: ", starsPoints);
-//       }
-//   };
-// }
-
-
-  // star points-----------------------------------------------------------------
-
-
-
-  const projectDeadline =
-    currentProjectData?.deadline && "toDate" in currentProjectData.deadline
-      ? currentProjectData.deadline.toDate() // Firestore Timestamp → Date
-      : null; // fallback to local state
 
   useEffect(() => {
     console.log("Current Project:", selectedProject);
@@ -185,80 +106,6 @@ export default function ProjectWindow() {
       .map((a) => a.uid);
     setTempAssigned(assignedUids);
   }, [assignedUser, selectedProject]);
-
-  // useEffect(() => {
-  //   const
-  // }, );
-
-  const handleSave = async () => {
-    setLoading(true);
-
-    try {
-      const userRef = collection(db, "assignedUser");
-
-      // Remove all current assignments for this project
-      const q = query(userRef, where("projectID", "==", selectedProject));
-      const snapshot = await getDocs(q);
-      for (const docSnap of snapshot.docs) {
-        await deleteDoc(docSnap.ref);
-      }
-
-      // Add new ones
-      for (const uid of tempAssigned) {
-        await addDoc(userRef, {
-          projectID: selectedProject,
-          uid,
-        });
-      }
-    } catch (err) {
-      console.error("Error saving assignments:", err);
-    } finally {
-      setLoading(false);
-      setIsEditing(false);
-    }
-  };
-
-  const addTask = async () => {
-    if (!titleInput.trim() || !auth.currentUser) return;
-    try {
-      await addDoc(collection(db, "tasks"), {
-        title: titleInput,
-        description: "",
-        projectID: selectedProject,
-        status: "active",
-        start: null,
-        end: null,
-        starID: null,
-      });
-    } catch (error: any) {
-      console.log(error.message);
-    } finally {
-      setShowAddTaskModal(false);
-    }
-
-    setTitleInput("");
-  };
-
-  const handleDateChange = async (date: Date | null) => {
-    if (!date) return setDeadline(null);
-    if (!selectedProject) return;
-
-    const midnightDate = new Date(date);
-    midnightDate.setHours(0, 0, 0, 0);
-
-    try {
-      setSaving(true); // start spinner
-      const projectRef = doc(db, "project", selectedProject);
-      await updateDoc(projectRef, {
-        deadline: Timestamp.fromDate(midnightDate),
-      });
-      setDeadline(midnightDate);
-    } catch (error) {
-      console.error("Error saving deadline:", error);
-    } finally {
-      setSaving(false); // stop spinner
-    }
-  };
 
   const truncateWords = (text: string | undefined, wordLimit: number) => {
     if (!text) return "";
@@ -285,10 +132,7 @@ export default function ProjectWindow() {
   };
 
 
-  const handleSelectedStar = async (value: number) => {
-    if(!starID) return;
-    setLoading(true);
-  };
+
 
   const handleDeleteTask = async () => {
     if (!taskIdToDelete) return;
@@ -311,276 +155,159 @@ export default function ProjectWindow() {
     return <Text>Loading project data...</Text>;
   }
 
-  // Ongoing Project
   return (
-    <View style={{ flex: 1, padding: 12, backgroundColor: "#000000" }}>
+    <>
       <ScrollView
         style={{
           flex: 1,
-          padding: 15,
-          backgroundColor: "#1F1F1F",
-          borderRadius: 12,
+          paddingTop: 50,
+          paddingHorizontal: 15,
+          backgroundColor: "#000000",
         }}
+        showsVerticalScrollIndicator={false}
       >
-        <HStack
-          style={{
-            borderWidth: 0,
-            justifyContent: "space-between",
-            // backgroundColor: "black",
-          }}
-        >
-          <Box>
-            <Pressable onPress={() => router.replace("/(screens)/project")}>
-              <HStack style={{ alignItems: "center" }}>
-                <Icon
-                  as={ArrowLeftIcon}
-                  className="text-typography-500 w-7 h-7 "
-                />
-                <Text
-                  style={{ fontSize: 23, fontWeight: "bold", color: "white" }}
-                >
-                  Back
-                </Text>
-              </HStack>
-            </Pressable>
-          </Box>
-
-          <Box style={{ borderWidth: 0 }}>
-            <HStack style={{ alignItems: "center" }}>
-              <Pressable onPress={() => setShowEditProjectModal(true)}>
-                <SquarePen color={"white"} />
-              </Pressable>
-
-              <Divider
-                orientation="vertical"
-                style={{ marginLeft: 20, marginRight: 20 }}
-              />
-
-              <Button
-                action="positive"
-                isDisabled={progress != 100}
-                style={{
-                  width: 150,
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <ButtonText>Complete</ButtonText>
-              </Button>
-            </HStack>
-          </Box>
-        </HStack>
-
-        <View style={{ marginTop: 20, backgroundColor: "transparent" }}>
-          <Box
-            style={{
-              // borderWidth: 1,
-              // borderColor: "yellow",
-              alignItems: "stretch",
-              alignContent: "space-evenly",
-              padding: 10,
-              height: "auto",
-            }}
+        <Box style={{ borderWidth: 0, marginBottom: 30 }}>
+          <HStack
+            style={{ justifyContent: "space-between", alignItems: "center" }}
           >
-            <HStack
+            <Text
               style={{
-                // borderWidth: 3,
-                flex: 1,
-                height: "auto",
-                flexDirection: isLargeScreen
-                  ? "row"
-                  : isMediumScreen
-                    ? "row"
-                    : "column",
+                fontSize: 28,
+                fontWeight: "bold",
+                color: "white",
               }}
             >
-              <View
+              {currentProjectData.title}
+            </Text>
+            <Pressable>
+              <EllipsisVertical color={"white"} size={30} />
+            </Pressable>
+          </HStack>
+        </Box>
+
+        <Box style={{ borderWidth: 0 }}>
+          <HStack>
+            {/* Description / Status / Deadline / Assigned users */}
+            <Box style={{ flex: 2, paddingRight: 20 }}>
+              {/* Description */}
+              <Text
                 style={{
-                  margin: 4,
-                  // borderWidth: 1,
-                  // borderColor: "red",
-                  borderRadius: 12,
-                  padding: 10,
-                  flex: 1,
-                  backgroundColor: "#5C5C5C",
-                  height: "auto",
+                  color: "white",
+                  marginBottom: 20,
                 }}
               >
-                <Box
-                  style={{
-                    borderWidth: 0,
-                    marginBottom: isLargeScreen ? 16 : 12,
-                  }}
+                {currentProjectData.description}
+              </Text>
+
+              <Box style={{ borderWidth: 0, flex: 1 }}>
+                <HStack style={{ flex: 1, alignItems: "center" }}>
+                  {/* Status */}
+                  <HStack
+                    style={{
+                      flex: 1,
+                      justifyContent: "center",
+                      alignItems: "center",
+                      paddingVertical: 10,
+                    }}
+                    space="md"
+                  >
+                    <Text style={{ color: "#CDCCCC", fontSize: 18 }}>
+                      Status
+                    </Text>
+                    <Text style={{ color: "white", fontSize: 18 }}>
+                      {currentProjectData.status}
+                    </Text>
+                  </HStack>
+
+                  {/* Vertical Divider */}
+                  <Divider
+                    orientation="vertical"
+                    style={{ backgroundColor: "gray" }}
+                  />
+
+                  {/* Deadline */}
+                  <HStack
+                    style={{
+                      flex: 1,
+                      justifyContent: "center",
+                      alignItems: "center",
+                      paddingVertical: 10,
+                    }}
+                    space="md"
+                  >
+                    <Text style={{ color: "#CDCCCC", fontSize: 18 }}>
+                      Deadline
+                    </Text>
+                    <Text style={{ color: "white", fontSize: 18 }}>
+                      {currentProjectData.deadline &&
+                        currentProjectData.deadline
+                          .toDate()
+                          .toLocaleDateString("en-US")}
+                    </Text>
+                  </HStack>
+
+                  {/* Vertical Divider */}
+                  <Divider
+                    orientation="vertical"
+                    style={{ backgroundColor: "gray" }}
+                  />
+
+                  {/* Assigned Users */}
+                  <HStack
+                    style={{
+                      flex: 2,
+                      justifyContent: "center",
+                      alignItems: "center",
+                      paddingVertical: 10,
+                    }}
+                    space="md"
+                  >
+                    <Text style={{ color: "#CDCCCC", fontSize: 18 }}>
+                      Assigned Members
+                    </Text>
+                    <ProjectUsers projectID={currentProjectData.id} />
+                  </HStack>
+                </HStack>
+              </Box>
+            </Box>
+
+            {/* Divider */}
+            <Box style={{ flex: 0 }}>
+              <Divider
+                orientation="vertical"
+                style={{ backgroundColor: "gray" }}
+              />
+            </Box>
+
+            {/* Tasks Summary */}
+            <Box
+              style={{
+                flex: 1,
+                borderWidth: 0,
+                paddingLeft: 20,
+              }}
+            >
+              <Box>
+                <Text
+                  style={{ color: "#CDCCCC", fontSize: 15, marginBottom: 10 }}
                 >
-                  <Text
-                    style={{ fontSize: 24, fontWeight: "bold", color: "white" }}
-                  >
-                    {currentProjectData.title}
-                  </Text>
-                </Box>
-                <Box style={{ borderWidth: 0 }}>
-                  {descriptionPressed ? (
-                    <Pressable onPress={() => setDescriptionPressed(false)}>
-                      <Text
-                        style={{ fontSize: 16, color: "white", marginTop: 4 }}
-                      >
-                        {truncateWords(currentProjectData.description, 1000)}
-                      </Text>
-                    </Pressable>
-                  ) : (
-                    <Pressable onPress={() => setDescriptionPressed(true)}>
-                      <Text
-                        style={{ fontSize: 16, color: "#CDCCCC", marginTop: 4 }}
-                      >
-                        {truncateWords(
-                          currentProjectData.description,
-                          isLargeScreen ? 50 : isMediumScreen ? 30 : 15
-                        )}
-                      </Text>
-                    </Pressable>
-                  )}
-                </Box>
-              </View>
+                  Task Summary
+                </Text>
+                <TaskSummary projectID={currentProjectData.id} />
+              </Box>
+            </Box>
+          </HStack>
+        </Box>
 
-              <View
-                style={{
-                  margin: 4,
-                  // borderWidth: 5,
-                  // borderColor: "#333333",
-                  borderRadius: 10,
-                  padding: 10,
-                  flex: 1,
-                  // alignContent: "center",
-                  alignItems: "flex-start",
-                  backgroundColor: "#5C5C5C",
-                }}
-              >
-                <VStack
-                  style={{
-                    flex: 1,
-                    alignItems: "flex-start",
-                    justifyContent: "flex-start",
-                    paddingLeft: 8,
-                    gap: isLargeScreen ? 16 : 12,
-                  }}
-                >
-                  <HStack
-                    style={{
-                      alignItems: "flex-start",
-                      justifyContent: "space-between",
-                      // borderWidth: 4,
-                    }}
-                  >
-                    <Box
-                      style={{
-                        borderWidth: 0,
-                        marginRight: isLargeScreen ? 32 : 20,
-                        alignItems: "flex-start",
-                      }}
-                    >
-                      <Text
-                        style={{
-                          fontSize: 18,
-                          fontWeight: "bold",
-                          color: "white",
-                        }}
-                      >
-                        Status
-                      </Text>
-                    </Box>
-                    <Box style={{ borderWidth: 0 }}>
-                      <Text style={{ fontSize: 15, color: "white" }}>
-                        {currentProjectData.status}
-                      </Text>
-                    </Box>
-                  </HStack>
-
-                  <HStack
-                    style={{
-                      alignItems: "flex-start",
-                      justifyContent: "space-between",
-
-                      // borderWidth: 4,
-                    }}
-                  >
-                    <Box
-                      style={{
-                        borderWidth: 0,
-                        marginRight: isLargeScreen ? 32 : 20,
-                      }}
-                    >
-                      <Text
-                        style={{
-                          fontSize: 18,
-                          fontWeight: "bold",
-                          color: "white",
-                        }}
-                      >
-                        Deadline
-                      </Text>
-                    </Box>
-                    <Box style={{ borderWidth: 0 }}>
-                      <Text style={{ fontSize: 15, color: "white" }}>
-                        {currentProjectData.deadline
-                          ?.toDate()
-                          .toLocaleDateString()}
-                      </Text>
-                    </Box>
-                  </HStack>
-
-                  <HStack
-                    style={{
-                      alignItems: "flex-start",
-                      justifyContent: "space-between",
-
-                      // borderWidth: 4,
-                    }}
-                  >
-                    <Box
-                      style={{
-                        borderWidth: 0,
-                        marginRight: isLargeScreen ? 32 : 20,
-                      }}
-                    >
-                      <Text
-                        style={{
-                          fontSize: 18,
-                          fontWeight: "bold",
-                          color: "white",
-                        }}
-                      >
-                        Assigned Member
-                      </Text>
-                    </Box>
-                    <Box style={{ borderWidth: 0, marginLeft: "auto" }}>
-                      <HStack>
-                        {profiles
-                          .filter((p) =>
-                            assignedUser.some(
-                              (a) =>
-                                a.projectID === selectedProject &&
-                                a.uid === p.uid
-                            )
-                          )
-                          .map((t) => {
-                            return (
-                              <Avatar size="sm" key={t.id} style={{marginLeft: -8, borderWidth: 1, borderColor: "#383838"}}>
-                                <AvatarFallbackText>
-                                  {t.firstName}
-                                </AvatarFallbackText>
-
-                                {/* <AvatarBadge /> */}
-                              </Avatar>
-                            );
-                          })}
-                      </HStack>
-                    </Box>
-                  </HStack>
-                </VStack>
-              </View>
-            </HStack>
-          </Box>
-        </View>
+        <Box
+          style={{
+            borderWidth: 0,
+            marginTop: 20,
+            marginBottom: 10,
+          }}
+        >
+          <TaskProgressBar projectID={currentProjectData.id} />
+        </Box>
 
         <Box
           style={{
@@ -613,22 +340,27 @@ export default function ProjectWindow() {
           </Progress>
         </Box>
 
-
-{/* ----------------------------start of the three doom------------------------------- */}
-        <Box style={{ 
-          borderWidth: 0, 
-          paddingBottom:0,
-          justifyContent: "flex-start",
-          alignItems: "stretch", 
-          flexDirection: "column",
-          }}>
+        {/* ----------------------------start of the three doom------------------------------- */}
+        <Box
+          style={{
+            borderWidth: 0,
+            paddingBottom: 0,
+            justifyContent: "flex-start",
+            alignItems: "stretch",
+            flexDirection: "column",
+          }}
+        >
           <HStack
             style={{
               justifyContent: "flex-start",
               alignItems: "stretch",
               paddingLeft: 40,
               paddingRight: 40,
-              flexDirection: isLargeScreen ? "row" : isMediumScreen ? "column" : "column",
+              flexDirection: isLargeScreen
+                ? "row"
+                : isMediumScreen
+                  ? "column"
+                  : "column",
               flexBasis: "100%",
               borderColor: "#be2424ff",
               borderWidth: 0,
@@ -639,11 +371,12 @@ export default function ProjectWindow() {
             }}
           >
             {/* To-do Tasks */}
-            <VStack style={{ 
-              flexBasis: "33.33%",
-              minHeight: "auto",
-
-             }}>
+            <VStack
+              style={{
+                flexBasis: "33.33%",
+                minHeight: "auto",
+              }}
+            >
               <Box style={styles.boxLabel}>
                 <Text>To-Do</Text>
               </Box>
@@ -664,7 +397,7 @@ export default function ProjectWindow() {
                     paddingRight: 12,
                     paddingTop: 12,
                     backgroundColor: "#ffffffff",
-                    flex: 1, 
+                    flex: 1,
                     flexDirection: "column",
                     justifyContent: "flex-start",
                     alignItems: "stretch",
@@ -674,72 +407,64 @@ export default function ProjectWindow() {
                     <View
                       key={t.id}
                       style={{
-                      backgroundColor: "transparent",
-                      margin: 0,
-                      padding: 4,
-                      flexBasis: "auto",
-                      minHeight: "auto",
+                        backgroundColor: "transparent",
+                        margin: 0,
+                        padding: 4,
+                        flexBasis: "auto",
+                        minHeight: "auto",
                       }}
                     >
-                      
-                        <Card
-                          size="lg"
-                          className="p-5 w-full m-1"
+                      <Card
+                        size="lg"
+                        className="p-5 w-full m-1"
+                        style={{
+                          borderRadius: 12,
+                          borderWidth: 0,
+                          backgroundColor: "#CDCCCC",
+                          padding: 12,
+                          borderLeftWidth: 10,
+                          borderLeftColor:
+                            t.end && t.end.toDate() < new Date()
+                              ? "red"
+                              : "green",
+                          justifyContent: "space-between",
+                          flex: 1,
+                        }}
+                      >
+                        <HStack
                           style={{
-                            borderRadius: 12,
-                            borderWidth: 0,
-                            backgroundColor: "#CDCCCC",
-                            padding: 12,
-                            borderLeftWidth: 10,
-                            borderLeftColor:
-                              t.end && t.end.toDate() < new Date()
-                                ? "red"
-                                : "green",
-                            justifyContent: "space-between",
+                            alignItems: "center",
                             flex: 1,
+                            borderWidth: 0,
                           }}
+                          space="md"
                         >
-
-                          <HStack
-                            style={{
-                              alignItems: "center",
-                              flex: 1,
-                              borderWidth: 0,
-
+                          <Pressable
+                            onPress={() => {
+                              setSelectedTask(t.id);
+                              router.push("/(screens)/taskWindow");
                             }}
-                            space="md"
+                            onHoverIn={() => setIsHover(t.id)}
+                            onHoverOut={() => setIsHover(null)}
+                            style={{ flex: 1 }}
                           >
-                            <Pressable
-                              onPress={() => {
-                                setSelectedTask(t.id);
-                                router.push("/(screens)/taskWindow");
+                            <Text
+                              style={{
+                                fontSize: 17,
+                                flexWrap: "wrap",
+                                fontWeight:
+                                  isHover === t.id ? "bold" : "normal",
+                                color: "black",
+                                flex: 1,
                               }}
-                              onHoverIn={() => setIsHover(t.id)}
-                              onHoverOut={() => setIsHover(null)}
-                              style={{flex: 1}}
                             >
-                                <Text
-                                  style={{
-                                    fontSize: 17,
-                                    flexWrap: "wrap",
-                                    fontWeight:
-                                      isHover === t.id ? "bold" : "normal",
-                                    color: "black",
-                                    flex: 1,
-                                  }}
-                                >
-                                  {t.title ? String(t.title) : ""}
-                                </Text>
-                            </Pressable>
+                              {t.title ? String(t.title) : ""}
+                            </Text>
+                          </Pressable>
 
+                          {/* --------------------------star-------------------------- */}
 
-
-                                    {/* --------------------------star-------------------------- */}
-
-                            
-                            
-                             
-                                    {/* <Menu
+                          {/* <Menu
                                       placement="left"
                                       // offset={1}
                                       trigger={({ ...triggerProps }) => {
@@ -774,104 +499,106 @@ export default function ProjectWindow() {
                                         </MenuItem>
                                   </Menu> */}
 
-                             
-                                    {/* --------------------------star-------------------------- */}
+                          {/* --------------------------star-------------------------- */}
+                        </HStack>
 
-                      </HStack>
+                        <HStack
+                          style={{
+                            marginTop: 12,
+                            justifyContent: "space-between",
+                            alignItems: "stretch",
+                          }}
+                        >
+                          <HStack
+                            style={{
+                              gap: 12,
+                            }}
+                          >
+                            <Text style={{ fontSize: 13 }}>
+                              {t.end?.toDate().toLocaleDateString()}
+                            </Text>
 
+                            <Box style={{ borderWidth: 0 }}>
+                              <HStack style={{ borderWidth: 0 }}>
+                                {profiles
+                                  .filter((p) =>
+                                    assignedUser.some(
+                                      (a) =>
+                                        a.taskID === t.id && a.uid === p.uid
+                                    )
+                                  )
+                                  .map((t) => {
+                                    return (
+                                      <Avatar
+                                        size={
+                                          isLargeScreen
+                                            ? "sm"
+                                            : isMediumScreen
+                                              ? "sm"
+                                              : "xs"
+                                        }
+                                        key={t.id}
+                                        style={{
+                                          marginLeft: isLargeScreen
+                                            ? -8
+                                            : isMediumScreen
+                                              ? 8
+                                              : 2,
+                                          borderWidth: 1,
+                                          borderColor: "#1f1f1f",
+                                        }}
+                                      >
+                                        <AvatarFallbackText>
+                                          {t.firstName}
+                                        </AvatarFallbackText>
 
-                      
-                            <HStack style={{
-                              marginTop: 12,
-                              justifyContent: "space-between",
-                              alignItems: "stretch"
-                            }}>
-
-                               <HStack style={{
-                                gap: 12,
-                              }}>
-
-                                <Text style={{ fontSize: 13 }}>
-                                  {t.end?.toDate().toLocaleDateString()}
-                                </Text>
-
-                                <Box style={{ borderWidth: 0}}>
-                                  <HStack style={{borderWidth: 0}}>
-                                    {profiles
-                                      .filter((p) =>
-                                        assignedUser.some(
-                                          (a) =>
-                                            a.taskID === t.id &&
-                                            a.uid === p.uid 
-                                        )
-                                      )
-                                      .map((t) => {
-                                        return (
-                                          <Avatar 
-                                          size={isLargeScreen ? "sm" : isMediumScreen ? "sm" : "xs"}  
-                                          key={t.id} 
-                                          style={{
-                                            marginLeft: isLargeScreen ? -8 : isMediumScreen ? 8 : 2,
-                                            borderWidth: 1, 
-                                            borderColor: "#1f1f1f"
-                                            }} >
-
-                                            <AvatarFallbackText>
-                                              {t.firstName}
-                                            </AvatarFallbackText>
-
-                                            {/* <AvatarBadge /> */}
-                                          </Avatar>
-                                        );
-                                      })}
-                                  </HStack>
-                                </Box>
-
+                                        {/* <AvatarBadge /> */}
+                                      </Avatar>
+                                    );
+                                  })}
                               </HStack>
+                            </Box>
+                          </HStack>
 
-                              
+                          <HStack style={{ gap: 4 }}>
+                            <Button
+                              action="positive"
+                              size="xs"
+                              onPress={() => {
+                                setTaskID(t.id);
+                                setTodoOrOngoing(true);
+                                setConfirmationModal(true);
+                              }}
+                            >
+                              <ButtonText>Start</ButtonText>
+                            </Button>
 
-                              
-                                <HStack style={{gap: 4}}>
-                                    <Button
-                                      action="positive"
-                                      size="xs"
-                                      onPress={() => {
-                                        setTaskID(t.id);
-                                        setTodoOrOngoing(true);
-                                        setConfirmationModal(true);
-                                      }}
-                                    >
-                                      <ButtonText>Start</ButtonText>
-                                    </Button>
-
-                                    <Button
-                                      action="negative"
-                                      size="xs"
-                                      onPress={() => {
-                                        setTaskIdToDelete(t.id);
-                                        setDeleteConfirmationModal(true);
-                                      }}
-                                    >
-                                      <ButtonText>Delete</ButtonText>
-                                    </Button>
-                                </HStack>
-
-                            </HStack>
-
-
-                    </Card>
+                            <Button
+                              action="negative"
+                              size="xs"
+                              onPress={() => {
+                                setTaskIdToDelete(t.id);
+                                setDeleteConfirmationModal(true);
+                              }}
+                            >
+                              <ButtonText>Delete</ButtonText>
+                            </Button>
+                          </HStack>
+                        </HStack>
+                      </Card>
+                    </View>
+                  ))}
                 </View>
-              ))}
-            </View>
-          </Box>
-          </VStack>
+              </Box>
+            </VStack>
 
             {/* Ongoing Tasks */}
-            <VStack style={{ 
-               flexBasis: "33.33%",
-               minHeight: "auto",
-             }}>
+            <VStack
+              style={{
+                flexBasis: "33.33%",
+                minHeight: "auto",
+              }}
+            >
               <Box style={styles.boxLabel}>
                 <Text>On-Going</Text>
               </Box>
@@ -927,38 +654,40 @@ export default function ProjectWindow() {
                             }}
                             space="md"
                           >
-                            
-                            <HStack style={{alignItems: "center", flex: 1, borderWidth: 0,}} space="md">
-                                    <Pressable
-                                  onPress={() => {
-                                    setSelectedTask(t.id);
-                                    router.push("/(screens)/taskWindow");
+                            <HStack
+                              style={{
+                                alignItems: "center",
+                                flex: 1,
+                                borderWidth: 0,
+                              }}
+                              space="md"
+                            >
+                              <Pressable
+                                onPress={() => {
+                                  setSelectedTask(t.id);
+                                  router.push("/(screens)/taskWindow");
+                                }}
+                                onHoverIn={() => setIsHover(t.id)}
+                                onHoverOut={() => setIsHover(null)}
+                                style={{ flex: 1 }}
+                              >
+                                <Text
+                                  style={{
+                                    fontSize: 17,
+                                    flexWrap: "wrap",
+                                    fontWeight:
+                                      isHover === t.id ? "bold" : "normal",
+                                    color: "black",
+                                    flex: 1,
                                   }}
-                                      onHoverIn={() => setIsHover(t.id)}
-                                      onHoverOut={() => setIsHover(null)}
-                                      style={{flex: 1}}
-                                    >
-                                      
-                                        <Text
-                                          style={{
-                                            fontSize: 17,
-                                            flexWrap: "wrap",
-                                            fontWeight:
-                                              isHover === t.id ? "bold" : "normal",
-                                            color: "black",
-                                            flex: 1,
-                                          }}
-                                        >
-                                          {t.title ? String(t.title) : ""}
-                                        </Text>
-                                      
-                                    </Pressable>
+                                >
+                                  {t.title ? String(t.title) : ""}
+                                </Text>
+                              </Pressable>
 
-                                     {/* --------------------------star-------------------------- */}
+                              {/* --------------------------star-------------------------- */}
 
-                            
-                            
-{/*                              
+                              {/*                              
                                     <Menu
                                       placement="left"
                                       // offset={1}
@@ -996,85 +725,88 @@ export default function ProjectWindow() {
                                         </MenuItem>
                                   </Menu> */}
 
-                             
-                                    {/* --------------------------star-------------------------- */}
-
+                              {/* --------------------------star-------------------------- */}
                             </HStack>
 
-                          <HStack style={{
-                                    gap: 12,
-                                    width: "100%",
-                                    justifyContent: "space-between",
-                            }}>
-                                     
+                            <HStack
+                              style={{
+                                gap: 12,
+                                width: "100%",
+                                justifyContent: "space-between",
+                              }}
+                            >
+                              <HStack style={{ borderWidth: 0 }}>
+                                <Text style={{ fontSize: 13, marginRight: 12 }}>
+                                  {t.end?.toDate().toLocaleDateString()}
+                                </Text>
 
-                                  <HStack style={{borderWidth: 0}}>
-                                    <Text style={{ fontSize: 13, marginRight: 12}}>
-                                      {t.end?.toDate().toLocaleDateString()}
-                                    </Text>
+                                {profiles
+                                  .filter((p) =>
+                                    assignedUser.some(
+                                      (a) =>
+                                        a.taskID === t.id && a.uid === p.uid
+                                    )
+                                  )
+                                  .map((t) => {
+                                    return (
+                                      <Avatar
+                                        size={
+                                          isLargeScreen
+                                            ? "sm"
+                                            : isMediumScreen
+                                              ? "sm"
+                                              : "xs"
+                                        }
+                                        key={t.id}
+                                        style={{
+                                          marginLeft: isLargeScreen
+                                            ? -8
+                                            : isMediumScreen
+                                              ? 8
+                                              : 2,
+                                          borderWidth: 1,
+                                          borderColor: "#1f1f1f",
+                                        }}
+                                      >
+                                        <AvatarFallbackText>
+                                          {t.firstName}
+                                        </AvatarFallbackText>
 
-                                    {profiles
-                                      .filter((p) =>
-                                        assignedUser.some(
-                                          (a) =>
-                                            a.taskID === t.id &&
-                                            a.uid === p.uid 
-                                        )
-                                      )
-                                      .map((t) => {
-                                        return (
-                                          <Avatar 
-                                          size={isLargeScreen ? "sm" : isMediumScreen ? "sm" : "xs"}  
-                                          key={t.id} 
-                                          style={{
-                                            marginLeft: isLargeScreen ? -8 : isMediumScreen ? 8 : 2,
-                                            borderWidth: 1, 
-                                            borderColor: "#1f1f1f"
-                                            }} >
+                                        {/* <AvatarBadge /> */}
+                                      </Avatar>
+                                    );
+                                  })}
+                              </HStack>
 
-                                            <AvatarFallbackText>
-                                              {t.firstName}
-                                            </AvatarFallbackText>
-
-                                            {/* <AvatarBadge /> */}
-                                          </Avatar>
-                                        );
-                                      })}
-                                    
-                                  </HStack>
-
-
-                                <HStack style={{
+                              <HStack
+                                style={{
                                   gap: 4,
-                                }}>
-                                   <Button
-                              action="positive"
-                              size="xs"
-                              onPress={() => {
-                                setTaskID(t.id);
-                                setTodoOrOngoing(false);
-                                setConfirmationModal(true);
-                              }}
-                            >
-                              <ButtonText>Done</ButtonText>
-                            </Button>
+                                }}
+                              >
+                                <Button
+                                  action="positive"
+                                  size="xs"
+                                  onPress={() => {
+                                    setTaskID(t.id);
+                                    setTodoOrOngoing(false);
+                                    setConfirmationModal(true);
+                                  }}
+                                >
+                                  <ButtonText>Done</ButtonText>
+                                </Button>
 
-                            <Button
-                              action="negative"
-                              size="xs"
-                              onPress={() => {
-                                setTaskIdToDelete(t.id);
-                                setDeleteConfirmationModal(true);
-                              }}
-                            >
-                              <ButtonText>Delete</ButtonText>
-                            </Button>
-
-                                </HStack>
-                                
-                          </HStack>
-
-
+                                <Button
+                                  action="negative"
+                                  size="xs"
+                                  onPress={() => {
+                                    setTaskIdToDelete(t.id);
+                                    setDeleteConfirmationModal(true);
+                                  }}
+                                >
+                                  <ButtonText>Delete</ButtonText>
+                                </Button>
+                              </HStack>
+                            </HStack>
                           </VStack>
                         </Card>
                       </Center>
@@ -1085,10 +817,12 @@ export default function ProjectWindow() {
             </VStack>
 
             {/* Completed Tasks */}
-            <VStack style={{ 
-              flexBasis: "33.33%",
-              minHeight: "auto",
-             }}>
+            <VStack
+              style={{
+                flexBasis: "33.33%",
+                minHeight: "auto",
+              }}
+            >
               <Box style={styles.boxLabel}>
                 <Text>Completed</Text>
               </Box>
@@ -1191,46 +925,53 @@ export default function ProjectWindow() {
                                   {t.title ? String(t.title) : ""}
                                 </Text>
 
-                                    <HStack style={{gap: 12,}}>
-                                        <Text style={{ fontSize: 13 }}>
-                                          {t.end?.toDate().toLocaleDateString()}
-                                        </Text>
+                                <HStack style={{ gap: 12 }}>
+                                  <Text style={{ fontSize: 13 }}>
+                                    {t.end?.toDate().toLocaleDateString()}
+                                  </Text>
 
+                                  <Box style={{ borderWidth: 0 }}>
+                                    <HStack style={{ borderWidth: 0 }}>
+                                      {profiles
+                                        .filter((p) =>
+                                          assignedUser.some(
+                                            (a) =>
+                                              a.taskID === t.id &&
+                                              a.uid === p.uid
+                                          )
+                                        )
+                                        .map((t) => {
+                                          return (
+                                            <Avatar
+                                              size={
+                                                isLargeScreen
+                                                  ? "sm"
+                                                  : isMediumScreen
+                                                    ? "sm"
+                                                    : "xs"
+                                              }
+                                              key={t.id}
+                                              style={{
+                                                marginLeft: isLargeScreen
+                                                  ? -8
+                                                  : isMediumScreen
+                                                    ? 8
+                                                    : 2,
+                                                borderWidth: 1,
+                                                borderColor: "#1f1f1f",
+                                              }}
+                                            >
+                                              <AvatarFallbackText>
+                                                {t.firstName}
+                                              </AvatarFallbackText>
 
-                                          <Box style={{ borderWidth: 0}}>
-                                            <HStack style={{borderWidth: 0}}>
-                                              {profiles
-                                                .filter((p) =>
-                                                  assignedUser.some(
-                                                    (a) =>
-                                                      a.taskID === t.id &&
-                                                      a.uid === p.uid 
-                                                  )
-                                                )
-                                                .map((t) => {
-                                                  return (
-                                                    <Avatar 
-                                                    size={isLargeScreen ? "sm" : isMediumScreen ? "sm" : "xs"}  
-                                                    key={t.id} 
-                                                    style={{
-                                                      marginLeft: isLargeScreen ? -8 : isMediumScreen ? 8 : 2,
-                                                      borderWidth: 1, 
-                                                      borderColor: "#1f1f1f"
-                                                      }} >
-
-                                                      <AvatarFallbackText>
-                                                        {t.firstName}
-                                                      </AvatarFallbackText>
-
-                                                      {/* <AvatarBadge /> */}
-                                                    </Avatar>
-                                                  );
-                                                })}
-                                            </HStack>
-                                          </Box>
+                                              {/* <AvatarBadge /> */}
+                                            </Avatar>
+                                          );
+                                        })}
                                     </HStack>
-
-
+                                  </Box>
+                                </HStack>
                               </VStack>
                             </Pressable>
                           </HStack>
@@ -1243,13 +984,8 @@ export default function ProjectWindow() {
             </VStack>
           </HStack>
         </Box>
-{/* ----------------------------end of the three doom------------------------------- */}
+        {/* ----------------------------end of the three doom------------------------------- */}
       </ScrollView>
-
-                                  
-                                  
-
-
 
       <Modal
         isOpen={showConfirmationModal}
@@ -1355,7 +1091,6 @@ export default function ProjectWindow() {
         </ModalContent>
       </Modal>
 
-
       <ProjectEditModal
         visible={showEditProjectModal}
         onClose={() => setShowEditProjectModal(false)}
@@ -1365,7 +1100,7 @@ export default function ProjectWindow() {
         visible={showAddTaskModal}
         onClose={() => setShowAddTaskModal(false)}
       />
-    </View>
+    </>
   );
 }
 
