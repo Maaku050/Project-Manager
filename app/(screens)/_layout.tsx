@@ -12,7 +12,10 @@ import { ProjectProvider } from "@/context/projectContext";
 
 
 
-import { HeaderUserEmail } from "./home";
+import { HeaderUserEmail, PageTitle } from "./home";
+
+import { HStack } from "@/components/ui/hstack";
+import { Icon } from "lucide-react-native";
 // import { DrawerHeader } from "@/components/ui/drawer";
 
 export default function RootLayout() {
@@ -80,8 +83,18 @@ export default function RootLayout() {
                   title: "Home",
                   headerTitle: () => null,
                   headerRight: () => <HeaderUserEmail />,
-                  headerLeft: () => null,
+                  headerLeft: () => <PageTitle />,
                   headerTintColor: "white",
+                  headerStyle: {
+                    paddingLeft: 24,
+                    paddingRight: 24,
+                    paddingTop: 28,
+                    paddingBottom: 28,
+                    backgroundColor: "black",
+                    alignContent: "center",
+                    alignItems: "center",
+                    borderBottomWidth: 0,
+                  }
                 }}
               
               />

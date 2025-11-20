@@ -134,6 +134,7 @@ export default function EmployeeWindow() {
             gap: isLargeScreen ? 12 : isMediumScreen ? 12 : 8,
             // marginTop: 32,
             minHeight: "100%",
+            maxHeight: "100%",
             // flexDirection: isLargeScreen ? "row" : isMediumScreen ? "row" : "column",
             flex: 1,
           }}

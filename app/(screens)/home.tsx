@@ -15,14 +15,20 @@ import {
   AvatarGroup,
 } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
-import { Heading } from "@/components/ui/heading";
-import { Progress, ProgressFilledTrack } from "@/components/ui/progress";
+// import { Heading } from "@/components/ui/heading";
+// import { Progress, ProgressFilledTrack } from "@/components/ui/progress";
 import { VStack } from "@/components/ui/vstack";
 import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
 import { LogOut, SquarePen } from "lucide-react-native";
+import { House } from 'lucide-react-native';
 import ProfileEditModal from "@/modals/profileEditModal";
 import LogoutModal from "@/modals/logoutModal";
-import { green } from "react-native-reanimated/lib/typescript/Colors";
+import { CircleIcon, Icon } from "@/components/ui/icon";
+// import { config } from "@/components/ui/gluestack-ui-provider/config";
+import AppMessage from "@/components/AppMessage";
+import { Divider } from "@/components/ui/divider";
+import { StyleSheet } from "nativewind";
+
 
 export default function Home() {
   const router = useRouter();
@@ -41,22 +47,36 @@ export default function Home() {
 
   useEffect(() => {
     console.log("Home current user projects: ", currentUserProjects);
+
   }, []);
+
+
 
   const myProject = project.filter((p) =>
     assignedUser.some((a) => a.projectID === p.id && a.uid === profile?.uid)
   );
-  
+
+  const myTask = tasks.filter((p) =>
+    assignedUser.some((a) => a.taskID === p.id && a.uid === profile?.uid)
+  );
+
+  const taskMessage = myTask.length === 0;
+  const projectMassage = myProject.length ===0;
+
+  const myOngoingTask = myTask.filter((t) => t.status === "Ongoing" || t.status === "Pending");
+  const myOverBueTask = myTask.filter((t) => t.status === "Over Due" || t.status === "over due");
+
+
 
   const progressCalculation = (projectID: string) => {
     const currentProjectTasks = tasks.filter((t) => t.projectID === projectID);
     // const ongoingTasks = currentProjectTasks.filter(
-      //     (t) => t.status === "Ongoing"
-      //   );
+    //     (t) => t.status === "Ongoing"
+    //   );
 
-      // const completedTasks = currentProjectTasks.filter(
-      //     (t) => t.status === "Completed"
-      //   );
+    // const completedTasks = currentProjectTasks.filter(
+    //     (t) => t.status === "Completed"
+    //   );
 
     const currentStateOfProject = project.find((p) => p.id === projectID);
     if (currentStateOfProject?.status === "Ongoing") {
@@ -67,7 +87,7 @@ export default function Home() {
       return "Pending";
     } else {
       return 0;
-    }                    
+    }
 
     // const totalTasks = currentProjectTasks.length;
 
@@ -78,306 +98,260 @@ export default function Home() {
     // return progress;
   };
 
- 
+
 
   return (
-    <ScrollView className="bg-black shadow-md flex-1" 
-    // style={{ backgroundColor: "#000000ff" }}
-    >
-      {/* <Box
-        style={{
-          marginTop: 20,
-          marginLeft: isLargeScreen ? 80 : isMediumScreen ? 40 : 12,
-          marginRight: isLargeScreen ? 80 : isMediumScreen ? 40 : 12,
-          padding: 10,
-          borderRadius: 12,
-          backgroundColor: "#1F1F1F",
-          height: isLargeScreen ? 60 : 50,
-        }}
-      >
-        <HStack
-          style={{
-            flex: 1,
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          <Text
-            style={{
-              fontSize: isLargeScreen ? 20 : 16,
-              color: "white",
-              fontWeight: "bold",
-              fontFamily: "roboto, arial",
-            }}
-          >
-            Welcome Home, {profile ? profile.nickName : ""}!
-          </Text>
-          <Button onPress={() => setShowEditModal(true)}>
-            <ButtonText>
-              <SquarePen color={"white"} />
-            </ButtonText>
-          </Button>
-        </HStack>
-      </Box> */}
+    <ScrollView className="bg-black" contentContainerStyle={{minHeight:  860, maxHeight: "auto"}}>
 
-      <View
-        style={{
-          justifyContent: "center",
-          alignItems: "center",
-          marginLeft: isLargeScreen ? 24 : isMediumScreen ? 24 : 12,
-          marginRight: isLargeScreen ? 24 : isMediumScreen ? 24 : 12,
-          marginTop: isLargeScreen ? 24 : 12,
-          paddingTop: 28,
-          paddingBottom: 28,
-          borderRadius: 12,
+      <View style={{flex: 1, backgroundColor: "transparent", borderColor: "yellow", borderWidth: 0, minHeight: 720, maxHeight: "100%"}}>
+        
+        {/* -----------------------------------Top Group---------------------------------------- */}
+        <HStack style={{
+          gap: 16,
+          padding: 24,
+          paddingBottom: 0,
           borderWidth: 0,
-          minHeight: 400,
-          maxHeight: 600,
-          borderColor: "#ffffff",
-          backgroundColor: "#1F1F1F",
-        }}
-      >
-          <Box
+          borderColor: "blue",
+          // flexBasis: "60%",
+          flex: 1,
+        }}>
+
+          {/* ---------------------------------------user Frame----------------------------------- */}
+
+          <View
             style={{
-              position: "absolute",
-              top: 12,
-              right: 12,
+              justifyContent: "center",
+              alignItems: "center",
+              // paddingTop: 28,
+              // paddingBottom: 28,
+              borderRadius: 12,
+              borderWidth: 1,
+              borderColor: "#206F3E",
+              backgroundColor: "#000000ff",
+              gap: 24,
+              flex: 2,
+              overflow: "hidden"
             }}
           >
-            <Button onPress={() => setShowEditModal(true)}>
+
+            {/* -----------------------glow top------------------------ */}
+            <Box style={{
+              ...styles.ShadowBox,
+              position: "absolute",
+              top: -68,
+              right: 150,
+            }}></Box>
+
+            {/* ----------------------edit icon------------------------ */}
+            <Box
+              style={{
+                position: "absolute",
+                top: 12,
+                right: 12,
+              }}
+            >
+              <Button onPress={() => setShowEditModal(true)} className="bg-transparent">
                 <ButtonText>
                   <SquarePen color={"white"} />
                 </ButtonText>
               </Button>
-          </Box>
+            </Box>
 
+            {/* ------------------messages ----------------------- */}
+            <Box>
+              <AppMessage userId={profile?.uid} />
+              {/* <Text>Hello. . .</Text> */}
+            </Box>
 
-        <Box
-          style={{
-            marginTop: 20,
-            marginBottom: 20,
-            borderWidth: 0,
-          }}
-        >
-          <Text
-            style={{
-              fontSize: isLargeScreen ? 32 : isMediumScreen ? 24 : 20,
-              color: "white",
-              fontWeight: "bold",
-              fontFamily: "roboto, arial",
-            }}
-          >
-            {profile
-              ? profile.firstName +
-                ' "' +
-                profile.nickName +
-                '" ' +
-                profile.lastName
-              : ""}
-          </Text>
-        </Box>
-        <Box
-          style={{
-            borderWidth: 0,
-            marginTop: isLargeScreen ? 32 : isMediumScreen ? 20 : 12,
-          }}
-        >
-          <Avatar size="2xl">
-            <AvatarFallbackText>{profile?.firstName}</AvatarFallbackText>
-            {/* <AvatarImage
-              source={{
-                uri: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80",
-              }}
-            /> */}
-            {/* <AvatarBadge /> */}
-          </Avatar>
-        </Box>
-        <Box>
-          <Text
-            style={{
-              fontSize: isLargeScreen ? 20 : isMediumScreen ? 16 : 12,
-              marginTop: isLargeScreen ? 32 : isMediumScreen ? 20 : 12,
-              color: "white",
-              fontWeight: "bold",
-              fontFamily: "roboto, arial",
-            }}
-          >
-            {profile?.role.toUpperCase()}{" "}
-          </Text>
-
-          
-        </Box>
-      </View>
-
-      <View
-        style={{
-          marginLeft: isLargeScreen ? 24 : isMediumScreen ? 24 : 12,
-          marginRight: isLargeScreen ? 24 : isMediumScreen ? 24 : 12,
-          marginTop: 16,
-          backgroundColor: "#1F1F1F",
-          borderRadius: 12,
-          minHeight: 400,
-          maxHeight: "100%",
-          flex: 1,
-          padding: 28,
-          gap: 28,
-        }}
-        
-      >
-        <Box
-          style={{
-            borderWidth: 0,
-            // flex: 1,
-            alignItems: "flex-start",
-            justifyContent: "flex-start",
-          }}
-        >
-          <Text
-            style={{
-              fontSize: isLargeScreen ? 24 : 20,
-              color: "white",
-              fontWeight: "bold",
-              fontFamily: "roboto, arial",
-              flex: 1,
-            }}
-          >
-            My Project
-          </Text>
-        </Box>
-        <Box
-          style={{
-            justifyContent: isLargeScreen
-              ? "flex-start"
-              : isMediumScreen
-                ? "flex-start"
-                : "center",
-            flexDirection: isLargeScreen
-              ? "row"
-              : isMediumScreen
-                ? "row"
-                : "column",
-            flexWrap: "wrap",
-            borderWidth: 0,
-            gap: 0,
-          }}
-        >
-          {myProject.map((t) => (
-            <Card
-              variant="outline"
-              className="m-3 bg-black"
-              key={t.id}
+            {/* --------------------------avatar----------------------------- */}
+            <Box
               style={{
-                flexBasis: isLargeScreen
-                  ? "31.5%"
-                  : isMediumScreen
-                    ? "47%"
-                    : "auto",
-                minHeight: 120,
-                padding: 12,
-                margin: 8,
-                borderRadius: isLargeScreen ? 12 : isMediumScreen ? 12 : 8,
-                justifyContent: "space-between",
-                borderColor: t.status === "Ongoing"
-                  ? "#2f9c46ff"
-                  : t.status === "Completed"
-                    ? "#3b82f6ff"
-                    : t.status === "Pending"
-                      ? "#6b7280ff"
-                      : "#ffffff",
-                borderWidth: 1,
-                borderLeftWidth: 8,
+                borderWidth: 0,
               }}
             >
-              <Pressable
-                onPress={() => {
-                  setSelectedProject(t.id);
-                  router.push("/projectWindow"); // or open modal directly
+              <Avatar size="2xl">
+                <AvatarFallbackText>{profile?.firstName}</AvatarFallbackText>
+              </Avatar>
+            </Box>
+
+            {/* ---------------------------name and role-------------------------------------- */}
+
+            <Box style={{ justifyContent: "center", alignItems: "center", gap: 8, borderWidth: 0 }}>
+
+              <Text
+                style={{
+                  fontSize: isLargeScreen ? 20 : isMediumScreen ? 20 : 12,
+                  color: "white",
+                  fontWeight: "bold",
+                  fontFamily: "roboto, arial",
                 }}
-                onHoverIn={() => setHoveredId(t.id)}
-                onHoverOut={() => setHoveredId(null)}
               >
-                <Heading
-                  size="md"
-                  className="mb-1"
-                  style={{
-                    textDecorationLine:
-                      hoveredId === t.id ? "underline" : "none",
-                      color: "white",
-                  }}
-                  
-                >
-                  {t.title}
-                </Heading>
-              </Pressable>
-              <HStack>
-                {/* <Box style={{ flex: 1, borderWidth: 0 }}>
-                  <VStack>
-                    <Text style={{ color: "black" }}>
-                      {progressCalculation(t.id).toFixed(0)}%
-                    </Text>
-                    <Progress
-                      value={progressCalculation(t.id)}
-                      size="xs"
-                      orientation="horizontal"
-                    >
-                      <ProgressFilledTrack />
-                    </Progress>
-                  </VStack>
-                </Box> */}
+                {profile
+                  ? profile.firstName
+                  + " " +
+                  profile.lastName
+                  : ""}
+              </Text>
+              <Text
+                style={{
+                  fontSize: isLargeScreen ? 14 : isMediumScreen ? 14 : 12,
+                  // marginTop: isLargeScreen ? 32 : isMediumScreen ? 20 : 12,
+                  color: "white",
+                  fontWeight: "semibold",
+                  fontFamily: "roboto, arial",
+                }}
+              >
+                {profile?.role.toUpperCase()}{" "}
+              </Text>
 
-                <Box style={{ borderWidth: 1, padding: 4, borderRadius: 4, minWidth: 80, alignItems: "center", justifyContent: "center"  }} className="bg-white">
-                  <Text
-                    style={{
-                      color:t.status === "Ongoing"
-                        ? "#2f9c46ff"
-                        : t.status === "Completed"
-                          ? "#3b82f6ff"
-                          : t.status === "Pending"
-                            ? "#6b7280ff"
-                            : "#ffffff",
-                      fontSize: 12,
-                      fontFamily: "roboto, arial",
-                    }}
-                    className="typography-regular"
-                  >
-                    {progressCalculation(t.id).toString().toUpperCase()}
-                  </Text>
-                </Box>
+            </Box>
 
-                <Box
-                  style={{
-                    flex: 1,
-                    borderWidth: 0,
-                    
-                  }}
-                >
-                  <HStack style={{ justifyContent: "flex-end"}}>
-                    <AvatarGroup style={{  gap: 20 }}>
-                      {profiles
-                        .filter((p) =>
-                          assignedUser.some(
-                            (a) => a.projectID === t.id && a.uid === p.uid
-                          )
-                        )
-                        .map((t) => {
-                          return (
-                            <Avatar size="sm" key={t.id}>
-                              <AvatarFallbackText>
-                                {t.firstName}
-                              </AvatarFallbackText>
+                {/* ---------------------glow from bottom---------------------------- */}
+            <Box style={{ 
+              ...styles.ShadowBox,
+              position: "absolute",
+              left: 150,
+              bottom: -70,
+              borderRadius: 8, }}></Box>
+          </View>
 
-                              {/* <AvatarBadge /> */}
-                            </Avatar>
-                          );
-                        })}
-                    </AvatarGroup>
-                  </HStack>
-                </Box>
+
+          {/* ----------------------------------------------------task area-------------------------------------------- */}
+          <VStack style={{
+            flex:1, 
+            padding: 20,
+            backgroundColor: "#171717",
+            borderWidth: 0,
+            gap: 12
+          }}
+            className="rounded-xl">
+
+            <HStack style={{
+              borderWidth: 0,
+              alignItems: "stretch",
+              justifyContent: "space-between",
+            }}>
+              <Text style={{
+                fontFamily: "roboto, arial",
+                fontSize: 20,
+                fontWeight: "bold",
+                color: "white"
+              }}>My Task</Text>
+
+              <HStack style={{ gap: 12, }}>
+                <HStack style={{ flex: 1, gap: 8, justifyContent: "center", alignItems: "center" }}>
+                  <Divider style={{borderWidth: 4, borderRadius: 50, borderColor: "green", width: 1,}}  />
+                  <Text style={{color: "white", fontSize: 16}} >{myOngoingTask.length}</Text>
+                </HStack>
+                <HStack style={{ flex: 1, gap: 8, justifyContent: "center", alignItems: "center"}}>
+                  <Divider style={{borderWidth: 4, borderRadius: 50, borderColor: "red", width: 1,}}  />
+                  <Text style={{color: "white", fontSize: 16}}>{myOverBueTask.length}</Text>
+                </HStack>
               </HStack>
-            </Card>
-          ))}
-        </Box>
+
+            </HStack>
+
+
+              <ScrollView 
+                 contentContainerStyle={{
+                  borderWidth: 0,
+                  flexGrow: 1,
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}>
+                
+                  {taskMessage ? (
+                    <Box style={{ borderWidth: 0, flex: 1, justifyContent: "center"}}>
+                      <Text style={{marginTop: 120, fontSize: 16, ...styles.messageFont, }} className="text-white">No Task</Text>
+                      <Text style={{ ...styles.messageFont, marginTop: 4, fontSize: 14, }} className="text-white">There is no Task for now</Text>
+                    </Box>
+                  ) : (
+                                                                     // naka absolute. ==============================>
+                    <Box style={{ borderWidth: 0, flex: 1, justifyContent: "center"}}>  
+                      <Text style={{ ...styles.messageFont }}>Sample text: this means there is existing content behind</Text>
+                    </Box>
+                  )}
+                
+              </ScrollView>
+
+          </VStack>
+        </HStack>
+        {/* ----------------------------------------------------top view END------------------------------------------------- */}
+
+
+
+
+        {/* ----------------------------------------------------project view------------------------------------------------------ */}
+        <View
+          style={{
+            marginLeft: isLargeScreen ? 24 : isMediumScreen ? 24 : 12,
+            marginRight: isLargeScreen ? 24 : isMediumScreen ? 24 : 12,
+            marginTop: 16,
+            backgroundColor: "#171717",
+            borderRadius: 12,
+            borderWidth: 0,
+            borderColor: "red",
+            padding: 28,
+            gap: 28,
+            flex: 1,
+            // flexBasis: "40%",
+          }}
+
+        >
+          <Box
+            style={{
+              borderWidth: 0,
+              alignItems: "flex-start",
+              justifyContent: "flex-start",
+            }}
+          >
+            <Text
+              style={{
+                fontSize: isLargeScreen ? 24 : 20,
+                color: "white",
+                fontWeight: "bold",
+                fontFamily: "roboto, arial",
+                borderWidth: 0,
+              }}
+            >
+              My Project
+            </Text>
+          </Box>
+          <Box
+            style={{
+              justifyContent: myProject ?  "center" : isLargeScreen ?  "flex-start" : isMediumScreen ? "flex-start" : "center",
+              flexDirection: isLargeScreen
+                ? "row"
+                : isMediumScreen
+                  ? "row"
+                  : "column",
+              flexWrap: "wrap",
+              borderWidth: 0,
+              flex: 2,
+              gap: 0,
+            }}
+          >
+            {projectMassage ? (
+              <View style={{backgroundColor: "transparent", alignSelf: "center",}}>
+                <Text style={{
+                  ...styles.messageFont,
+                  fontSize: 16,
+                }}>No Project yet</Text>
+                <Text style={{...styles.messageFont, fontSize: 14, marginTop: 4}}>There is no Project yet</Text>
+              </View>
+            ) : ( 
+              <View style={{backgroundColor: "transparent", alignSelf: "center",}}>
+                <Text style={{...styles.messageFont, fontSize: 16}}>Hello! it worked. But something is wrong I just can't tell.</Text>
+              </View>
+
+            )};
+
+
+          </Box>
+
+        </View>
       </View>
+
 
       <ProfileEditModal
         visible={showEditModal}
@@ -412,3 +386,28 @@ export function HeaderUserEmail() {
     </>
   );
 }
+
+export function PageTitle() {
+  return (
+      <HStack style={{gap: 12, justifyContent: "center", alignItems: "center", padding: 8}}>
+          <House size={30}  color={"white"} />
+          <Text size="2xl" className="font-simibold color-white" >Home</Text>
+      </HStack>
+  );
+}
+
+
+const styles = StyleSheet.create({
+  ShadowBox: {
+    // zIndex: -1,
+    boxShadow: "0px 0px 200px 140px #0B7C36",
+    overflow: "visible",
+  },
+
+  messageFont: {
+    justifyContent: "center",
+    alignSelf: "center", 
+    fontWeight: "regular", 
+    color: "white",
+  }
+});

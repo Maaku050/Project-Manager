@@ -82,12 +82,8 @@ export default function Home() {
           <HStack
             style={{
               justifyContent: "space-between",
-              borderWidth: 0,
+              borderWidth: 1,
               borderColor: "red",
-              // marginTop: 12,
-              // marginLeft: 64,
-              // marginRight: 64,
-              // marginBottom: 40,
               gap: isLargeScreen ? 64 : isMediumScreen ? 32 : undefined,
             }}
           >
@@ -99,7 +95,7 @@ export default function Home() {
             </Box>
            
             <Box style={styles.HstackContainerLarge}>
-              <Text style={styles.statusTextLarge}>{project.filter((t) => t.status === "Ongoing").length}</Text>
+              <Text style={{...styles.statusTextLarge}}>{project.filter((t) => t.status === "Ongoing").length}</Text>
               <Text style={styles.statusText}>In Progress</Text>
             </Box>
             <Box style={styles.HstackContainerLarge}>
