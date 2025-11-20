@@ -86,20 +86,19 @@ export default function DateTimePicker({
     };
 
     return (
-      <View style={[styles.container, { position: "relative"}]}>
+      <View style={[styles.container, { position: "relative" }]}>
         {label ? <Text style={styles.label}>{label}</Text> : null}
         <View
           style={{
             position: "relative",
             display: "contents",
             alignItems: "center",
-            
           }}
         >
           <input
             aria-label={label ?? "date-time"}
             type={inputType}
-            value={formatLocalInputValue(value ?? defaultValue ?? null, mode)} // ✅ use defaultValue if no value
+            value={value ? formatLocalInputValue(value, mode) : ""}
             onChange={handleWebChange}
             min={
               minimumDate ? formatLocalInputValue(minimumDate, mode) : undefined
@@ -109,15 +108,16 @@ export default function DateTimePicker({
             }
             disabled={loading}
             style={{
-              color: "#ffffff",
+              color: "#000000",
               padding: 12,
               borderRadius: 8,
               borderWidth: 1,
               borderColor: "#ffffffff",
-              backgroundColor: "#1f1f1f",
+              backgroundColor: "#ffffffff",
               outline: "none",
               opacity: loading ? 0.6 : 1,
             }}
+            placeholder="Enter project Deadline"
           />
 
           {loading && (
