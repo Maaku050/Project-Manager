@@ -1,6 +1,6 @@
 // app/_layout.tsx
 import React from "react";
-import { Text, Image } from "react-native";
+import { Text, Image, StyleSheet } from "react-native";
 import { useWindowDimensions } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
@@ -12,10 +12,12 @@ import { ProjectProvider } from "@/context/projectContext";
 
 
 
-import { HeaderUserEmail, PageTitle } from "./home";
+import { HeaderUserEmail, HomeTitle,} from "./home";
+import { DashTitle } from "./dashboard";
 
 import { HStack } from "@/components/ui/hstack";
 import { Icon } from "lucide-react-native";
+// import { ProjectTitle } from "./project";
 // import { DrawerHeader } from "@/components/ui/drawer";
 
 export default function RootLayout() {
@@ -83,17 +85,10 @@ export default function RootLayout() {
                   title: "Home",
                   headerTitle: () => null,
                   headerRight: () => <HeaderUserEmail />,
-                  headerLeft: () => <PageTitle />,
+                  headerLeft: () => <HomeTitle />,
                   headerTintColor: "white",
                   headerStyle: {
-                    paddingLeft: 24,
-                    paddingRight: 24,
-                    paddingTop: 28,
-                    paddingBottom: 28,
-                    backgroundColor: "black",
-                    alignContent: "center",
-                    alignItems: "center",
-                    borderBottomWidth: 0,
+                   ...styles.headerSpace,
                   }
                 }}
               
@@ -104,7 +99,11 @@ export default function RootLayout() {
                   title: "Dashboard",
                   headerTitle: () => null,
                   headerRight: () => <HeaderUserEmail />,
+                  headerLeft: () => <DashTitle />,
                   headerTintColor: "white",
+                  headerStyle: {
+                    ...styles.headerSpace,
+                  }
                 }}
               />
               <Drawer.Screen
@@ -113,7 +112,11 @@ export default function RootLayout() {
                   title: "Project",
                   headerTitle: () => null,
                   headerRight: () => <HeaderUserEmail />,
+                  // headerLeft: () => <ProjectTitle />,
                   headerTintColor: "white",
+                  // headerStyle: {
+                  //   ...styles.headerSpace,
+                  // }
                 }}
               />
               <Drawer.Screen
@@ -172,3 +175,18 @@ export default function RootLayout() {
     </GestureHandlerRootView>
   );
 }
+
+const styles = StyleSheet.create({
+  headerSpace: {
+    paddingLeft: 24,
+    paddingRight: 24,
+    paddingTop: 28,
+    paddingBottom: 28,
+    backgroundColor: "black",
+    alignContent: "center",
+    alignItems: "center",
+    borderBottomWidth: 0,
+  }
+});
+
+

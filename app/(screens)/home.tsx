@@ -28,6 +28,7 @@ import { CircleIcon, Icon } from "@/components/ui/icon";
 import AppMessage from "@/components/AppMessage";
 import { Divider } from "@/components/ui/divider";
 import { StyleSheet } from "nativewind";
+import ProjectCard from "@/components/projectCard";
 
 
 export default function Home() {
@@ -64,46 +65,13 @@ export default function Home() {
   const projectMassage = myProject.length ===0;
 
   const myOngoingTask = myTask.filter((t) => t.status === "Ongoing" || t.status === "Pending");
-  const myOverBueTask = myTask.filter((t) => t.status === "Over Due" || t.status === "over due");
-
-
-
-  const progressCalculation = (projectID: string) => {
-    const currentProjectTasks = tasks.filter((t) => t.projectID === projectID);
-    // const ongoingTasks = currentProjectTasks.filter(
-    //     (t) => t.status === "Ongoing"
-    //   );
-
-    // const completedTasks = currentProjectTasks.filter(
-    //     (t) => t.status === "Completed"
-    //   );
-
-    const currentStateOfProject = project.find((p) => p.id === projectID);
-    if (currentStateOfProject?.status === "Ongoing") {
-      return "Ongoing";
-    } else if (currentStateOfProject?.status === "Completed") {
-      return "Completed";
-    } else if (currentStateOfProject?.status === "Pending") {
-      return "Pending";
-    } else {
-      return 0;
-    }
-
-    // const totalTasks = currentProjectTasks.length;
-
-    // const progress =
-    //   ((ongoingTasks.length * 0.5 + completedTasks.length * 1) / totalTasks) *
-    //   100;
-
-    // return progress;
-  };
-
+  const myOverBueTask = myTask.filter((t) => t.status !== "Ongoing" && t.status !== "Completed");
 
 
   return (
-    <ScrollView className="bg-black" contentContainerStyle={{minHeight:  860, maxHeight: "auto"}}>
+    <ScrollView className="bg-black" contentContainerStyle={{flexGrow: 1}}>
 
-      <View style={{flex: 1, backgroundColor: "transparent", borderColor: "yellow", borderWidth: 0, minHeight: 720, maxHeight: "100%"}}>
+      <View style={{backgroundColor: "transparent", borderColor: "yellow", borderWidth: 0, paddingBottom: 20, flex: 1}}>
         
         {/* -----------------------------------Top Group---------------------------------------- */}
         <HStack style={{
@@ -112,7 +80,6 @@ export default function Home() {
           paddingBottom: 0,
           borderWidth: 0,
           borderColor: "blue",
-          // flexBasis: "60%",
           flex: 1,
         }}>
 
@@ -122,11 +89,8 @@ export default function Home() {
             style={{
               justifyContent: "center",
               alignItems: "center",
-              // paddingTop: 28,
-              // paddingBottom: 28,
               borderRadius: 12,
-              borderWidth: 1,
-              borderColor: "#206F3E",
+              ...styles.borderColor,
               backgroundColor: "#000000ff",
               gap: 24,
               flex: 2,
@@ -222,7 +186,7 @@ export default function Home() {
             padding: 20,
             backgroundColor: "#171717",
             borderWidth: 0,
-            gap: 12
+            gap: 24,
           }}
             className="rounded-xl">
 
@@ -256,19 +220,18 @@ export default function Home() {
                  contentContainerStyle={{
                   borderWidth: 0,
                   flexGrow: 1,
-                  justifyContent: "center",
-                  alignItems: "center",
+                  alignItems: "flex-start",
                 }}>
                 
                   {taskMessage ? (
-                    <Box style={{ borderWidth: 0, flex: 1, justifyContent: "center"}}>
-                      <Text style={{marginTop: 120, fontSize: 16, ...styles.messageFont, }} className="text-white">No Task</Text>
+                    <Box style={{  borderWidth: 0, flex: 1, width: "100%", justifyContent: "center"}}>
+                      <Text style={{fontSize: 20, ...styles.messageFont, }} className="text-white">No Task</Text>
                       <Text style={{ ...styles.messageFont, marginTop: 4, fontSize: 14, }} className="text-white">There is no Task for now</Text>
                     </Box>
                   ) : (
-                                                                     // naka absolute. ==============================>
-                    <Box style={{ borderWidth: 0, flex: 1, justifyContent: "center"}}>  
-                      <Text style={{ ...styles.messageFont }}>Sample text: this means there is existing content behind</Text>
+                    <Box style={{ borderWidth: 0, flex: 1, width: "100%", justifyContent: "center"}}>
+                      <Text style={{fontSize: 20, ...styles.messageFont, }} className="text-white">No Task</Text>
+                      <Text style={{ ...styles.messageFont, marginTop: 4, fontSize: 14, }} className="text-white">There is no Task for now</Text>
                     </Box>
                   )}
                 
@@ -294,7 +257,6 @@ export default function Home() {
             padding: 28,
             gap: 28,
             flex: 1,
-            // flexBasis: "40%",
           }}
 
         >
@@ -319,7 +281,7 @@ export default function Home() {
           </Box>
           <Box
             style={{
-              justifyContent: myProject ?  "center" : isLargeScreen ?  "flex-start" : isMediumScreen ? "flex-start" : "center",
+              justifyContent: myProject ?  "flex-start" : "center",
               flexDirection: isLargeScreen
                 ? "row"
                 : isMediumScreen
@@ -327,24 +289,19 @@ export default function Home() {
                   : "column",
               flexWrap: "wrap",
               borderWidth: 0,
-              flex: 2,
-              gap: 0,
+              flex: 1,
+              gap: 16,
             }}
           >
             {projectMassage ? (
-              <View style={{backgroundColor: "transparent", alignSelf: "center",}}>
+              <View style={{backgroundColor: "transparent", alignSelf: "center", flexGrow: 1}}>
                 <Text style={{
                   ...styles.messageFont,
-                  fontSize: 16,
+                  fontSize: 20,
                 }}>No Project yet</Text>
                 <Text style={{...styles.messageFont, fontSize: 14, marginTop: 4}}>There is no Project yet</Text>
               </View>
-            ) : ( 
-              <View style={{backgroundColor: "transparent", alignSelf: "center",}}>
-                <Text style={{...styles.messageFont, fontSize: 16}}>Hello! it worked. But something is wrong I just can't tell.</Text>
-              </View>
-
-            )};
+            ) : myProject.map((item) => <ProjectCard projectID={item.id} />)};
 
 
           </Box>
@@ -387,7 +344,7 @@ export function HeaderUserEmail() {
   );
 }
 
-export function PageTitle() {
+export function HomeTitle() {
   return (
       <HStack style={{gap: 12, justifyContent: "center", alignItems: "center", padding: 8}}>
           <House size={30}  color={"white"} />
@@ -396,18 +353,28 @@ export function PageTitle() {
   );
 }
 
+ 
+
+const colors = ["#0B7C36", "#EAB308", "#A21CAF", "#0369A1", "#AF1C1E", "#FFFFFF", "#17C3A6", "#7B0C0C", "#56C820", "#6F5F20"];
+const randomCL = Math.floor(Math.random() * colors.length)
+
 
 const styles = StyleSheet.create({
   ShadowBox: {
     // zIndex: -1,
-    boxShadow: "0px 0px 200px 140px #0B7C36",
+    boxShadow: "0px 0px 200px 70px" + colors[randomCL],
     overflow: "visible",
+  },
+
+  borderColor: {
+    borderWidth: 1,
+    borderColor: colors[randomCL],
   },
 
   messageFont: {
     justifyContent: "center",
     alignSelf: "center", 
-    fontWeight: "regular", 
-    color: "white",
+    fontWeight: "semibold", 
+    color: "#8B8B8B",
   }
 });

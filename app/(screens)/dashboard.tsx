@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Box } from "@/components/ui/box";
 import {
-  Pressable,
   ScrollView,
   StyleSheet,
   useWindowDimensions,
@@ -11,17 +10,12 @@ import { useRouter } from "expo-router";
 import { View } from "@/components/Themed";
 import { useUser } from "@/context/profileContext";
 import { useProject } from "@/context/projectContext";
-import { Card } from "@/components/ui/card";
-import { Heading } from "@/components/ui/heading";
 import { HStack } from "@/components/ui/hstack";
 import { Divider } from "@/components/ui/divider";
 import { VStack } from "@/components/ui/vstack";
-import {
-  Avatar,
-  AvatarBadge,
-  AvatarFallbackText,
-} from "@/components/ui/avatar";
-import { Progress, ProgressFilledTrack } from "@/components/ui/progress";
+import { LayoutDashboard } from 'lucide-react-native';
+import ProjectBar from "@/components/ProjectBar";
+import { P } from "@expo/html-elements";
 
 export default function Home() {
   const router = useRouter();
@@ -34,72 +28,55 @@ export default function Home() {
   const isMediumScreen = dimensions.width <= 1280 && dimensions.width > 768; // tablet UI condition
 
 
-  // we will create a truncate for avatars to iterate them and minimize them in 3.
-  const truncateWords = (text: string, wordLimit: number) => {
-    const words = text.split(" ");
-    return words.length > wordLimit
-      ? words.slice(0, wordLimit).join(" ") + " ..."
-      : text;
-  };
+  const ongoingProjects = project.filter(
+    (t) =>
+      t.status === "Ongoing" && t?.deadline && t.deadline.toDate() > new Date()
+  );
 
-  const createdByFunction = (uid: string) => {
-    if (!profiles) return null;
-    const name = profiles.find((t) => t.uid === uid) || null;
-    return name?.nickName;
-  };
+  const closedProjects = project.filter((t) => t.status === "Closed");
 
-  const progressCalculation = (projectID: string) => {
-    const currentProjectTasks = tasks.filter((t) => t.projectID === projectID);
+  const overdueProjects = project.filter(
+    (t) =>
+      t?.deadline &&
+      t.deadline.toDate() < new Date() &&
+      t.status != "Archived" &&
+      t.status != "Closed"
+  );
 
-    const ongoingTasks = currentProjectTasks.filter(
-      (t) => t.status === "Ongoing"
-    );
-
-    const completedTasks = currentProjectTasks.filter(
-      (t) => t.status === "Completed"
-    );
-
-    const totalTasks = currentProjectTasks.length;
-
-    const progress =
-      ((ongoingTasks.length * 0.5 + completedTasks.length * 1) / totalTasks) *
-      100;
-
-    return progress;
-  };
+  const totalProject = ongoingProjects.length + overdueProjects.length + closedProjects.length;
 
 
  
   return (
-    <ScrollView style={{backgroundColor: "black", padding: 24,}}>
+    <ScrollView contentContainerStyle={{backgroundColor: "black", padding: 24, borderWidth: 0, borderColor: "red", flexGrow:1,}}>
             
       {isLargeScreen || isMediumScreen ? (
           
-        <VStack style={{ gap: 20 }}>
+        <VStack style={{ gap: 20, borderWidth: 0 }}>
            <Box>
                  <Text style={{color: "white", fontSize: 20, fontFamily: "roboto, arial", fontWeight: "bold"}}>Project Summaries</Text>
             </Box>
           <HStack
             style={{
               justifyContent: "space-between",
-              borderWidth: 1,
+              borderWidth: 0,
               borderColor: "red",
               gap: isLargeScreen ? 64 : isMediumScreen ? 32 : undefined,
             }}
           >
-             <Box style={styles.HstackContainerLarge}>
+             <Box style={{...styles.HstackContainerLarge, ...styles.containerBG}}>
               <Text style={styles.statusTextLarge}>
-                {project.length}
+                {totalProject}
               </Text>
               <Text style={styles.statusText}>Projects</Text>
             </Box>
            
-            <Box style={styles.HstackContainerLarge}>
-              <Text style={{...styles.statusTextLarge}}>{project.filter((t) => t.status === "Ongoing").length}</Text>
-              <Text style={styles.statusText}>In Progress</Text>
+            <Box style={{...styles.HstackContainerLarge, ...styles.containerBG}}>
+              <Text style={{...styles.statusTextLarge, color: "#3a9e60ff"}}>{project.filter((t) => t.status === "Ongoing").length}</Text>
+              <Text style={{...styles.statusText, color: "#3a9e60ff"}}>On Going</Text>
             </Box>
-            <Box style={styles.HstackContainerLarge}>
-              <Text style={styles.statusTextLarge}>
+            <Box style={{...styles.HstackContainerLarge, ...styles.containerBG}}>
+              <Text style={{...styles.statusTextLarge, color: "#c56969ff"}}>
                 {
                   project.filter(
                     (t) =>
@@ -109,13 +86,13 @@ export default function Home() {
                   ).length
                 }
               </Text>
-              <Text style={styles.statusText}>Overdue</Text>
+              <Text style={{...styles.statusText, color: "#c56969ff"}}>Over Due</Text>
               </Box>
-              <Box style={styles.HstackContainerLarge}>
-                <Text style={styles.statusTextLarge}>
-                  {project.filter((t) => t.status === "Completed").length}
+              <Box style={{...styles.HstackContainerLarge, ...styles.containerBG}}>
+                <Text style={{...styles.statusTextLarge, color: "#888888ff"}}>
+                  {project.filter((t) => t.status === "Closed" || t.status === "closed").length}
                 </Text>
-                <Text style={styles.statusText}>Completed</Text>
+                <Text style={{...styles.statusText, color: "#888888ff"}} >Closed</Text>
               </Box>
           </HStack>
         </VStack>  
@@ -174,36 +151,35 @@ export default function Home() {
         </Box>
       )}
 
-      <VStack style={{ marginTop: isLargeScreen || isMediumScreen ? 40 : 20, gap: 20 }}>
+      <VStack style={{ marginTop: isLargeScreen || isMediumScreen ? 20 : 16, gap: 20, borderWidth: 0, flex: 2}}>
             <Box>
                  <Text style={{color: "white", fontSize: 20, fontFamily: "roboto, arial", fontWeight: "bold"}}>Project Overview</Text>
             </Box>
         <View
           style={{
-            // marginTop: 12,
-            // marginLeft: isLargeScreen ? 64 : 0,
-            // marginRight: isLargeScreen ? 64 : 0,
-            height: "auto",
+            // height: "100%",
+            flex: 1,
             borderRadius: isLargeScreen ? 12 : isMediumScreen ?  12: 4,
-            backgroundColor: "#1f1f1f",
+            ...styles.containerBG,
           }}
         >
-          <Box style={{ padding: 12 }}> 
+          <Box style={{ padding: 12, borderWidth: 0, borderRadius: 12, flex: 1}}> 
             {isLargeScreen ? 
             (<>
               <HStack style={{ 
                 justifyContent: "space-between", 
-                flex: 1, flexDirection: "row", 
+                flexDirection: "row", 
                 flexWrap: "wrap", 
                 padding: 20, 
                 borderWidth: 0, 
                 gap: 12
                 }}>
-                <Text style={{flex: 7, color: "white", borderWidth: 0}}>Project Name</Text>
-                <Text style={{flex: 3, color: "white", textAlign: "left", borderWidth: 0}}>Task Progress</Text>
-                <Text style={{flex: 1, color: "white", textAlign: "right", borderWidth: 0}}>Status</Text>
-                <Text style={{flex: 3, color: "white", textAlign: "right", borderWidth: 0}}>Employees</Text>
-                <Text style={{flex: 2, color: "white", textAlign: "right", borderWidth: 0}}>Deadline</Text>
+                <Text style={{flex: 2, color: "white", borderWidth: 0,}}>Project Name</Text>
+                <Text style={{flex: 1, color: "white", textAlign: "center", borderWidth: 0}}>Task Progress</Text>
+                <Text style={{flex: 1, color: "white", textAlign: "center", borderWidth: 0,  }}>Status</Text>
+                <Text style={{flex: 1, color: "white", textAlign: "center", borderWidth: 0}}>Employees</Text>
+                <Text style={{flex: 1, color: "white", textAlign: "center", borderWidth: 0}}>Started on</Text>
+                <Text style={{flex: 1, color: "white", textAlign: "center", borderWidth: 0}}>Deadline</Text>
               </HStack>
               <Divider
                 orientation="horizontal"
@@ -219,6 +195,7 @@ export default function Home() {
                 <Text style={{flex: 3, color: "white", textAlign: "left", borderWidth: 0}}>Task Progress</Text>
                 <Text style={{flex: 1, color: "white", textAlign: "right", borderWidth: 0}}>Status</Text>
                 <Text style={{flex: 3, color: "white", textAlign: "right", borderWidth: 0}}>Employees</Text>
+                <Text style={{flex: 2, color: "white", textAlign: "right", borderWidth: 0}}>Started on</Text>
                 <Text style={{flex: 2, color: "white", textAlign: "right", borderWidth: 0}}>Deadline</Text>
               </HStack>
       
@@ -227,155 +204,47 @@ export default function Home() {
                 style={{ marginTop: 20, marginBottom: 10,  borderWidth: 1, borderColor: "#ffffffff", }}
               />
             </>
-          ) : (
-            <Divider
-              orientation="horizontal"
-              style={{ marginTop: -12, 
-                marginBottom: 8,
-                borderWidth: 2,
-                borderRadius: 12,
-                borderColor: "#1f1f1f",
-              }}
+            ) : (
+              <Divider
+                orientation="horizontal"
+                style={{ marginTop: -12, 
+                  marginBottom: 8,
+                  borderWidth: 2,
+                  borderRadius: 12,
+                  borderColor: "#1f1f1f",
+                }}
 
-            />
-          )}
+              />
+            )}
             
           
+              {/* --------------------------------------------------PROJECT BAR------------------------------------------------ */}
+           <View style={{...styles.ProjectContainer, borderWidth: 0, flexGrow: 1, }}>
+               {!project || project.length === 0 ? (
+                  <Box style={{alignItems: "center", justifyContent: "center", alignSelf: "center", minHeight: "100%"}}>
+                    <Text style={{...styles.statusText}}>No Project Yet</Text>
+                    <Text>There is no Project for now</Text>
+                  </Box>  
+               ) : ( 
+                  <>
+                    {/* {project.map((p) => 
+                      p.status === "Ongoing" ? (<ProjectBar key={p.id} projectID={p.id} />) 
+                      : p.status != "Ongoing" && p.status != "Closed" ? (<ProjectBar key={p.id} projectID={p.id} />) : (""),
+                      
+                    )} */}
 
-            <View style={styles.ProjectContainer}>
-              {project.map((t) => (
-                <Card size="sm" variant="outline" className="m-3" key={t.id} style={{
-                  // backgroundColor: "#cdcccc",
-                  borderWidth: 0,
-                  borderColor: "yellow",
-                  padding: 12,
-                  height: isLargeScreen ? "auto" : isMediumScreen ? "auto" : 120,
-                  flexDirection: isLargeScreen || isMediumScreen ? "row" : "column",
-                  flex: 1,
-                  justifyContent: "space-between",
-                  // gap: 20,
-                }}>
-                  <Pressable
-                    onPress={() => {
-                      setSelectedProject(t.id);
-                      router.push("/projectWindow"); // or open modal directly
-                    }}
-                    onHoverIn={() => setHoveredId(t.id)}
-                    onHoverOut={() => setHoveredId(null)}
-                    style={{flex: 1}}
-                  >
 
-                    <HStack style={{ flex: 1, gap: 20}}>
+                    {ongoingProjects.map((p) => (<ProjectBar key={p.id} projectID={p.id} />))}
+                    {overdueProjects.map((p) => (<ProjectBar key={p.id} projectID={p.id} />))}
+                    {closedProjects.map((p) => (<ProjectBar key={p.id} projectID={p.id} />))}
 
-                       {/* -------------------------------project <title></title>-------------------------------- */}
-                      <Box style={{ borderWidth: 0, borderColor: "orange", flex: 2 }}>
-                        <Text
-                          style={{
-                            textDecorationLine: hoveredId === t.id ? "underline" : "none",
-                            flex: 1,
-                            flexWrap: "wrap",
-                            color: "white",
-                            fontWeight: "normal",
-                            fontSize: 20,
-                            fontFamily: "roboto, arial",
-
-                          }}
-                        >
-                          {truncateWords(t.title, 7)}
-                        </Text>
-                      </Box>
-
-                      {/* ------------------------------------------task progress----------------------------------- */}
-                      <HStack
-                        style={{
-                          borderWidth: 0,
-                          flex: 1,
-                          alignContent: "center",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          gap: 8,
-                        }}
-                      >
-                        <Progress
-                          value={progressCalculation(t.id)}
-                          size="sm"
-                          orientation="horizontal"
-                          style={{flex: 1}}
-                        >
-                          <ProgressFilledTrack />
-                        </Progress>
-
-                        <Text style={{ color: "white", fontFamily: "roboto, arial", fontSize: 20 }}>
-                          {progressCalculation(t.id).toFixed(0)}%
-                        </Text>
-                      </HStack>
-
-                      {/* -----------------------Status-------------------------- */}
-                      <Box style={{
-                        borderWidth: 0, 
-                        alignItems: "center", 
-                        justifyContent: "center", 
-                        paddingLeft: 12, 
-                        paddingRight: 12,
-                        borderRadius: 8,
-                        backgroundColor: "white",
-                        }}>
-                        <Text style={{
-                          color: t.status === "Ongoing" ? "#2f9c46ff"
-                            : t.status === "Completed"
-                              ? "#3b82f6ff"
-                              : t.status === "Pending"
-                                ? "#6b7280ff"
-                                : "#ffffff", 
-                          fontSize: 20, 
-                          fontFamily: "roboto, arial"
-                          }}>{t.status}</Text>
-                      </Box>
-
-                          {/* --------------------------avatar area--------------------- */}
-                      <Box style={{ 
-                        borderWidth: 0, 
-                        flex: 1, 
-                        borderColor: "red", 
-                        justifyContent: "center", 
-                        alignItems: "center", 
-                        }}>
-                        <HStack style={{ 
-                          gap: isLargeScreen ? 8 : isMediumScreen ? 4 : 0, 
-                          alignSelf: "flex-end", 
-                          }}>
-                          {profiles.filter((p) => assignedUser.some((a) => a.projectID === t.id && a.uid === p.uid)).map((t) => {
-                              return (
-                                <Avatar size={isLargeScreen ? "sm" : "xs"} key={t.id}>
-                                  <AvatarFallbackText>
-                                    {t.firstName}
-                                  </AvatarFallbackText>
-
-                                  {/* <AvatarBadge /> */}
-                                </Avatar>
-                              );
-                            })}
-                        </HStack>
-                      </Box>
-
-                      {/* -------------------date area-------------------- */}
-                      <Text style={{ 
-                        borderWidth: 0, 
-                        width: 150,
-                        borderColor: "blue", 
-                        color: "white",
-                        alignSelf: "center",
-                        textAlign: "right",
-                        fontFamily: "roboto, arial",
-                        fontSize: 20,
-                        }}>
-                        {t.deadline?.toDate().toLocaleDateString()}
-                      </Text>
-                    </HStack>
-                  </Pressable>
-                </Card>
-              ))}
-            </View>
+                   
+                    
+                  </>
+               )}
+               
+              
+           </View>
           </Box>
         </View> 
       </VStack>
@@ -383,6 +252,15 @@ export default function Home() {
     </ScrollView>
   );
   
+}
+
+export function DashTitle() {
+  return (
+      <HStack style={{gap: 12, justifyContent: "center", alignItems: "center", padding: 8}}>
+            <LayoutDashboard size={30}  color={"white"} />
+          <Text size="2xl" className="font-simibold color-white" >Dashboard</Text>
+      </HStack>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -398,12 +276,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#1f1f1f",
     margin: 4,
     borderRadius: 12,
-    // flex: 1,
   }, 
   statusText: {
     color: "white",
     fontFamily: "roboto, arial",
     fontWeight: "medium",
+    fontSize: 24,
   },
   HstackContainerLarge: {
     height: 200,
@@ -434,6 +312,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     margin: 10,
   },
- 
-
+  containerBG : {
+    backgroundColor: "#171717",
+  },
 });
