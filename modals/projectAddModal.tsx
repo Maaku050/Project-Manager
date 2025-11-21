@@ -7,7 +7,6 @@ import { View } from "@/components/Themed";
 import { useUser } from "@/context/profileContext";
 import { useProject } from "@/context/projectContext";
 import { Heading } from "@/components/ui/heading";
-import { Divider } from "@/components/ui/divider";
 import {
   ModalBackdrop,
   ModalContent,
@@ -90,8 +89,8 @@ export default function ProjectAddModal({
         title: tempTitle.trim(),
         description: tempDescription.trim(),
         createdBy: auth.currentUser.uid,
-        status: "Pending",
-        startedAt: null,
+        status: "Ongoing",
+        startedAt: Timestamp.now(),
         deadline: Timestamp.fromDate(localDeadline),
       });
 
@@ -129,14 +128,15 @@ export default function ProjectAddModal({
   };
 
   return (
-    <Modal isOpen={visible} onClose={onClose} size="lg">
+    <Modal isOpen={visible} onClose={onClose} size="full">
       <ModalBackdrop />
       <ModalContent
         style={{
           borderColor: "red",
           borderWidth: 0,
-          backgroundColor: "#1f1f1f",
-          paddingLeft: 20,
+          backgroundColor: "#000000",
+          width: 892,
+          height: 530,
         }}
       >
         <ModalHeader>
@@ -148,106 +148,96 @@ export default function ProjectAddModal({
           </ModalCloseButton>
         </ModalHeader>
         <ModalBody>
-          <ScrollView
-            style={{ maxHeight: 500 }} // limits scroll area
-            contentContainerStyle={{
-              paddingBottom: 20,
-              flexGrow: 1,
-            }}
-            showsVerticalScrollIndicator={false}
-          >
-            <Box style={{ margin: 5 }}>
-              <Text
-                style={{
-                  fontWeight: "bold",
-                  marginBottom: 5,
-                  color: "#ffffff",
-                }}
-              >
-                Project Title
-              </Text>
-              <TextInput
-                style={{
-                  borderBottomWidth: 1,
-                  borderColor: "#ffffffff",
-                  paddingVertical: 8,
-                  fontSize: 16,
-                  color: "#ffffff",
-                }}
-                placeholder="Enter your Project Title"
-                placeholderTextColor="#999"
-                value={tempTitle}
-                onChangeText={setTempTitle}
-              />
-            </Box>
-
-            <Box style={{ margin: 5 }}>
-              <Text
-                style={{
-                  fontWeight: "bold",
-                  marginBottom: 5,
-                  color: "#ffffff",
-                }}
-              >
-                Project Description
-              </Text>
-              <Textarea
-                size="sm"
-                isReadOnly={false}
-                isInvalid={false}
-                style={{
-                  backgroundColor: "#ffffff",
-                  // borderColor: "#cdcccc"
-                }}
-              >
-                <TextareaInput
-                  placeholder="Enter your Project Description"
-                  value={tempDescription}
-                  onChangeText={setTempDescription}
+          <HStack>
+            <Box
+              style={{
+                borderWidth: 0,
+                flex: 1,
+                marginRight: 10,
+                marginTop: 25,
+              }}
+            >
+              <Box style={{ borderWidth: 0, marginBottom: 20 }}>
+                <Text
+                  style={{
+                    marginBottom: 5,
+                    color: "#ffffff",
+                  }}
+                >
+                  Project name
+                </Text>
+                <TextInput
+                  style={{
+                    backgroundColor: "white",
+                    paddingVertical: 10,
+                    fontSize: 16,
+                    borderRadius: 8,
+                    paddingHorizontal: 15,
+                    outline: "none",
+                    outlineWidth: 0,
+                    outlineColor: "transparent",
+                  }}
+                  placeholder="Enter project name"
+                  value={tempTitle}
+                  onChangeText={setTempTitle}
                 />
-              </Textarea>
-            </Box>
+              </Box>
 
-            <Box style={{ margin: 5 }}>
-              <Text style={{ fontWeight: "bold", color: "#ffffff" }}>
-                Project Deadline
-              </Text>
-              <DateTimePicker
-                value={tempDeadline}
-                onChange={setTempDeadline}
-                mode="date"
-                placeholder="Select a date and time"
-              />
+              <Box style={{ marginBottom: 20 }}>
+                <Text
+                  style={{
+                    marginBottom: 5,
+                    color: "#ffffff",
+                  }}
+                >
+                  Project Description
+                </Text>
+                <Textarea
+                  size="md"
+                  isReadOnly={false}
+                  isInvalid={false}
+                  style={{
+                    backgroundColor: "#ffffff",
+                    height: 110,
+                  }}
+                >
+                  <TextareaInput
+                    placeholder="Enter your Project Description"
+                    value={tempDescription}
+                    onChangeText={setTempDescription}
+                  />
+                </Textarea>
+              </Box>
+
+              <Box style={{ margin: 5 }}>
+                <Text style={{ color: "#ffffff" }}>Project Deadline</Text>
+                <DateTimePicker
+                  value={tempDeadline}
+                  onChange={setTempDeadline}
+                  mode="date"
+                  placeholder="Select a date and time"
+                />
+              </Box>
             </Box>
 
             {/* Members */}
-            <Box style={{ margin: 5 }}>
-              <Text style={{ fontWeight: "bold", color: "#ffffff" }}>
-                Project Members
-              </Text>
+            <Box
+              style={{ borderWidth: 0, flex: 1, marginLeft: 10, marginTop: 25 }}
+            >
+              <Text style={{ color: "#ffffff" }}>Project Members</Text>
 
-              <Box
+              <ScrollView
                 style={{
-                  marginTop: 10,
-                  borderWidth: 1,
+                  marginTop: 5,
+                  borderWidth: 0,
                   borderColor: "#ccc",
                   borderRadius: 8,
                   padding: 10,
                   backgroundColor: "#fff",
+                  height: 302,
                 }}
+                showsVerticalScrollIndicator={false}
               >
-                {/* Header */}
-                <Box
-                  style={{
-                    marginBottom: 8,
-                    borderBottomWidth: 0,
-                    borderBottomColor: "#000",
-                    paddingBottom: 4,
-                  }}
-                >
-                  <Text style={{ marginLeft: 8 }}>Select Members</Text>
-                </Box>
-
                 {/* Members List */}
                 <VStack space="sm">
                   {[
@@ -285,13 +275,6 @@ export default function ProjectAddModal({
                             <Text style={{ fontSize: 14, fontWeight: "bold" }}>
                               {role}
                             </Text>
-                            <Divider
-                              style={{
-                                flex: 1,
-                                marginHorizontal: 8,
-                                borderWidth: 0.5,
-                              }}
-                            />
                           </HStack>
 
                           <VStack>
@@ -355,9 +338,9 @@ export default function ProjectAddModal({
                       );
                     })}
                 </VStack>
-              </Box>
+              </ScrollView>
             </Box>
-          </ScrollView>
+          </HStack>
         </ModalBody>
         <ModalFooter>
           <Button

@@ -31,12 +31,12 @@ export default function ProfileEditModal({ visible, onClose }: ProfileTypes) {
 
   useEffect(() => {
     // Initiallizing fields
-    if (!profile) return;
-
-    setFirstname(profile.firstName);
-    setLastName(profile.lastName);
-    setNickName(profile.nickName);
-  }, []);
+    if (profile) {
+      setFirstname(profile.firstName);
+      setLastName(profile.lastName);
+      setNickName(profile.nickName);
+    }
+  }, [visible]);
 
   // Functions
   const handleSave = async () => {
