@@ -27,6 +27,7 @@ interface Task {
   status: string;
   start: Timestamp | null;
   end: Timestamp | null;
+  completedAt: Timestamp | null;
 }
 
 interface Comment {
@@ -63,7 +64,6 @@ interface ProjectContextType {
   starsPoints: StarsPoints | null;
   setStarsPoints: (value: StarsPoints | null) => void;
 }
-
 
 // === CONTEXT ===
 const ProjectContext = createContext<ProjectContextType>({

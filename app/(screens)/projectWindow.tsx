@@ -6,34 +6,18 @@ import {
   useWindowDimensions,
 } from "react-native";
 import { Text } from "@/components/ui/text";
-import { Button, ButtonText } from "@/components/ui/button";
-import { useRouter } from "expo-router";
-import { ArrowLeftIcon, Icon, InfoIcon } from "@/components/ui/icon";
-import { View } from "@/components/Themed";
-import { useUser } from "@/context/profileContext";
 import { useProject } from "@/context/projectContext";
-import { Card } from "@/components/ui/card";
-import { Heading } from "@/components/ui/heading";
 import { Divider } from "@/components/ui/divider";
-import {
-  ModalBackdrop,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Modal,
-} from "@/components/ui/modal";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import React from "react";
-import { db } from "@/firebase/firebaseConfig";
-import { doc, updateDoc } from "firebase/firestore";
 import { HStack } from "@/components/ui/hstack";
-import { Progress, ProgressFilledTrack } from "@/components/ui/progress";
-import { Center } from "@/components/ui/center";
-import { VStack } from "@/components/ui/vstack";
-import { Avatar, AvatarFallbackText } from "@/components/ui/avatar";
-import { Spinner } from "@/components/ui/spinner";
-import { EllipsisVertical, SquarePen } from "lucide-react-native";
+import {
+  CircleX,
+  EllipsisVertical,
+  Repeat,
+  SquarePen,
+  Trash,
+} from "lucide-react-native";
 import ProjectEditModal from "@/modals/projectEditModal";
 import TaskAddModal from "@/modals/taskAddModal";
 import ProjectUsers from "@/components/projectAssignedUsers";
@@ -42,114 +26,20 @@ import TaskProgressBar from "@/components/taskProgressBar";
 import TodoTasks from "@/components/todoTasks";
 import OngoingTasks from "@/components/ongoingTasks";
 import CompletedTasks from "@/components/completedTasks";
+import { Menu, MenuItem, MenuItemLabel } from "@/components/ui/menu";
+import ProjectDeleteModal from "@/modals/projectDeleteModal";
+import ProjectCloseModal from "@/modals/projectCloseModal";
+import ProjectReopenModal from "@/modals/projectReopenModal";
 
 export default function ProjectWindow() {
   const dimensions = useWindowDimensions();
-  const isLargeScreen = dimensions.width >= 1400; // computer UI condition
-  const isMediumScreen = dimensions.width <= 1400 && dimensions.width > 860; // tablet UI condition
-
-  const router = useRouter();
   const [showAddTaskModal, setShowAddTaskModal] = useState(false);
-  const [tempAssigned, setTempAssigned] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [isHover, setIsHover] = useState<string | null>(null);
-  const [descriptionPressed, setDescriptionPressed] = useState(false);
   const [showEditProjectModal, setShowEditProjectModal] = useState(false);
-  const [showConfirmationModal, setConfirmationModal] = useState(false);
-  const [showDeleteConfirmationModal, setDeleteConfirmationModal] =
-    useState(false);
-  const [todoOrOngoing, setTodoOrOngoing] = useState(true);
-  const [taskID, setTaskID] = useState("");
-  const [taskIdToDelete, setTaskIdToDelete] = useState("");
-  const { selectedProject, project, tasks, assignedUser, setSelectedTask } =
-    useProject();
-
-  const { profiles } = useUser();
+  const [showDeleteProjectModal, setShowDeleteProjectModal] = useState(false);
+  const [showCloseProjectModal, setShowCloseProjectModal] = useState(false);
+  const [showReopenProjectModal, setShowReopenProjectModal] = useState(false);
+  const { selectedProject, project, setSelectedProject } = useProject();
   const currentProjectData = project.find((t) => t.id === selectedProject);
-  const currentProjectTasks = tasks.filter(
-    (t) => t.projectID === selectedProject
-  );
-
-  const todoTasks = currentProjectTasks.filter((t) => t.status === "To-do");
-
-  const ongoingTasks = currentProjectTasks.filter(
-    (t) => t.status === "Ongoing"
-  );
-
-  const completedTasks = currentProjectTasks.filter(
-    (t) => t.status === "Completed"
-  );
-
-  const totalTasks = currentProjectTasks.length;
-
-  const progress =
-    ((ongoingTasks.length * 0.5 + completedTasks.length * 1) / totalTasks) *
-    100;
-
-  const currentProjectAssignedUsers = profiles.filter((profile) =>
-    assignedUser.some(
-      (a) => a.projectID === selectedProject && a.uid === profile.uid
-    )
-  );
-
-  useEffect(() => {
-    console.log("Current Project:", selectedProject);
-    console.log(
-      "Curernt Project Assigned Users: ",
-      currentProjectAssignedUsers
-    );
-    console.log("Current project tasks: ", currentProjectTasks);
-    console.log("To-do tasks: ", todoTasks);
-  }, []);
-
-  useEffect(() => {
-    // Initialize with currently assigned user IDs
-    const assignedUids = assignedUser
-      .filter((a) => a.projectID === selectedProject)
-      .map((a) => a.uid);
-    setTempAssigned(assignedUids);
-  }, [assignedUser, selectedProject]);
-
-  const truncateWords = (text: string | undefined, wordLimit: number) => {
-    if (!text) return "";
-    const words = text.split(" ");
-    return words.length > wordLimit
-      ? words.slice(0, wordLimit).join(" ") + " ...see more"
-      : text;
-  };
-
-  const handleStartAndCompleteTask = async (state: string) => {
-    if (!taskID) return;
-    setLoading(true);
-    try {
-      await updateDoc(doc(db, "tasks", taskID), {
-        status: state,
-      });
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
-
-    setConfirmationModal(false);
-  };
-
-  const handleDeleteTask = async () => {
-    if (!taskIdToDelete) return;
-    setLoading(true);
-
-    try {
-      await updateDoc(doc(db, "tasks", taskIdToDelete), {
-        status: "Archive",
-      });
-    } catch (error) {
-      console.log("Erron deleting task: ", error);
-    } finally {
-      setLoading(false);
-    }
-
-    setDeleteConfirmationModal(false);
-  };
 
   if (!currentProjectData) {
     return <Text>Loading project data...</Text>;
@@ -160,7 +50,7 @@ export default function ProjectWindow() {
       <ScrollView
         style={{
           flex: 1,
-          paddingTop: 50,
+          paddingTop: 30,
           paddingHorizontal: 30,
           backgroundColor: "#000000",
         }}
@@ -179,9 +69,78 @@ export default function ProjectWindow() {
             >
               {currentProjectData.title}
             </Text>
-            <Pressable>
-              <EllipsisVertical color={"white"} size={25} />
-            </Pressable>
+            <Menu
+              placement="top"
+              offset={5}
+              disabledKeys={["Settings"]}
+              trigger={({ ...triggerProps }) => {
+                return (
+                  <Pressable
+                    {...triggerProps}
+                    style={{ borderWidth: 0, borderColor: "white" }}
+                  >
+                    <EllipsisVertical color={"white"} />
+                  </Pressable>
+                );
+              }}
+            >
+              <MenuItem
+                textValue="Add account"
+                onPress={() => {
+                  setSelectedProject(currentProjectData.id);
+                  setShowEditProjectModal(true);
+                }}
+              >
+                <SquarePen />
+                <MenuItemLabel
+                  size="md"
+                  style={{ marginLeft: 10, fontWeight: "bold" }}
+                >
+                  Edit project
+                </MenuItemLabel>
+              </MenuItem>
+
+              {currentProjectData.status === "Closed" ? (
+                <MenuItem
+                  textValue="Add account"
+                  onPress={() => setShowReopenProjectModal(true)}
+                >
+                  <Repeat />
+                  <MenuItemLabel
+                    size="md"
+                    style={{ marginLeft: 10, fontWeight: "bold" }}
+                  >
+                    Reopen project
+                  </MenuItemLabel>
+                </MenuItem>
+              ) : (
+                <MenuItem
+                  textValue="Add account"
+                  onPress={() => setShowCloseProjectModal(true)}
+                >
+                  <CircleX />
+                  <MenuItemLabel
+                    size="md"
+                    style={{ marginLeft: 10, fontWeight: "bold" }}
+                  >
+                    Close project
+                  </MenuItemLabel>
+                </MenuItem>
+              )}
+
+              <MenuItem
+                textValue="Add account"
+                onPress={() => setShowDeleteProjectModal(true)}
+              >
+                <Trash color={"red"} />
+                <MenuItemLabel
+                  size="md"
+                  style={{ marginLeft: 10, fontWeight: "bold", color: "red" }}
+                >
+                  Delete project
+                </MenuItemLabel>
+              </MenuItem>
+            </Menu>
           </HStack>
         </Box>
 
@@ -324,115 +283,7 @@ export default function ProjectWindow() {
             </Box>
           </HStack>
         </Box>
-
-        {/* ----------------------------start of the three doom------------------------------- */}
-
-        {/* ----------------------------end of the three doom------------------------------- */}
       </ScrollView>
-
-      <Modal
-        isOpen={showConfirmationModal}
-        onClose={() => {
-          setConfirmationModal(false);
-        }}
-      >
-        <ModalBackdrop />
-        <ModalContent className="max-w-[305px] items-center">
-          <ModalHeader>
-            <Box className="w-[56px] h-[56px] rounded-full bg-background-error items-center justify-center">
-              <Icon as={InfoIcon} className="stroke-error-600" size="xl" />
-            </Box>
-          </ModalHeader>
-          <ModalBody className="mt-0 mb-4">
-            <Heading size="md" className="text-typography-950 mb-2 text-center">
-              Confirmation
-            </Heading>
-            {todoOrOngoing ? (
-              <Text size="sm" className="text-typography-500 text-center">
-                Are you sure you want to start this task?
-              </Text>
-            ) : (
-              <Text size="sm" className="text-typography-500 text-center">
-                Are you sure this task is complete?
-              </Text>
-            )}
-          </ModalBody>
-          <ModalFooter className="w-full">
-            <Button
-              variant="outline"
-              action="secondary"
-              size="sm"
-              onPress={() => {
-                setConfirmationModal(false);
-              }}
-              className="flex-grow"
-            >
-              <ButtonText>No</ButtonText>
-            </Button>
-            <Button
-              onPress={() => {
-                handleStartAndCompleteTask(
-                  todoOrOngoing ? "Ongoing" : "Completed"
-                );
-              }}
-              size="sm"
-              className="flex-grow"
-              action="positive"
-            >
-              <ButtonText>
-                {loading ? <Spinner size="small" color="grey" /> : "Yes"}
-              </ButtonText>
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-
-      <Modal
-        isOpen={showDeleteConfirmationModal}
-        onClose={() => {
-          setDeleteConfirmationModal(false);
-        }}
-      >
-        <ModalBackdrop />
-        <ModalContent className="max-w-[305px] items-center">
-          <ModalHeader>
-            <Box className="w-[56px] h-[56px] rounded-full bg-background-error items-center justify-center">
-              <Icon as={InfoIcon} className="stroke-error-600" size="xl" />
-            </Box>
-          </ModalHeader>
-          <ModalBody className="mt-0 mb-4">
-            <Heading size="md" className="text-typography-950 mb-2 text-center">
-              Confirmation
-            </Heading>
-            <Text size="sm" className="text-typography-500 text-center">
-              Are you sure you want to delete this task?
-            </Text>
-          </ModalBody>
-          <ModalFooter className="w-full">
-            <Button
-              variant="outline"
-              action="secondary"
-              size="sm"
-              onPress={() => {
-                setDeleteConfirmationModal(false);
-              }}
-              className="flex-grow"
-            >
-              <ButtonText>No</ButtonText>
-            </Button>
-            <Button
-              onPress={handleDeleteTask}
-              size="sm"
-              className="flex-grow"
-              action="positive"
-            >
-              <ButtonText>
-                {loading ? <Spinner size="small" color="grey" /> : "Yes"}
-              </ButtonText>
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
 
       <ProjectEditModal
         visible={showEditProjectModal}
@@ -442,6 +293,24 @@ export default function ProjectWindow() {
       <TaskAddModal
         visible={showAddTaskModal}
         onClose={() => setShowAddTaskModal(false)}
+      />
+
+      <ProjectDeleteModal
+        projectID={currentProjectData.id}
+        visible={showDeleteProjectModal}
+        onClose={() => setShowDeleteProjectModal(false)}
+      />
+
+      <ProjectCloseModal
+        projectID={currentProjectData.id}
+        visible={showCloseProjectModal}
+        onClose={() => setShowCloseProjectModal(false)}
+      />
+
+      <ProjectReopenModal
+        projectID={currentProjectData.id}
+        visible={showReopenProjectModal}
+        onClose={() => setShowReopenProjectModal(false)}
       />
     </>
   );

@@ -19,13 +19,10 @@ export default function TaskSummary({ projectID }: TaskSummaryType) {
     (t) => t.status === "Ongoing"
   ).length;
   const completedTasks = currentProjectTasks.filter(
-    (t) => t.status === "Completed"
+    (t) => t.status === "CompleteAndOnTime" || t.status === "CompleteAndOverdue"
   ).length;
   const overdueTasks = currentProjectTasks.filter(
-    (t) =>
-      t.end &&
-      t.end.toDate() < new Date() &&
-      ["To-do", "Ongoing", "Completed"].includes(t.status)
+    (t) => t.status === "Ongoing" && t.end && t.end.toDate() < new Date()
   ).length;
 
   return (

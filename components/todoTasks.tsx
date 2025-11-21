@@ -5,6 +5,7 @@ import { HStack } from "./ui/hstack";
 import { useProject } from "@/context/projectContext";
 import { Dot } from "lucide-react-native";
 import { VStack } from "./ui/vstack";
+import TaskCard from "./taskCard";
 
 type TodoTasksType = {
   projectID: string;
@@ -13,9 +14,19 @@ type TodoTasksType = {
 export default function TodoTasks({ projectID }: TodoTasksType) {
   const { tasks } = useProject();
   const currentProjectTasks = tasks.filter((t) => t.projectID === projectID);
-  const todoTasks = currentProjectTasks.filter((t) => t.status === "To-do");
-  const overdueTasks = currentProjectTasks.filter(
-    (t) => t.end && t.end.toDate() < new Date() && ["To-do"].includes(t.status)
+  const allTodoTasks = currentProjectTasks
+    .filter((t) => t.status === "To-do" && t.start)
+    .sort((a, b) => {
+      const aTime = a.start ? a.start.toDate().getTime() : Infinity;
+      const bTime = b.start ? b.start.toDate().getTime() : Infinity;
+      return aTime - bTime;
+    });
+
+  const todoTasks = allTodoTasks.filter(
+    (t) => t.start && t.start.toDate() > new Date()
+  ).length;
+  const overdueTasks = allTodoTasks.filter(
+    (t) => t.start && t.start.toDate() < new Date()
   ).length;
 
   return (
@@ -39,10 +50,8 @@ export default function TodoTasks({ projectID }: TodoTasksType) {
           <Box>
             <HStack style={{ alignItems: "center" }}>
               <Dot color={"green"} size={40} />
-              <Text style={{ color: "white", fontSize: 15 }}>
-                {todoTasks.length}
-              </Text>
-              <Dot color={"red"} size={40} />
+              <Text style={{ color: "white", fontSize: 15 }}>{todoTasks}</Text>
+              <Dot color={"#D76C1F"} size={40} />
               <Text style={{ color: "white", fontSize: 15 }}>
                 {overdueTasks}
               </Text>
@@ -61,15 +70,24 @@ export default function TodoTasks({ projectID }: TodoTasksType) {
           borderWidth: 0,
           justifyContent: "center",
           alignItems: "center",
-          flex: 1,
         }}
       >
-        <Text style={{ color: "gray", fontWeight: "bold", fontSize: 20 }}>
-          No Task
-        </Text>
-        <Text style={{ color: "gray", fontWeight: 600 }}>
-          There is no To Do Task for now
-        </Text>
+        {allTodoTasks.length != 0 ? (
+          <>
+            {allTodoTasks.map((t) => (
+              <TaskCard key={t.id} taskID={t.id} />
+            ))}
+          </>
+        ) : (
+          <>
+            <Text style={{ color: "gray", fontWeight: "bold", fontSize: 20 }}>
+              No Task
+            </Text>
+            <Text style={{ color: "gray", fontWeight: 600 }}>
+              There is no To Do Task for now
+            </Text>
+          </>
+        )}
       </Box>
     </VStack>
   );

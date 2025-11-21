@@ -5,6 +5,7 @@ import { HStack } from "./ui/hstack";
 import { useProject } from "@/context/projectContext";
 import { Dot } from "lucide-react-native";
 import { VStack } from "./ui/vstack";
+import TaskCard from "./taskCard";
 
 type CompletedTasksType = {
   projectID: string;
@@ -13,13 +14,22 @@ type CompletedTasksType = {
 export default function CompletedTasks({ projectID }: CompletedTasksType) {
   const { tasks } = useProject();
   const currentProjectTasks = tasks.filter((t) => t.projectID === projectID);
-  const completedTasks = currentProjectTasks.filter(
-    (t) => t.status === "Completed"
+  const allCompletedTasks = currentProjectTasks
+    .filter(
+      (t) =>
+        t.status === "CompleteAndOnTime" || t.status === "CompleteAndOverdue"
+    )
+    .sort((a, b) => {
+      const aTime = a.completedAt ? a.completedAt.toDate().getTime() : Infinity;
+      const bTime = b.completedAt ? b.completedAt.toDate().getTime() : Infinity;
+      return aTime - bTime;
+    });
+  const completeAndOnTimeTasks = allCompletedTasks.filter(
+    (t) => t.status === "CompleteAndOnTime"
   );
-  const overdueTasks = currentProjectTasks.filter(
-    (t) =>
-      t.end && t.end.toDate() < new Date() && ["Completed"].includes(t.status)
-  ).length;
+  const completeAndOverdueTasks = allCompletedTasks.filter(
+    (t) => t.status === "CompleteAndOverdue"
+  );
 
   return (
     <VStack style={{ flex: 1 }}>
@@ -43,11 +53,11 @@ export default function CompletedTasks({ projectID }: CompletedTasksType) {
             <HStack style={{ alignItems: "center" }}>
               <Dot color={"green"} size={40} />
               <Text style={{ color: "white", fontSize: 15 }}>
-                {completedTasks.length}
+                {completeAndOnTimeTasks.length}
               </Text>
-              <Dot color={"red"} size={40} />
+              <Dot color={"#D76C1F"} size={40} />
               <Text style={{ color: "white", fontSize: 15 }}>
-                {overdueTasks}
+                {completeAndOverdueTasks.length}
               </Text>
             </HStack>
           </Box>
@@ -66,12 +76,22 @@ export default function CompletedTasks({ projectID }: CompletedTasksType) {
           alignItems: "center",
         }}
       >
-        <Text style={{ color: "gray", fontWeight: "bold", fontSize: 20 }}>
-          No Task
-        </Text>
-        <Text style={{ color: "gray", fontWeight: 600 }}>
-          There is no Complete Task for now
-        </Text>
+        {allCompletedTasks.length != 0 ? (
+          <>
+            {allCompletedTasks.map((t) => (
+              <TaskCard key={t.id} taskID={t.id} />
+            ))}
+          </>
+        ) : (
+          <>
+            <Text style={{ color: "gray", fontWeight: "bold", fontSize: 20 }}>
+              No Task
+            </Text>
+            <Text style={{ color: "gray", fontWeight: 600 }}>
+              There is no Completed Task for now
+            </Text>
+          </>
+        )}
       </Box>
     </VStack>
   );

@@ -44,7 +44,7 @@ export default function TaskProgressBar({ projectID }: TaskProgressBarType) {
 
   return (
     <>
-      <HStack style={{ justifyContent: "space-between", marginBottom: 10 }}>
+      <HStack style={{ justifyContent: "space-between", marginBottom: 20 }}>
         <HStack style={{ alignItems: "center" }} space="sm">
           <Text style={{ color: "white", fontWeight: "bold", fontSize: 18 }}>
             {currentTotalTasks} total tasks

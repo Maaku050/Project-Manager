@@ -5,6 +5,7 @@ import { HStack } from "./ui/hstack";
 import { useProject } from "@/context/projectContext";
 import { Dot } from "lucide-react-native";
 import { VStack } from "./ui/vstack";
+import TaskCard from "./taskCard";
 
 type OngoingTasksType = {
   projectID: string;
@@ -13,12 +14,15 @@ type OngoingTasksType = {
 export default function OngoingTasks({ projectID }: OngoingTasksType) {
   const { tasks } = useProject();
   const currentProjectTasks = tasks.filter((t) => t.projectID === projectID);
-  const ongoingTasks = currentProjectTasks.filter(
+  const AllOngoingTasks = currentProjectTasks.filter(
     (t) => t.status === "Ongoing"
   );
-  const overdueTasks = currentProjectTasks.filter(
-    (t) =>
-      t.end && t.end.toDate() < new Date() && ["Ongoing"].includes(t.status)
+
+  const ongoingTasks = AllOngoingTasks.filter(
+    (t) => t.end && t.end.toDate() > new Date()
+  ).length;
+  const overdueTasks = AllOngoingTasks.filter(
+    (t) => t.end && t.end.toDate() < new Date()
   ).length;
 
   return (
@@ -43,7 +47,7 @@ export default function OngoingTasks({ projectID }: OngoingTasksType) {
             <HStack style={{ alignItems: "center" }}>
               <Dot color={"green"} size={40} />
               <Text style={{ color: "white", fontSize: 15 }}>
-                {ongoingTasks.length}
+                {ongoingTasks}
               </Text>
               <Dot color={"red"} size={40} />
               <Text style={{ color: "white", fontSize: 15 }}>
@@ -66,12 +70,22 @@ export default function OngoingTasks({ projectID }: OngoingTasksType) {
           alignItems: "center",
         }}
       >
-        <Text style={{ color: "gray", fontWeight: "bold", fontSize: 20 }}>
-          No Task
-        </Text>
-        <Text style={{ color: "gray", fontWeight: 600 }}>
-          There is no Ongoing Task for now
-        </Text>
+        {AllOngoingTasks.length != 0 ? (
+          <>
+            {AllOngoingTasks.map((t) => (
+              <TaskCard key={t.id} taskID={t.id} />
+            ))}
+          </>
+        ) : (
+          <>
+            <Text style={{ color: "gray", fontWeight: "bold", fontSize: 20 }}>
+              No Task
+            </Text>
+            <Text style={{ color: "gray", fontWeight: 600 }}>
+              There is no Ongoing Task for now
+            </Text>
+          </>
+        )}
       </Box>
     </VStack>
   );
