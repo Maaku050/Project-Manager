@@ -1,6 +1,6 @@
 // app/_layout.tsx
 import React from "react";
-import { Text } from "react-native";
+import { Text, Image } from "react-native";
 import { useWindowDimensions } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
@@ -10,7 +10,10 @@ import "@/global.css";
 import { UserProvider, useUser } from "@/context/profileContext";
 import { ProjectProvider } from "@/context/projectContext";
 
+
+
 import { HeaderUserEmail } from "./home";
+// import { DrawerHeader } from "@/components/ui/drawer";
 
 export default function RootLayout() {
   const dimensions = useWindowDimensions();
@@ -24,6 +27,7 @@ export default function RootLayout() {
         <ProjectProvider>
           <GluestackUIProvider mode="light">
             <Drawer
+
               screenOptions={{
                 drawerType: isLargeScreen
                   ? "permanent"
@@ -33,13 +37,13 @@ export default function RootLayout() {
                 drawerStyle: isLargeScreen
                   ? {
                       width: 240,
-                      backgroundColor: "#1F1F1F",
+                      backgroundColor: "#000000ff",
                       borderRightWidth: 0,
                       borderRightColor: "#ffffff",
                     }
                   : {
                       width: "70%",
-                      backgroundColor: "#1F1F1F",
+                      backgroundColor: "#000000ff",
                     },
                 headerShown: true,
                 drawerActiveTintColor: "#000",
@@ -52,7 +56,7 @@ export default function RootLayout() {
                   // color: "white",
                 },
                 headerStyle: {
-                  backgroundColor: "#1f1f1f",
+                  backgroundColor: "#000000ff",
                   borderColor: "#000000ff",
                 },
                 headerTitleStyle: {
@@ -62,17 +66,24 @@ export default function RootLayout() {
                   color: "#ffffff",
                   borderColor: undefined,
                 },
+                
               }}
             >
               {/* headerBackground:{"#000000ff"} */}
+              
+
+              {/* <Image source={require("@/assets/images/Innoendo Logo_Main Logo.png")} style={{ width: 160, height: 40, resizeMode: "contain" }} /> */}
+
               <Drawer.Screen
                 name="home"
                 options={{
                   title: "Home",
                   headerTitle: () => null,
                   headerRight: () => <HeaderUserEmail />,
+                  headerLeft: () => null,
                   headerTintColor: "white",
                 }}
+              
               />
               <Drawer.Screen
                 name="dashboard"
