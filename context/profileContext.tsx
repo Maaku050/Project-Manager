@@ -1,24 +1,8 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import {
-  collection,
-  onSnapshot,
-  orderBy,
-  query,
-  where,
-} from "firebase/firestore";
+import { collection, onSnapshot, orderBy, query, where } from "firebase/firestore";
 import { auth, db } from "@/firebase/firebaseConfig";
-
-interface Profile {
-  id: string;
-  firstName: string;
-  lastName: string;
-  nickName: string;
-  role: string;
-  email: string;
-  points: number;
-  uid: string;
-}
+import { Profile } from "@/_types";
 
 interface UserContextType {
   user: any;
@@ -58,16 +42,11 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
       setUser(currentUser);
 
-      const profileQuery = query(
-        collection(db, "profile"),
-        where("uid", "==", currentUser.uid)
-      );
+      const profileQuery = query(collection(db, "profile"), where("uid", "==", currentUser.uid));
 
       unsubProfile = onSnapshot(profileQuery, (snapshot) => {
         const doc = snapshot.docs[0];
-        setProfile(
-          doc ? { id: doc.id, ...(doc.data() as Omit<Profile, "id">) } : null
-        );
+        setProfile(doc ? { id: doc.id, ...(doc.data() as Omit<Profile, "id">) } : null);
       });
     });
 

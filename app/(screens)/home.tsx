@@ -46,17 +46,16 @@ export default function Home() {
   const myProject = project.filter((p) =>
     assignedUser.some((a) => a.projectID === p.id && a.uid === profile?.uid)
   );
-  
 
   const progressCalculation = (projectID: string) => {
     const currentProjectTasks = tasks.filter((t) => t.projectID === projectID);
     // const ongoingTasks = currentProjectTasks.filter(
-      //     (t) => t.status === "Ongoing"
-      //   );
+    //     (t) => t.status === "Ongoing"
+    //   );
 
-      // const completedTasks = currentProjectTasks.filter(
-      //     (t) => t.status === "Completed"
-      //   );
+    // const completedTasks = currentProjectTasks.filter(
+    //     (t) => t.status === "Completed"
+    //   );
 
     const currentStateOfProject = project.find((p) => p.id === projectID);
     if (currentStateOfProject?.status === "Ongoing") {
@@ -67,7 +66,7 @@ export default function Home() {
       return "Pending";
     } else {
       return 0;
-    }                    
+    }
 
     // const totalTasks = currentProjectTasks.length;
 
@@ -78,11 +77,10 @@ export default function Home() {
     // return progress;
   };
 
- 
-
   return (
-    <ScrollView className="bg-black shadow-md flex-1" 
-    // style={{ backgroundColor: "#000000ff" }}
+    <ScrollView
+      className="bg-black shadow-md flex-1"
+      // style={{ backgroundColor: "#000000ff" }}
     >
       {/* <Box
         style={{
@@ -137,20 +135,19 @@ export default function Home() {
           backgroundColor: "#1F1F1F",
         }}
       >
-          <Box
-            style={{
-              position: "absolute",
-              top: 12,
-              right: 12,
-            }}
-          >
-            <Button onPress={() => setShowEditModal(true)}>
-                <ButtonText>
-                  <SquarePen color={"white"} />
-                </ButtonText>
-              </Button>
-          </Box>
-
+        <Box
+          style={{
+            position: "absolute",
+            top: 12,
+            right: 12,
+          }}
+        >
+          <Button onPress={() => setShowEditModal(true)}>
+            <ButtonText>
+              <SquarePen color={"white"} />
+            </ButtonText>
+          </Button>
+        </Box>
 
         <Box
           style={{
@@ -167,13 +164,7 @@ export default function Home() {
               fontFamily: "roboto, arial",
             }}
           >
-            {profile
-              ? profile.firstName +
-                ' "' +
-                profile.nickName +
-                '" ' +
-                profile.lastName
-              : ""}
+            {profile ? profile.firstName + ' "' + profile.nickName + '" ' + profile.lastName : ""}
           </Text>
         </Box>
         <Box
@@ -204,8 +195,6 @@ export default function Home() {
           >
             {profile?.role.toUpperCase()}{" "}
           </Text>
-
-          
         </Box>
       </View>
 
@@ -222,7 +211,6 @@ export default function Home() {
           padding: 28,
           gap: 28,
         }}
-        
       >
         <Box
           style={{
@@ -246,16 +234,8 @@ export default function Home() {
         </Box>
         <Box
           style={{
-            justifyContent: isLargeScreen
-              ? "flex-start"
-              : isMediumScreen
-                ? "flex-start"
-                : "center",
-            flexDirection: isLargeScreen
-              ? "row"
-              : isMediumScreen
-                ? "row"
-                : "column",
+            justifyContent: isLargeScreen ? "flex-start" : isMediumScreen ? "flex-start" : "center",
+            flexDirection: isLargeScreen ? "row" : isMediumScreen ? "row" : "column",
             flexWrap: "wrap",
             borderWidth: 0,
             gap: 0,
@@ -267,23 +247,20 @@ export default function Home() {
               className="m-3 bg-black"
               key={t.id}
               style={{
-                flexBasis: isLargeScreen
-                  ? "31.5%"
-                  : isMediumScreen
-                    ? "47%"
-                    : "auto",
+                flexBasis: isLargeScreen ? "31.5%" : isMediumScreen ? "47%" : "auto",
                 minHeight: 120,
                 padding: 12,
                 margin: 8,
                 borderRadius: isLargeScreen ? 12 : isMediumScreen ? 12 : 8,
                 justifyContent: "space-between",
-                borderColor: t.status === "Ongoing"
-                  ? "#2f9c46ff"
-                  : t.status === "Completed"
-                    ? "#3b82f6ff"
-                    : t.status === "Pending"
-                      ? "#6b7280ff"
-                      : "#ffffff",
+                borderColor:
+                  t.status === "Ongoing"
+                    ? "#2f9c46ff"
+                    : t.status === "Completed"
+                      ? "#3b82f6ff"
+                      : t.status === "Pending"
+                        ? "#6b7280ff"
+                        : "#ffffff",
                 borderWidth: 1,
                 borderLeftWidth: 8,
               }}
@@ -300,11 +277,9 @@ export default function Home() {
                   size="md"
                   className="mb-1"
                   style={{
-                    textDecorationLine:
-                      hoveredId === t.id ? "underline" : "none",
-                      color: "white",
+                    textDecorationLine: hoveredId === t.id ? "underline" : "none",
+                    color: "white",
                   }}
-                  
                 >
                   {t.title}
                 </Heading>
@@ -325,16 +300,27 @@ export default function Home() {
                   </VStack>
                 </Box> */}
 
-                <Box style={{ borderWidth: 1, padding: 4, borderRadius: 4, minWidth: 80, alignItems: "center", justifyContent: "center"  }} className="bg-white">
+                <Box
+                  style={{
+                    borderWidth: 1,
+                    padding: 4,
+                    borderRadius: 4,
+                    minWidth: 80,
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                  className="bg-white"
+                >
                   <Text
                     style={{
-                      color:t.status === "Ongoing"
-                        ? "#2f9c46ff"
-                        : t.status === "Completed"
-                          ? "#3b82f6ff"
-                          : t.status === "Pending"
-                            ? "#6b7280ff"
-                            : "#ffffff",
+                      color:
+                        t.status === "Ongoing"
+                          ? "#2f9c46ff"
+                          : t.status === "Completed"
+                            ? "#3b82f6ff"
+                            : t.status === "Pending"
+                              ? "#6b7280ff"
+                              : "#ffffff",
                       fontSize: 12,
                       fontFamily: "roboto, arial",
                     }}
@@ -348,23 +334,18 @@ export default function Home() {
                   style={{
                     flex: 1,
                     borderWidth: 0,
-                    
                   }}
                 >
-                  <HStack style={{ justifyContent: "flex-end"}}>
-                    <AvatarGroup style={{  gap: 20 }}>
+                  <HStack style={{ justifyContent: "flex-end" }}>
+                    <AvatarGroup style={{ gap: 20 }}>
                       {profiles
                         .filter((p) =>
-                          assignedUser.some(
-                            (a) => a.projectID === t.id && a.uid === p.uid
-                          )
+                          assignedUser.some((a) => a.projectID === t.id && a.uid === p.uid)
                         )
                         .map((t) => {
                           return (
                             <Avatar size="sm" key={t.id}>
-                              <AvatarFallbackText>
-                                {t.firstName}
-                              </AvatarFallbackText>
+                              <AvatarFallbackText>{t.firstName}</AvatarFallbackText>
 
                               {/* <AvatarBadge /> */}
                             </Avatar>
@@ -379,10 +360,7 @@ export default function Home() {
         </Box>
       </View>
 
-      <ProfileEditModal
-        visible={showEditModal}
-        onClose={() => setShowEditModal(false)}
-      />
+      <ProfileEditModal visible={showEditModal} onClose={() => setShowEditModal(false)} />
     </ScrollView>
   );
 }
@@ -405,10 +383,7 @@ export function HeaderUserEmail() {
         </Pressable>
       </HStack>
 
-      <LogoutModal
-        visible={isLogoutPress}
-        onClose={() => setIsLogoutPress(false)}
-      />
+      <LogoutModal visible={isLogoutPress} onClose={() => setIsLogoutPress(false)} />
     </>
   );
 }

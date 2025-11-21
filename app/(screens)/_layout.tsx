@@ -10,8 +10,6 @@ import "@/global.css";
 import { UserProvider, useUser } from "@/context/profileContext";
 import { ProjectProvider } from "@/context/projectContext";
 
-
-
 import { HeaderUserEmail } from "./home";
 // import { DrawerHeader } from "@/components/ui/drawer";
 
@@ -27,13 +25,8 @@ export default function RootLayout() {
         <ProjectProvider>
           <GluestackUIProvider mode="light">
             <Drawer
-
               screenOptions={{
-                drawerType: isLargeScreen
-                  ? "permanent"
-                  : isMediumScreen
-                    ? "slide"
-                    : "slide",
+                drawerType: isLargeScreen ? "permanent" : isMediumScreen ? "slide" : "slide",
                 drawerStyle: isLargeScreen
                   ? {
                       width: 240,
@@ -66,11 +59,9 @@ export default function RootLayout() {
                   color: "#ffffff",
                   borderColor: undefined,
                 },
-                
               }}
             >
               {/* headerBackground:{"#000000ff"} */}
-              
 
               {/* <Image source={require("@/assets/images/Innoendo Logo_Main Logo.png")} style={{ width: 160, height: 40, resizeMode: "contain" }} /> */}
 
@@ -83,7 +74,6 @@ export default function RootLayout() {
                   headerLeft: () => null,
                   headerTintColor: "white",
                 }}
-              
               />
               <Drawer.Screen
                 name="dashboard"
@@ -104,7 +94,7 @@ export default function RootLayout() {
                 }}
               />
               <Drawer.Screen
-                name="employee"
+                name="employee/index"
                 options={{
                   title: "Employee",
                   headerTitle: () => null,
@@ -140,6 +130,13 @@ export default function RootLayout() {
                   headerTitle: () => null,
                   headerRight: () => <HeaderUserEmail />,
                   headerTintColor: "white",
+                }}
+              />
+              <Drawer.Screen
+                name="employee/[id]/index"
+                options={{
+                  title: "Employee",
+                  drawerItemStyle: { display: "none" },
                 }}
               />
               <Drawer.Screen
