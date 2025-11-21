@@ -248,9 +248,7 @@ export default function ProjectEditModal({
             <Box
               style={{ borderWidth: 0, flex: 1, marginLeft: 10, marginTop: 25 }}
             >
-              <Text style={{ fontWeight: "bold", color: "#cdcccc" }}>
-                Project Members
-              </Text>
+              <Text style={{ color: "#ffffffff" }}>Project Members</Text>
 
               <ScrollView
                 style={{

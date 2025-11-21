@@ -19,13 +19,10 @@ export default function TaskSummary({ projectID }: TaskSummaryType) {
     (t) => t.status === "Ongoing"
   ).length;
   const completedTasks = currentProjectTasks.filter(
-    (t) => t.status === "Completed"
+    (t) => t.status === "CompleteAndOnTime" || t.status === "CompleteAndOverdue"
   ).length;
   const overdueTasks = currentProjectTasks.filter(
-    (t) =>
-      t.end &&
-      t.end.toDate() < new Date() &&
-      ["To-do", "Ongoing", "Completed"].includes(t.status)
+    (t) => t.status === "Ongoing" && t.end && t.end.toDate() < new Date()
   ).length;
 
   return (
@@ -37,12 +34,12 @@ export default function TaskSummary({ projectID }: TaskSummaryType) {
           alignItems: "center",
           backgroundColor: "#171717",
           borderRadius: 12,
-          height: 80,
+          height: 70,
           width: 100,
         }}
       >
-        <Text style={{ color: "white", fontSize: 20 }}>{todoTasks}</Text>
-        <Text style={{ color: "#CDCCCC", fontSize: 15 }}>Todo</Text>
+        <Text style={{ color: "white", fontSize: 15 }}>{todoTasks}</Text>
+        <Text style={{ color: "#CDCCCC", fontSize: 12 }}>Todo</Text>
       </Box>
 
       {/* Ongoing */}
@@ -52,12 +49,12 @@ export default function TaskSummary({ projectID }: TaskSummaryType) {
           alignItems: "center",
           backgroundColor: "#171717",
           borderRadius: 12,
-          height: 80,
+          height: 70,
           width: 100,
         }}
       >
-        <Text style={{ color: "#84D3A2", fontSize: 20 }}>{ongoingTasks}</Text>
-        <Text style={{ color: "#84D3A2", fontSize: 15 }}>On Going</Text>
+        <Text style={{ color: "#84D3A2", fontSize: 15 }}>{ongoingTasks}</Text>
+        <Text style={{ color: "#84D3A2", fontSize: 12 }}>On Going</Text>
       </Box>
 
       {/* Overdue */}
@@ -67,12 +64,12 @@ export default function TaskSummary({ projectID }: TaskSummaryType) {
           alignItems: "center",
           backgroundColor: "#171717",
           borderRadius: 12,
-          height: 80,
+          height: 70,
           width: 100,
         }}
       >
-        <Text style={{ color: "#FCA5A5", fontSize: 20 }}>{overdueTasks}</Text>
-        <Text style={{ color: "#FCA5A5", fontSize: 15 }}>Overdue</Text>
+        <Text style={{ color: "#FCA5A5", fontSize: 15 }}>{overdueTasks}</Text>
+        <Text style={{ color: "#FCA5A5", fontSize: 12 }}>Overdue</Text>
       </Box>
 
       {/* Complete */}
@@ -82,12 +79,12 @@ export default function TaskSummary({ projectID }: TaskSummaryType) {
           alignItems: "center",
           backgroundColor: "#171717",
           borderRadius: 12,
-          height: 80,
+          height: 70,
           width: 100,
         }}
       >
-        <Text style={{ color: "white", fontSize: 20 }}>{completedTasks}</Text>
-        <Text style={{ color: "#CDCCCC", fontSize: 15 }}>Complete</Text>
+        <Text style={{ color: "white", fontSize: 15 }}>{completedTasks}</Text>
+        <Text style={{ color: "#CDCCCC", fontSize: 12 }}>Complete</Text>
       </Box>
     </HStack>
   );
