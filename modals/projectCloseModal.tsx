@@ -40,6 +40,7 @@ export default function ProjectCloseModal({
       console.log("Error deleting project!", error);
     } finally {
       setIsSaving(false);
+      onClose();
     }
   };
 

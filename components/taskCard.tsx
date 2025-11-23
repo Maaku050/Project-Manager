@@ -5,30 +5,11 @@ import { Card } from "./ui/card";
 import { VStack } from "./ui/vstack";
 import { HStack } from "./ui/hstack";
 import { Pressable } from "./ui/pressable";
-import { Button, ButtonIcon, ButtonText } from "./ui/button";
-import {
-  Check,
-  ChevronDown,
-  GlobeIcon,
-  Play,
-  PlayIcon,
-  Repeat,
-  RotateCcw,
-  SettingsIcon,
-} from "lucide-react-native";
 import { Divider } from "./ui/divider";
 import TasktUsers from "./taskAssignedUsers";
-import { Box } from "./ui/box";
 import { router } from "expo-router";
-import { doc, Timestamp, updateDoc } from "firebase/firestore";
-import { db } from "@/firebase/firebaseConfig";
-import { Menu, MenuItem, MenuItemLabel } from "./ui/menu";
 import { getDateLabel } from "@/helpers/getDateLabel";
-import {
-  handleStartTask,
-  handleUnstartTask,
-  handleCompleteTask,
-} from "@/helpers/taskStateHandler";
+import TaskStateButton from "./taskStateButton";
 
 type TaskCardType = {
   taskID: string;
@@ -37,7 +18,6 @@ type TaskCardType = {
 export default function TaskCard({ taskID }: TaskCardType) {
   const { tasks, setSelectedTask } = useProject();
   const [hoveredId, setHoveredId] = useState("");
-  const [buttonHover, setButtonHover] = useState("");
   const currentTask = tasks.find((t) => t.id === taskID);
   if (!currentTask) {
     return (
@@ -173,84 +153,7 @@ export default function TaskCard({ taskID }: TaskCardType) {
               <TasktUsers taskID={currentTask.id} />
             </HStack>
 
-            {currentTask.status === "To-do" ? (
-              <Button
-                variant={buttonHover === currentTask.id ? "solid" : "outline"}
-                action="positive"
-                size="sm"
-                onHoverIn={() => setButtonHover(currentTask.id)}
-                onHoverOut={() => setButtonHover("")}
-                onPress={() => handleStartTask(currentTask.id)}
-              >
-                <ButtonIcon as={Play} color="white" />
-                <ButtonText style={{ color: "white" }}>Start</ButtonText>
-              </Button>
-            ) : currentTask.status === "Ongoing" ? (
-              <HStack space="xs">
-                <Button
-                  variant="solid"
-                  action="positive"
-                  size="sm"
-                  onHoverIn={() => setButtonHover(currentTask.id)}
-                  onHoverOut={() => setButtonHover("")}
-                  onPress={() =>
-                    handleCompleteTask(currentTask.id, currentTask.end)
-                  }
-                >
-                  <ButtonIcon as={Check} color="white" />
-                  <ButtonText style={{ color: "white" }}>Complete</ButtonText>
-                </Button>
-                <Menu
-                  placement="top"
-                  offset={5}
-                  disabledKeys={["Settings"]}
-                  trigger={({ ...triggerProps }) => {
-                    return (
-                      <Button
-                        {...triggerProps}
-                        variant="solid"
-                        action="positive"
-                        size="sm"
-                        style={{ width: 10 }}
-                      >
-                        <ButtonText style={{ color: "white" }}>
-                          <ChevronDown strokeWidth={2} />
-                        </ButtonText>
-                      </Button>
-                    );
-                  }}
-                >
-                  <MenuItem onPress={() => handleUnstartTask(currentTask.id)}>
-                    <Repeat color={"#B45A1A"} />
-                    <MenuItemLabel
-                      size="md"
-                      style={{
-                        marginLeft: 10,
-                        fontWeight: "bold",
-                        color: "#B45A1A",
-                      }}
-                    >
-                      Unstart
-                    </MenuItemLabel>
-                  </MenuItem>
-                </Menu>
-              </HStack>
-            ) : currentTask.status === "CompleteAndOnTime" ||
-              currentTask.status === "CompleteAndOverdue" ? (
-              <Button
-                variant={buttonHover === currentTask.id ? "solid" : "outline"}
-                action="negative"
-                size="sm"
-                onHoverIn={() => setButtonHover(currentTask.id)}
-                onHoverOut={() => setButtonHover("")}
-                onPress={() => handleStartTask(currentTask.id)}
-              >
-                <ButtonIcon as={RotateCcw} color="white" />
-                <ButtonText style={{ color: "white" }}>Restart</ButtonText>
-              </Button>
-            ) : (
-              ""
-            )}
+            <TaskStateButton taskID={currentTask.id} from="taskCard" />
           </HStack>
         </VStack>
       </Card>

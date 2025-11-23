@@ -12,7 +12,7 @@ import {
 import { Heading } from "@/components/ui/heading";
 import { Icon } from "@/components/ui/icon";
 import { Button } from "@/components/ui/button";
-import React from "react";
+import React, { useState } from "react";
 import { Text } from "react-native";
 import { LogOut } from "lucide-react-native";
 import { auth } from "@/firebase/firebaseConfig";
@@ -26,6 +26,7 @@ type LogoutModalType = {
 };
 
 export default function LogoutModal({ visible, onClose }: LogoutModalType) {
+  const [cancelButtonHover, setCancelButtonHover] = useState(false);
   const handleLogout = async () => {
     try {
       await signOut(auth);
@@ -67,25 +68,18 @@ export default function LogoutModal({ visible, onClose }: LogoutModalType) {
         <ModalFooter>
           <Button
             className="mr-3"
+            variant="outline"
             onPress={onClose}
-            style={{
-              backgroundColor: "#5C5C5C",
-              borderRadius: 8,
-              height: 40,
-              width: 100,
-            }}
+            onHoverIn={() => setCancelButtonHover(true)}
+            onHoverOut={() => setCancelButtonHover(false)}
           >
-            <ButtonText>Cancel</ButtonText>
+            <ButtonText
+              style={{ color: cancelButtonHover ? "black" : "white" }}
+            >
+              Cancel
+            </ButtonText>
           </Button>
-          <Button
-            onPress={handleLogout}
-            style={{
-              backgroundColor: "#CDCCCC",
-              borderRadius: 8,
-              height: 40,
-              width: 100,
-            }}
-          >
+          <Button onPress={handleLogout} variant="solid" action="secondary">
             <ButtonText style={{ color: "black" }}>Confirm</ButtonText>
           </Button>
         </ModalFooter>

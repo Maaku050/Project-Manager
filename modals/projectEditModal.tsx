@@ -126,25 +126,43 @@ export default function ProjectEditModal({
     try {
       const userRef = collection(db, "assignedUser");
 
-      // Remove all current assignments for this project
+      // Get current assignments for this project
       const q = query(userRef, where("projectID", "==", selectedProject));
       const snapshot = await getDocs(q);
-      for (const docSnap of snapshot.docs) {
-        await deleteDoc(docSnap.ref);
-      }
 
-      // Add new ones
-      for (const uid of tempAssigned) {
-        await addDoc(userRef, {
+      // Map current assignments
+      const currentAssignments = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        uid: doc.data().uid,
+        ref: doc.ref,
+      }));
+
+      const currentUIDs = new Set(currentAssignments.map((a) => a.uid));
+      const tempUIDs = new Set(tempAssigned);
+
+      // Find users to remove (in current but not in temp)
+      const toRemove = currentAssignments.filter((a) => !tempUIDs.has(a.uid));
+
+      // Find users to add (in temp but not in current)
+      const toAdd = tempAssigned.filter((uid) => !currentUIDs.has(uid));
+
+      // Batch delete users not in tempAssigned
+      const deletePromises = toRemove.map((a) => deleteDoc(a.ref));
+
+      // Batch add new users
+      const addPromises = toAdd.map((uid) =>
+        addDoc(userRef, {
           projectID: selectedProject,
           uid,
-        });
-      }
+        })
+      );
+
+      // Execute all operations in parallel
+      await Promise.all([...deletePromises, ...addPromises]);
 
       onClose();
     } catch (err) {
       console.error("Error saving assignments:", err);
-    } finally {
     }
   };
 
