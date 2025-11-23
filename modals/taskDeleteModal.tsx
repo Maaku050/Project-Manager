@@ -12,35 +12,37 @@ import {
 } from "@/components/ui/modal";
 import { Spinner } from "@/components/ui/spinner";
 import { db } from "@/firebase/firebaseConfig";
+import { router } from "expo-router";
 import { doc, updateDoc } from "firebase/firestore";
 import React, { useState } from "react";
 import { Text } from "react-native";
 
-type ProjectReopenModalType = {
-  projectID: string;
+type TaskDeleteModalType = {
+  taskID: string;
   visible: boolean;
   onClose: () => void;
 };
 
-export default function ProjectReopenModal({
-  projectID,
+export default function TaskDeleteModal({
+  taskID,
   visible,
   onClose,
-}: ProjectReopenModalType) {
+}: TaskDeleteModalType) {
   const [isHover, setIsHover] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const handleReopenProject = async () => {
+  const handleDeleteTask = async () => {
     try {
       setIsSaving(true);
-      const projectRef = doc(db, "project", projectID);
-      await updateDoc(projectRef, {
-        status: "Ongoing",
+      const tasktRef = doc(db, "tasks", taskID);
+      await updateDoc(tasktRef, {
+        status: "Archived",
       });
     } catch (error) {
-      console.log("Error deleting project!", error);
+      console.log("Error deleting task!", error);
     } finally {
       setIsSaving(false);
       onClose();
+      router.replace("/(screens)/projectWindow");
     }
   };
 
@@ -56,7 +58,7 @@ export default function ProjectReopenModal({
       >
         <ModalHeader>
           <Heading size="xl" style={{ color: "white" }}>
-            Reopen Project
+            Deleting Task
           </Heading>
           <ModalCloseButton>
             <Icon as={CloseIcon} />
@@ -64,7 +66,7 @@ export default function ProjectReopenModal({
         </ModalHeader>
         <ModalBody>
           <Text style={{ color: "white", fontSize: 18 }}>
-            Are you sure you want to reopen project?
+            Are you sure you want to delete task?
           </Text>
         </ModalBody>
         <ModalFooter>
@@ -78,12 +80,12 @@ export default function ProjectReopenModal({
           >
             <ButtonText style={{ color: "white" }}>Cancel</ButtonText>
           </Button>
-          <Button onPress={handleReopenProject} action="positive">
+          <Button onPress={handleDeleteTask} action="negative">
             <ButtonText>
               {isSaving ? (
                 <Spinner size="small" color="white" style={{ marginTop: 6 }} />
               ) : (
-                "Reopen Project"
+                "Delete Project"
               )}
             </ButtonText>
           </Button>

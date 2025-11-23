@@ -21,7 +21,12 @@ import { useEffect, useState } from "react";
 import React from "react";
 import { TextInput } from "react-native-gesture-handler";
 import { auth, db } from "@/firebase/firebaseConfig";
-import { addDoc, collection, Timestamp } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  serverTimestamp,
+  Timestamp,
+} from "firebase/firestore";
 import { HStack } from "@/components/ui/hstack";
 import {
   Checkbox,
@@ -55,7 +60,7 @@ export default function TaskAddModal({ visible, onClose }: tasktModalType) {
 
   // Contexts
   const { selectedProject, project, assignedUser } = useProject();
-  const { profiles } = useUser();
+  const { profiles, profile } = useUser();
 
   // On Load Innitializations
   const currentProjectData = project.find((t) => t.id === selectedProject);
@@ -106,6 +111,7 @@ export default function TaskAddModal({ visible, onClose }: tasktModalType) {
       const taskID = docRef.id;
 
       await handleSaveAssignedUsers(taskID);
+      await handleLog(taskID);
     } catch (error: any) {
       console.log("Error adding task:", error.message);
     } finally {
@@ -117,14 +123,6 @@ export default function TaskAddModal({ visible, onClose }: tasktModalType) {
   const handleSaveAssignedUsers = async (taskID: string) => {
     try {
       const userRef = collection(db, "assignedUser");
-
-      // (Optional) If you want to remove any existing assignments for this task (usually unnecessary for new ones)
-      //   const q = query(userRef, where("taskID", "==", taskID));
-      //   const snapshot = await getDocs(q);
-      //   for (const docSnap of snapshot.docs) {
-      //     await deleteDoc(docSnap.ref);
-      //   }
-
       for (const uid of tempAssigned) {
         await addDoc(userRef, {
           taskID,
@@ -134,6 +132,18 @@ export default function TaskAddModal({ visible, onClose }: tasktModalType) {
     } catch (err) {
       console.error("Error saving task assignments:", err);
     }
+  };
+
+  const handleLog = async (taskID: string) => {
+    try {
+      const logRef = collection(db, "taskLogs");
+      await addDoc(logRef, {
+        taskID,
+        uid: profile?.uid,
+        createdAt: serverTimestamp(),
+        text: "created this task",
+      });
+    } catch (error) {}
   };
 
   return (

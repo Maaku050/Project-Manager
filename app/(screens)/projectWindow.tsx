@@ -51,8 +51,10 @@ export default function ProjectWindow() {
         style={{
           flex: 1,
           paddingTop: 30,
-          paddingHorizontal: 30,
+          paddingHorizontal: 15,
           backgroundColor: "#000000",
+          borderWidth: 0,
+          borderColor: "red",
         }}
         showsVerticalScrollIndicator={false}
       >
