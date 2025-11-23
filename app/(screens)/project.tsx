@@ -1,56 +1,23 @@
 import { Box } from "@/components/ui/box";
-import { Pressable, ScrollView, useWindowDimensions, View } from "react-native";
+import { ScrollView, useWindowDimensions, View } from "react-native";
 import { Text } from "@/components/ui/text";
 import { Button, ButtonText } from "@/components/ui/button";
-import { useRouter } from "expo-router";
-import { useUser } from "@/context/profileContext";
 import { useProject } from "@/context/projectContext";
-import { Card } from "@/components/ui/card";
 import { Heading } from "@/components/ui/heading";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import React from "react";
 import ProjectAddModal from "@/modals/projectAddModal";
-import {
-  Avatar,
-  AvatarFallbackText,
-  AvatarBadge,
-} from "@/components/ui/avatar";
 import { HStack } from "@/components/ui/hstack";
-import { Progress, ProgressFilledTrack } from "@/components/ui/progress";
-import { VStack } from "@/components/ui/vstack";
 import { Plus } from "lucide-react-native";
 import ProjectCard from "@/components/projectCard";
 
 export default function Sample() {
-  const router = useRouter();
-  const { profiles } = useUser();
-  const { project, setSelectedProject, tasks, assignedUser } = useProject();
+  const { project } = useProject();
   const [showModal, setShowModal] = useState(false);
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   const dimensions = useWindowDimensions();
   const isLargeScreen = dimensions.width >= 1280; // computer UI condition
   const isMediumScreen = dimensions.width <= 1280 && dimensions.width > 768; // tablet UI condition
-
-  const progressCalculation = (projectID: string) => {
-    const currentProjectTasks = tasks.filter((t) => t.projectID === projectID);
-
-    const ongoingTasks = currentProjectTasks.filter(
-      (t) => t.status === "Ongoing"
-    );
-
-    const completedTasks = currentProjectTasks.filter(
-      (t) => t.status === "Completed"
-    );
-
-    const totalTasks = currentProjectTasks.length;
-
-    const progress =
-      ((ongoingTasks.length * 0.5 + completedTasks.length * 1) / totalTasks) *
-      100;
-
-    return progress;
-  };
 
   const ongoingProjects = project.filter(
     (t) =>
@@ -66,12 +33,6 @@ export default function Sample() {
       t.status != "Archived" &&
       t.status != "Closed"
   );
-
-  useEffect(() => {
-    console.log("Ongoing Projects: ", ongoingProjects);
-    console.log("Closed Projects: ", closedProjects);
-    console.log("Overdue Projects: ", overdueProjects);
-  }, []);
 
   return (
     <>
