@@ -36,45 +36,65 @@ export default function Home() {
   const isLargeScreen = dimensions.width >= 1280; // computer UI condition
   const isMediumScreen = dimensions.width <= 1280 && dimensions.width > 768; // tablet UI condition
 
-  const currentUserProjects = project.filter((p) =>
-    assignedUser.some((a) => p.id === a.projectID && a.uid === profile?.uid)
-  );
-
-  const userTask = tasks.filter((t) => assignedUser.some((a) => t.id === a.taskID && a.uid === profile?.uid))
-  useEffect(() => {
-    console.log("Home current user projects: ", currentUserProjects);
-
-  }, []);
-
-
+  const userTask = tasks.filter((t) => assignedUser.some((a) => t.id === a.taskID && a.uid === profile?.uid));
 
   const myProject = project.filter((p) =>
     assignedUser.some((a) => a.projectID === p.id && a.uid === profile?.uid)
   );
 
-  const myTask = tasks.filter((p) =>
-    assignedUser.some((a) => a.taskID === p.id && a.uid === profile?.uid)
-  );
-
-  const taskMessage = myTask.length === 0;
+  const taskMessage = userTask.length === 0;
   const projectMassage = myProject.length ===0;
 
-  const myOngoingTask = myTask.filter((t) => t.status === "Ongoing" || t.status === "Pending");
-  const myOverBueTask = myTask.filter((t) => t.status !== "Ongoing" && t.status !== "Completed");
+   const allTodoTasks = userTask
+    .filter((t) => t.status === "To-do")
+    .sort((a, b) => {
+      const aTime = a.start ? a.start.toDate().getTime() : Infinity;
+      const bTime = b.start ? b.start.toDate().getTime() : Infinity;
+      return aTime - bTime;
+    });
+
+    const todoTasks = allTodoTasks.filter(
+    (t) => t.start && t.start.toDate() > new Date()
+  );
+  const overdueTodoTasks = allTodoTasks.filter(
+    (t) => t.start && t.start.toDate() < new Date()
+  );
+
+  const AllOngoingTasks = userTask.filter(
+    (t) => t.status === "Ongoing"
+  );
+
+  const ongoingTasks = AllOngoingTasks.filter(
+    (t) => t.end && t.end.toDate() > new Date()
+  );
+
+  const overdueTasks = AllOngoingTasks.filter(
+    (t) => t.end && t.end.toDate() < new Date()
+  );
+
+
+  const currentToDo = overdueTodoTasks.length;
+  const currentOngoing = ongoingTasks.length + todoTasks.length;
+  const currentoverdue = overdueTasks.length;
+
+
+
+useEffect(() => {
+    console.log("Home current user projects: ", myProject);
+  }, []);
 
 
   return (
-    <ScrollView contentContainerStyle={{ padding: 24, backgroundColor: "black", }}>
+    <ScrollView contentContainerStyle={{ padding: 24, backgroundColor: "black", flexGrow: 1 }}>
 
+      
         
         {/* -----------------------------------Top Group---------------------------------------- */}
         <HStack style={{
           gap: 16,
           borderWidth: 0,
           borderColor: "blue",
-          flex: 1,
-          // height: "30%"
-
+          height: 500,
         }}>
 
           {/* ---------------------------------------user Frame----------------------------------- */}
@@ -88,7 +108,8 @@ export default function Home() {
               backgroundColor: "#000000ff",
               gap: 24,
               flex: 2,
-              overflow: "hidden"
+              overflow: "hidden",
+              maxHeight: 500,
             }}
           >
 
@@ -178,7 +199,8 @@ export default function Home() {
             padding: 20,
             backgroundColor: "#171717",
             borderWidth: 0,
-            gap: 24,
+            gap: 32,
+            maxHeight: 500,
           }}
             className="rounded-xl">
 
@@ -197,40 +219,61 @@ export default function Home() {
               <HStack style={{ gap: 12, }}>
                 <HStack style={{ flex: 1, gap: 8, justifyContent: "center", alignItems: "center" }}>
                   <Divider style={{borderWidth: 4, borderRadius: 50, borderColor: "green", width: 1,}}  />
-                  <Text style={{color: "white", fontSize: 16}} >{myOngoingTask.length}</Text>
+                  <Text style={{color: "white", fontSize: 16}} >{currentOngoing}</Text>
+                </HStack>
+                <HStack style={{ flex: 1, gap: 8, justifyContent: "center", alignItems: "center"}}>
+                  <Divider style={{borderWidth: 4, borderRadius: 50, borderColor: "orange", width: 1,}}  />
+                  <Text style={{color: "white", fontSize: 16}}>{currentToDo}</Text>
                 </HStack>
                 <HStack style={{ flex: 1, gap: 8, justifyContent: "center", alignItems: "center"}}>
                   <Divider style={{borderWidth: 4, borderRadius: 50, borderColor: "red", width: 1,}}  />
-                  <Text style={{color: "white", fontSize: 16}}>{myOverBueTask.length}</Text>
+                  <Text style={{color: "white", fontSize: 16}}>{currentoverdue}</Text>
                 </HStack>
               </HStack>
 
             </HStack>
 
 
-              <ScrollView 
-                 contentContainerStyle={{
-                  borderWidth: 0,
-                  flexGrow: 1,
-                  alignItems: "flex-start",
-                  padding: 8,
-                }}
-                style={{
-                  maxHeight: 400,
-                }}
-                showsVerticalScrollIndicator={false}
-                >
-                
-                  {taskMessage ? (
-                    <Box style={{  borderWidth: 0, flex: 1, width: "100%", justifyContent: "center"}}>
+              {taskMessage ? (
+                <Box style={{  borderWidth: 0, justifyContent: "center", flexBasis: "100%"}}>
                       <Text style={{fontSize: 20, ...styles.messageFont, }} className="text-white">No Task</Text>
                       <Text style={{ ...styles.messageFont, marginTop: 4, fontSize: 14, }} className="text-white">There is no Task for now</Text>
                     </Box>
-                  ) : (
-                    userTask.map((t) => <TaskCard taskID={t.id} />)
-                  )}
-                
+               ) : (
+
+                        <ScrollView 
+                    contentContainerStyle={{
+                      borderWidth: 0,
+                      alignItems: "flex-start",
+                      padding: 8,
+                    }}
+                    showsVerticalScrollIndicator={false}
+                    >
+
+                          {AllOngoingTasks
+                            .sort((a, b) => {
+                                const aOverdue = a.end && a.end.toDate() < new Date();
+                                const bOverdue = b.end && b.end.toDate() < new Date();
+                                
+                             
+                                if (aOverdue && !bOverdue) return -1;
+                                if (!aOverdue && bOverdue) return 1;
+                                
+                                
+                                const aTime = a.end ? a.end.toDate().getTime() : Infinity;
+                                const bTime = b.end ? b.end.toDate().getTime() : Infinity;
+                                return aTime - bTime;
+                            })
+                            .map((tasks) => <TaskCard key={tasks.id} taskID={tasks.id} />)
+                          }
+
+                      {allTodoTasks.map((tasks) => <TaskCard key={tasks.id} taskID={tasks.id} />)}
+                     
+
               </ScrollView>
+
+               ) }
+          
 
           </VStack>
         </HStack>
@@ -283,7 +326,8 @@ export default function Home() {
               flexWrap: "wrap",
               borderWidth: 0,
               gap: 16,
-              flex: 1
+              flex: 1,
+              paddingBottom: 28,
             }}
           >
             {projectMassage ? (
@@ -294,7 +338,34 @@ export default function Home() {
                 }}>No Project yet</Text>
                 <Text style={{...styles.messageFont, fontSize: 14, marginTop: 4}}>There is no Project yet</Text>
               </View>
-            ) : myProject.map((item) => <ProjectCard projectID={item.id} />)};
+            ) :  <>
+              {myProject.sort((a, b) => {
+                const aOverdue = a.deadline && a.deadline.toDate() < new Date() &&
+                a.status != "Archived" && a.status != "Closed";
+                const bOverdue = b.deadline && b.deadline.toDate() < new Date() &&
+                b.status != "Arcived" && b.status != "Closed";
+
+                if (aOverdue && !bOverdue) return -1;
+                if (!aOverdue && bOverdue) return 1;
+
+                const aTime = a.deadline ? a.deadline.toDate().getTime() : Infinity;
+                const bTime = b.deadline ? b.deadline.toDate().getTime() : Infinity;
+                return aTime - bTime;
+              }).map((Id) => <ProjectCard key={Id.id} projectID={Id.id} />)
+              }
+            </>
+            
+            }; 
+
+           
+         
+           
+
+             
+            
+            {/* myProject.map((item) => <ProjectCard projectID={item.id} />) */}
+
+            
 
 
           </Box>

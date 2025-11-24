@@ -4,20 +4,17 @@ import { ScrollView, StyleSheet, useWindowDimensions } from "react-native";
 import { Text } from "@/components/ui/text";
 import { useRouter } from "expo-router";
 import { View } from "@/components/Themed";
-import { useUser } from "@/context/profileContext";
 import { useProject } from "@/context/projectContext";
 import { HStack } from "@/components/ui/hstack";
 import { Divider } from "@/components/ui/divider";
 import { VStack } from "@/components/ui/vstack";
 import { LayoutDashboard } from "lucide-react-native";
 import ProjectBar from "@/components/ProjectBar";
-import { P } from "@expo/html-elements";
+
 
 export default function Home() {
   const router = useRouter();
-  const { profiles } = useUser();
-  const { project, setSelectedProject, assignedUser, tasks } = useProject();
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const { project} = useProject();
 
   const dimensions = useWindowDimensions();
   const isLargeScreen = dimensions.width >= 1280; // computer UI condition
@@ -42,17 +39,17 @@ export default function Home() {
     ongoingProjects.length + overdueProjects.length + closedProjects.length;
 
   return (
+    
     <ScrollView
       contentContainerStyle={{
-        backgroundColor: "black",
+        backgroundColor: "#000000",
         padding: 24,
-        borderWidth: 0,
-        borderColor: "red",
         flexGrow: 1,
       }}
+      showsVerticalScrollIndicator={false}
+      showsHorizontalScrollIndicator={false}
     >
-      {isLargeScreen || isMediumScreen ? (
-        <VStack style={{ gap: 20, borderWidth: 0 }}>
+        <VStack style={{ gap: 20, borderWidth: 0, height: 250,}}>
           <Box>
             <Text
               style={{
@@ -74,26 +71,41 @@ export default function Home() {
             }}
           >
             <Box
-              style={{ ...styles.HstackContainerLarge, ...styles.containerBG }}
+              style={{ 
+                ...styles.HstackContainerLarge, 
+                ...styles.containerBG,
+                height: isLargeScreen || isMediumScreen ? 200 : 70,
+                width: isLargeScreen || isMediumScreen ? "100%" : "20%",
+              }}
             >
-              <Text style={styles.statusTextLarge}>{totalProject}</Text>
-              <Text style={styles.statusText}>Projects</Text>
+              <Text style={{ ...styles.statusTextLarge, fontSize: isLargeScreen || isMediumScreen ? 32 : 20 }}>{totalProject}</Text>
+              <Text style={{ ...styles.statusText, fontSize: isLargeScreen || isMediumScreen ? 24 : 14 }}>Projects</Text>
             </Box>
 
             <Box
-              style={{ ...styles.HstackContainerLarge, ...styles.containerBG }}
+              style={{ 
+                ...styles.HstackContainerLarge, 
+                ...styles.containerBG,
+                height: isLargeScreen || isMediumScreen ? 200 : 70,
+                width: isLargeScreen || isMediumScreen ? "100%" : "20%",
+               }}
             >
-              <Text style={{ ...styles.statusTextLarge, color: "#3a9e60ff" }}>
+              <Text style={{ ...styles.statusTextLarge, color: "#3a9e60ff", fontSize: isLargeScreen || isMediumScreen ? 32 : 20 }}>
                 {project.filter((t) => t.status === "Ongoing").length}
               </Text>
-              <Text style={{ ...styles.statusText, color: "#3a9e60ff" }}>
+              <Text style={{ ...styles.statusText, color: "#3a9e60ff", fontSize: isLargeScreen || isMediumScreen ? 24 : 14 }}>
                 On Going
               </Text>
             </Box>
             <Box
-              style={{ ...styles.HstackContainerLarge, ...styles.containerBG }}
+              style={{ 
+                ...styles.HstackContainerLarge, 
+                ...styles.containerBG,
+                height: isLargeScreen || isMediumScreen ? 200 : 70,
+                width: isLargeScreen || isMediumScreen ? "100%" : "20%",
+               }}
             >
-              <Text style={{ ...styles.statusTextLarge, color: "#c56969ff" }}>
+              <Text style={{ ...styles.statusTextLarge, color: "#c56969ff", fontSize: isLargeScreen || isMediumScreen ? 32 : 20 }}>
                 {
                   project.filter(
                     (t) =>
@@ -103,92 +115,39 @@ export default function Home() {
                   ).length
                 }
               </Text>
-              <Text style={{ ...styles.statusText, color: "#c56969ff" }}>
+              <Text style={{ ...styles.statusText, color: "#c56969ff", fontSize: isLargeScreen || isMediumScreen ? 24 : 14 }}>
                 Over Due
               </Text>
             </Box>
             <Box
-              style={{ ...styles.HstackContainerLarge, ...styles.containerBG }}
+              style={{ 
+                ...styles.HstackContainerLarge, 
+                ...styles.containerBG,
+                height: isLargeScreen || isMediumScreen ? 200 : 80,
+                width: isLargeScreen || isMediumScreen ? "100%" : "20%",
+               }}
             >
-              <Text style={{ ...styles.statusTextLarge, color: "#888888ff" }}>
+              <Text style={{ ...styles.statusTextLarge, color: "#888888ff", fontSize: isLargeScreen || isMediumScreen ? 32 : 20 }}>
                 {
                   project.filter(
                     (t) => t.status === "Closed" || t.status === "closed"
                   ).length
                 }
               </Text>
-              <Text style={{ ...styles.statusText, color: "#888888ff" }}>
+              <Text style={{ ...styles.statusText, color: "#888888ff", fontSize: isLargeScreen || isMediumScreen ? 24 : 14 }}>
                 Closed
               </Text>
             </Box>
           </HStack>
         </VStack>
-      ) : (
-        <Box
-          style={{
-            // borderWidth: 1,
-            borderColor: "blue",
-            justifyContent: "center",
-            alignItems: "center",
-            paddingLeft: 12,
-            paddingRight: 12,
-            marginTop: 12,
-            marginBottom: 12,
-          }}
-        >
-          <VStack>
-            <HStack
-              style={
-                {
-                  // borderWidth: 2,
-                }
-              }
-            >
-              <Box style={styles.HstackContainer}>
-                <Text style={styles.statusText}>
-                  {project.filter((t) => t.status === "Completed").length}
-                </Text>
-                <Text style={{ fontWeight: "bold" }}>Completed</Text>
-              </Box>
-              <Box style={styles.HstackContainer}>
-                <Text style={styles.statusText}>
-                  {project.filter((t) => t.status === "Ongoing").length}
-                </Text>
-                <Text style={{ fontWeight: "bold" }}>In Progress</Text>
-              </Box>
-            </HStack>
-            <Box
-              style={{
-                height: 150,
-                width: "100%",
-                backgroundColor: "#1f1f1f",
-                justifyContent: "center",
-                alignItems: "center",
-                borderRadius: 12,
-              }}
-            >
-              <Text style={styles.statusText}>
-                {
-                  project.filter(
-                    (t) =>
-                      t.status !== "Completed" &&
-                      t.deadline &&
-                      t.deadline.toDate() < new Date()
-                  ).length
-                }
-              </Text>
-              <Text style={{ fontWeight: "bold" }}>Overdue</Text>
-            </Box>
-          </VStack>
-        </Box>
-      )}
+        
 
       <VStack
         style={{
           marginTop: isLargeScreen || isMediumScreen ? 20 : 16,
           gap: 20,
           borderWidth: 0,
-          flex: 2,
+          flex: 1,
         }}
       >
         <Box>
@@ -205,7 +164,6 @@ export default function Home() {
         </Box>
         <View
           style={{
-            // height: "100%",
             flex: 1,
             borderRadius: isLargeScreen ? 12 : isMediumScreen ? 12 : 4,
             ...styles.containerBG,
@@ -214,7 +172,7 @@ export default function Home() {
           <Box
             style={{ padding: 12, borderWidth: 0, borderRadius: 12, flex: 1 }}
           >
-            {isLargeScreen ? (
+            {isLargeScreen || isMediumScreen ? (
               <>
                 <HStack
                   style={{
@@ -286,84 +244,6 @@ export default function Home() {
                   className="border-primary-500"
                 />
               </>
-            ) : isMediumScreen ? (
-              <>
-                <HStack
-                  style={{
-                    justifyContent: "space-between",
-                    flex: 1,
-                    flexDirection: "row",
-                    flexWrap: "wrap",
-                    padding: 20,
-                    borderWidth: 1,
-                    gap: 12,
-                  }}
-                >
-                  <Text style={{ flex: 7, color: "white", borderWidth: 0 }}>
-                    Project Name
-                  </Text>
-                  <Text
-                    style={{
-                      flex: 3,
-                      color: "white",
-                      textAlign: "left",
-                      borderWidth: 0,
-                    }}
-                  >
-                    Task Progress
-                  </Text>
-                  <Text
-                    style={{
-                      flex: 1,
-                      color: "white",
-                      textAlign: "right",
-                      borderWidth: 0,
-                    }}
-                  >
-                    Status
-                  </Text>
-                  <Text
-                    style={{
-                      flex: 3,
-                      color: "white",
-                      textAlign: "right",
-                      borderWidth: 0,
-                    }}
-                  >
-                    Employees
-                  </Text>
-                  <Text
-                    style={{
-                      flex: 2,
-                      color: "white",
-                      textAlign: "right",
-                      borderWidth: 0,
-                    }}
-                  >
-                    Started on
-                  </Text>
-                  <Text
-                    style={{
-                      flex: 2,
-                      color: "white",
-                      textAlign: "right",
-                      borderWidth: 0,
-                    }}
-                  >
-                    Deadline
-                  </Text>
-                </HStack>
-
-                <Divider
-                  orientation="horizontal"
-                  style={{
-                    marginTop: 20,
-                    marginBottom: 10,
-                    borderWidth: 1,
-                    borderColor: "#ffffffff",
-                  }}
-                />
-              </>
             ) : (
               <Divider
                 orientation="horizontal"
@@ -394,16 +274,11 @@ export default function Home() {
                     minHeight: "100%",
                   }}
                 >
-                  <Text style={{ ...styles.statusText }}>No Project Yet</Text>
+                  <Text style={{ ...styles.statusText, fontSize: isLargeScreen || isMediumScreen ? 24 : 14 }}>No Project Yet</Text>
                   <Text>There is no Project for now</Text>
                 </Box>
               ) : (
                 <>
-                  {/* {project.map((p) => 
-                      p.status === "Ongoing" ? (<ProjectBar key={p.id} projectID={p.id} />) 
-                      : p.status != "Ongoing" && p.status != "Closed" ? (<ProjectBar key={p.id} projectID={p.id} />) : (""),
-                      
-                    )} */}
 
                   {ongoingProjects.map((p) => (
                     <ProjectBar key={p.id} projectID={p.id} />
@@ -443,13 +318,13 @@ export function DashTitle() {
 }
 
 const styles = StyleSheet.create({
+
   ProjectContainer: {
     backgroundColor: "transperent",
   },
   HstackContainer: {
     justifyContent: "center",
     alignItems: "center",
-    // borderWidth: 1,
     width: 200,
     height: 150,
     backgroundColor: "#1f1f1f",
@@ -460,11 +335,9 @@ const styles = StyleSheet.create({
     color: "white",
     fontFamily: "roboto, arial",
     fontWeight: "medium",
-    fontSize: 24,
+    fontSize: 14,
   },
   HstackContainerLarge: {
-    height: 200,
-    width: "100%",
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#1f1f1f",
@@ -474,11 +347,11 @@ const styles = StyleSheet.create({
     paddingRight: 64,
     paddingTop: 48,
     paddingBottom: 48,
-    gap: 12,
+    gap: 8,
   },
   statusTextLarge: {
     fontFamily: "roboto, arial",
-    fontSize: 32,
+    fontSize: 20,
     fontWeight: "bold",
     color: "white",
   },
@@ -494,4 +367,8 @@ const styles = StyleSheet.create({
   containerBG: {
     backgroundColor: "#171717",
   },
+
+  
 });
+
+

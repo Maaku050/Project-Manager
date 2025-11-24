@@ -13,6 +13,7 @@ import { Progress, ProgressFilledTrack } from "@/components/ui/progress";
 import ProjectBadge from "./projectBadge";
 import ProjectUsers from "./projectAssignedUsers";
 import { Text } from "@/components/ui/text";
+import TaskProgressBar from "./taskProgressBar";
 
 
 
@@ -33,6 +34,8 @@ export default function ProjectBar({projectID}: items) {
     const dimensions = useWindowDimensions();
     const isLargeScreen = dimensions.width >= 1280; // computer UI condition
     const isMediumScreen = dimensions.width <= 1280 && dimensions.width > 768; // tablet UI condition
+  // const currentProjectData = project.find((t) => t.id === selectedProject);
+
 
 
     const truncateWords = (text: string, wordLimit: number) => {
@@ -116,22 +119,13 @@ export default function ProjectBar({projectID}: items) {
                           alignContent: "center",
                           alignItems: "center",
                           justifyContent: "center",
-                          gap: 8,
                         }}
                       >
-                        <Progress
-                          value={progressCalculation(projectID)}
-                          size="sm"
-                          orientation="horizontal"
-                          style={{flex: 1, backgroundColor: "#303030ff"}}
-                          
-                        >
-                          <ProgressFilledTrack className="bg-white" />
-                        </Progress>
-
-                        <Text style={{ color: "white", fontFamily: "roboto, arial", fontSize: 20 }}>
-                          {progressCalculation(projectID).toFixed(0)}%
-                        </Text>
+                            <TaskProgressBar
+                                    key={projectID}
+                                    projectID={projectID}
+                                    origin="dashboard"
+                                  />
                       </HStack>
 
                       {/* -----------------------Status-------------------------- */}

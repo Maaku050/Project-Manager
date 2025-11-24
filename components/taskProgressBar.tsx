@@ -49,9 +49,9 @@ export default function TaskProgressBar({
 
   if (origin === "dashboard") {
     return (
-      <HStack style={{ alignItems: "center" }} space="sm">
-        <Progress value={progress} size="sm" orientation="horizontal">
-          <ProgressFilledTrack />
+      <HStack style={{ alignItems: "center", flex: 1 }} space="sm">
+        <Progress value={progress} size="sm" orientation="horizontal" style={{backgroundColor: "#333333"}}>
+          <ProgressFilledTrack style={{backgroundColor: "#ffffffff"}} />
         </Progress>
         <Text style={{ color: "white", fontSize: 18 }}>
           ({progress.toFixed(0)}%)
@@ -80,8 +80,8 @@ export default function TaskProgressBar({
           <ButtonText>Add Task</ButtonText>
         </Button>
       </HStack>
-      <Progress value={progress} size="sm" orientation="horizontal">
-        <ProgressFilledTrack />
+      <Progress value={progress} size="sm" orientation="horizontal" style={{backgroundColor: "#333333"}}>
+        <ProgressFilledTrack style={{backgroundColor: "#FFFFFF"}} />
       </Progress>
 
       <TaskAddModal
