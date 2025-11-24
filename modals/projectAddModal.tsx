@@ -351,9 +351,9 @@ export default function ProjectAddModal({
           >
             <ButtonText>Cancel</ButtonText>
           </Button>
-          <Button onPress={addProject}>
-            <ButtonText>
-              {isSaving ? <Spinner size="small" color="grey" /> : "Save"}
+          <Button onPress={addProject} style={{ backgroundColor: "white" }}>
+            <ButtonText style={{ color: "black" }}>
+              {isSaving ? <Spinner size="small" color="grey" /> : "Add project"}
             </ButtonText>
           </Button>
         </ModalFooter>
