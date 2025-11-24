@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Text } from "react-native";
 import { HStack } from "./ui/hstack";
 import { useProject } from "@/context/projectContext";
-import { Heading } from "./ui/heading";
 import { Button, ButtonIcon, ButtonText } from "./ui/button";
 import { PlusIcon } from "lucide-react-native";
 import { Progress, ProgressFilledTrack } from "./ui/progress";
@@ -10,16 +9,22 @@ import TaskAddModal from "@/modals/taskAddModal";
 
 type TaskProgressBarType = {
   projectID: string;
+  origin: string;
 };
 
-export default function TaskProgressBar({ projectID }: TaskProgressBarType) {
+export default function TaskProgressBar({
+  projectID,
+  origin,
+}: TaskProgressBarType) {
   const [showAddTaskModal, setShowAddTaskModal] = useState(false);
   const { tasks } = useProject();
 
   const currentProjectTasks = tasks.filter(
     (t) =>
       t.projectID === projectID &&
-      ["To-do", "Ongoing", "Completed"].includes(t.status)
+      ["To-do", "Ongoing", "CompleteAndOnTime", "CompleteAndOverdue"].includes(
+        t.status
+      )
   );
 
   const currentTotalTasks = currentProjectTasks.length;
@@ -31,7 +36,7 @@ export default function TaskProgressBar({ projectID }: TaskProgressBarType) {
     (t) => t.status === "Ongoing"
   ).length;
   const completedTasks = currentProjectTasks.filter(
-    (t) => t.status === "Completed"
+    (t) => t.status === "CompleteAndOnTime" || t.status === "CompleteAndOverdue"
   ).length;
 
   // Weighted progress: To-do = 0, Ongoing = 50%, Completed = 100%
@@ -41,6 +46,19 @@ export default function TaskProgressBar({ projectID }: TaskProgressBarType) {
           currentTotalTasks) *
         100
       : 0;
+
+  if (origin === "dashboard") {
+    return (
+      <HStack style={{ alignItems: "center" }} space="sm">
+        <Progress value={progress} size="sm" orientation="horizontal">
+          <ProgressFilledTrack />
+        </Progress>
+        <Text style={{ color: "white", fontSize: 18 }}>
+          ({progress.toFixed(0)}%)
+        </Text>
+      </HStack>
+    );
+  }
 
   return (
     <>

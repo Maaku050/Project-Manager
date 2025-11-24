@@ -58,7 +58,7 @@ export default function ProjectDeleteModal({
             Deleting Project
           </Heading>
           <ModalCloseButton>
-            <Icon as={CloseIcon} />
+            <Icon as={CloseIcon} color="white" />
           </ModalCloseButton>
         </ModalHeader>
         <ModalBody>

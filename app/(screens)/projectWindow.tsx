@@ -51,6 +51,7 @@ export default function ProjectWindow() {
         style={{
           flex: 1,
           paddingTop: 30,
+          paddingBottom: 20,
           paddingHorizontal: 15,
           backgroundColor: "#000000",
           borderWidth: 0,
@@ -267,7 +268,10 @@ export default function ProjectWindow() {
             marginBottom: 10,
           }}
         >
-          <TaskProgressBar projectID={currentProjectData.id} />
+          <TaskProgressBar
+            projectID={currentProjectData.id}
+            origin="projectWindow"
+          />
         </Box>
 
         <Box style={{ borderWidth: 0, flex: 1 }}>
