@@ -10,25 +10,19 @@ import { HStack } from "@/components/ui/hstack";
 import {
   Avatar,
   AvatarFallbackText,
-  AvatarImage,
-  AvatarBadge,
-  AvatarGroup,
 } from "@/components/ui/avatar";
-import { Card } from "@/components/ui/card";
-// import { Heading } from "@/components/ui/heading";
-// import { Progress, ProgressFilledTrack } from "@/components/ui/progress";
 import { VStack } from "@/components/ui/vstack";
 import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
 import { LogOut, SquarePen } from "lucide-react-native";
 import { House } from 'lucide-react-native';
 import ProfileEditModal from "@/modals/profileEditModal";
 import LogoutModal from "@/modals/logoutModal";
-import { CircleIcon, Icon } from "@/components/ui/icon";
-// import { config } from "@/components/ui/gluestack-ui-provider/config";
 import AppMessage from "@/components/AppMessage";
 import { Divider } from "@/components/ui/divider";
 import { StyleSheet } from "nativewind";
 import ProjectCard from "@/components/projectCard";
+import TaskCard from "@/components/taskCard";
+
 
 
 export default function Home() {
@@ -46,6 +40,7 @@ export default function Home() {
     assignedUser.some((a) => p.id === a.projectID && a.uid === profile?.uid)
   );
 
+  const userTask = tasks.filter((t) => assignedUser.some((a) => t.id === a.taskID && a.uid === profile?.uid))
   useEffect(() => {
     console.log("Home current user projects: ", currentUserProjects);
 
@@ -69,18 +64,17 @@ export default function Home() {
 
 
   return (
-    <ScrollView className="bg-black" contentContainerStyle={{flexGrow: 1}}>
+    <ScrollView contentContainerStyle={{ padding: 24, backgroundColor: "black", }}>
 
-      <View style={{backgroundColor: "transparent", borderColor: "yellow", borderWidth: 0, paddingBottom: 20, flex: 1}}>
         
         {/* -----------------------------------Top Group---------------------------------------- */}
         <HStack style={{
           gap: 16,
-          padding: 24,
-          paddingBottom: 0,
           borderWidth: 0,
           borderColor: "blue",
           flex: 1,
+          // height: "30%"
+
         }}>
 
           {/* ---------------------------------------user Frame----------------------------------- */}
@@ -124,7 +118,6 @@ export default function Home() {
             {/* ------------------messages ----------------------- */}
             <Box>
               <AppMessage userId={profile?.uid} />
-              {/* <Text>Hello. . .</Text> */}
             </Box>
 
             {/* --------------------------avatar----------------------------- */}
@@ -159,7 +152,6 @@ export default function Home() {
               <Text
                 style={{
                   fontSize: isLargeScreen ? 14 : isMediumScreen ? 14 : 12,
-                  // marginTop: isLargeScreen ? 32 : isMediumScreen ? 20 : 12,
                   color: "white",
                   fontWeight: "semibold",
                   fontFamily: "roboto, arial",
@@ -221,7 +213,13 @@ export default function Home() {
                   borderWidth: 0,
                   flexGrow: 1,
                   alignItems: "flex-start",
-                }}>
+                  padding: 8,
+                }}
+                style={{
+                  maxHeight: 400,
+                }}
+                showsVerticalScrollIndicator={false}
+                >
                 
                   {taskMessage ? (
                     <Box style={{  borderWidth: 0, flex: 1, width: "100%", justifyContent: "center"}}>
@@ -229,10 +227,7 @@ export default function Home() {
                       <Text style={{ ...styles.messageFont, marginTop: 4, fontSize: 14, }} className="text-white">There is no Task for now</Text>
                     </Box>
                   ) : (
-                    <Box style={{ borderWidth: 0, flex: 1, width: "100%", justifyContent: "center"}}>
-                      <Text style={{fontSize: 20, ...styles.messageFont, }} className="text-white">No Task</Text>
-                      <Text style={{ ...styles.messageFont, marginTop: 4, fontSize: 14, }} className="text-white">There is no Task for now</Text>
-                    </Box>
+                    userTask.map((t) => <TaskCard taskID={t.id} />)
                   )}
                 
               </ScrollView>
@@ -245,10 +240,8 @@ export default function Home() {
 
 
         {/* ----------------------------------------------------project view------------------------------------------------------ */}
-        <View
+        <Box
           style={{
-            marginLeft: isLargeScreen ? 24 : isMediumScreen ? 24 : 12,
-            marginRight: isLargeScreen ? 24 : isMediumScreen ? 24 : 12,
             marginTop: 16,
             backgroundColor: "#171717",
             borderRadius: 12,
@@ -289,8 +282,8 @@ export default function Home() {
                   : "column",
               flexWrap: "wrap",
               borderWidth: 0,
-              flex: 1,
               gap: 16,
+              flex: 1
             }}
           >
             {projectMassage ? (
@@ -306,8 +299,8 @@ export default function Home() {
 
           </Box>
 
-        </View>
-      </View>
+        </Box>
+     
 
 
       <ProfileEditModal
@@ -318,9 +311,13 @@ export default function Home() {
   );
 }
 
+
+
 export function HeaderUserEmail() {
   const { profile } = useUser();
   const [isLogoutPress, setIsLogoutPress] = useState(false);
+
+
 
   return (
     <>
