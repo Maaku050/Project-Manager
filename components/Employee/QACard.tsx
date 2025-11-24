@@ -5,37 +5,40 @@ import { Box } from "../ui/box";
 import { Grid, GridItem } from "../ui/grid";
 import { Role } from "@/_enums/role.enum";
 import { Avatar, AvatarFallbackText } from "../ui/avatar";
+import { HStack } from "../ui/hstack/index.web";
 import { useRouter } from "expo-router";
 import { Text } from "../ui/text";
 import { Pressable } from "../ui/pressable";
 import { VStack } from "../ui/vstack";
 
-type UXDesignerCardProps = {
-  profiles: Profile[];
+type QACardProps = {
+  profiles: Profile[] | undefined;
 };
 
-const UXDesignerCard: React.FC<UXDesignerCardProps> = (props) => {
+const QACard: React.FC<QACardProps> = (props) => {
   const router = useRouter();
   return (
     <>
       <Card style={{ width: "100%", backgroundColor: "#171717" }}>
         <Box style={{ gap: 20 }}>
           <Box style={{ flexDirection: "row", justifyContent: "space-between" }}>
-            <Text style={{ color: "white", fontSize: 20, fontWeight: 800 }}>UX Designer/s</Text>
+            <Text style={{ color: "white", fontSize: 20, fontWeight: 800 }}>QA/s</Text>
             <Text style={{ color: "white", fontSize: 16, fontWeight: 500 }}>
-              {props.profiles.filter((t) => t.role === Role.UX_DESIGNER).length} employee/s
+              {props.profiles?.filter((profile) => profile.role === Role.QA)?.length ?? 0}{" "}
+              employee/s
             </Text>
           </Box>
-          {props.profiles.filter((t) => t.role === Role.UX_DESIGNER).length > 0 ? (
+          {(props.profiles?.filter((profile) => profile.role === Role.QA)?.length ?? 0) > 0 ? (
             <Grid _extra={{ className: "grid-cols-3 gap-4" }}>
-              {props.profiles.reduce((acc: React.ReactNode[], t) => {
-                if (t.role === Role.UX_DESIGNER) {
+              {props.profiles?.reduce((acc: React.ReactNode[], profile) => {
+                if (profile.role === Role.QA) {
                   acc.push(
-                    <GridItem key={t.id} _extra={{ className: "col-span-1" }}>
+                    <GridItem key={profile.id} _extra={{ className: "col-span-1" }}>
                       <Pressable
                         onPress={() => {
-                          router.push(`/(screens)/employee/${t.uid}`);
+                          router.push(`/(screens)/employee/${profile.uid}`);
                         }}
+                        style={{ height: "100%" }}
                       >
                         <Card
                           style={{
@@ -45,19 +48,24 @@ const UXDesignerCard: React.FC<UXDesignerCardProps> = (props) => {
                             borderBottomWidth: 1,
                             borderLeftWidth: 8,
                             borderTopWidth: 1,
+                            height: "100%",
+                            justifyContent: "center",
+                            alignItems: "flex-start",
                           }}
                         >
-                          <Avatar size="md">
-                            <AvatarFallbackText>{`${t.firstName}${t.lastName}`}</AvatarFallbackText>
-                          </Avatar>
-                          <VStack>
-                            <Text style={{ color: "white", fontSize: 16, fontWeight: 600 }}>
-                              {t.firstName} {`"${t.nickName}"`} {t.lastName}
-                            </Text>
-                            <Text style={{ color: "white", fontSize: 14, opacity: 0.8 }}>
-                              {t.email}
-                            </Text>
-                          </VStack>
+                          <HStack style={{ alignItems: "center" }}>
+                            <Avatar size="md" style={{ marginRight: 15 }}>
+                              <AvatarFallbackText>{`${profile.firstName}${profile.lastName}`}</AvatarFallbackText>
+                            </Avatar>
+                            <VStack>
+                              <Text style={{ color: "white", fontSize: 16, fontWeight: 600 }}>
+                                {profile.firstName} {`"${profile.nickName}"`} {profile.lastName}
+                              </Text>
+                              <Text style={{ color: "white", fontSize: 14, opacity: 0.8 }}>
+                                {profile.email}
+                              </Text>
+                            </VStack>
+                          </HStack>
                         </Card>
                       </Pressable>
                     </GridItem>
@@ -85,4 +93,4 @@ const UXDesignerCard: React.FC<UXDesignerCardProps> = (props) => {
   );
 };
 
-export default UXDesignerCard;
+export default QACard;

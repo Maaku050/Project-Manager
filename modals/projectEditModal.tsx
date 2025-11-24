@@ -126,116 +126,160 @@ export default function ProjectEditModal({
     try {
       const userRef = collection(db, "assignedUser");
 
-      // Remove all current assignments for this project
+      // Get current assignments for this project
       const q = query(userRef, where("projectID", "==", selectedProject));
       const snapshot = await getDocs(q);
-      for (const docSnap of snapshot.docs) {
-        await deleteDoc(docSnap.ref);
-      }
 
-      // Add new ones
-      for (const uid of tempAssigned) {
-        await addDoc(userRef, {
+      // Map current assignments
+      const currentAssignments = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        uid: doc.data().uid,
+        ref: doc.ref,
+      }));
+
+      const currentUIDs = new Set(currentAssignments.map((a) => a.uid));
+      const tempUIDs = new Set(tempAssigned);
+
+      // Find users to remove (in current but not in temp)
+      const toRemove = currentAssignments.filter((a) => !tempUIDs.has(a.uid));
+
+      // Find users to add (in temp but not in current)
+      const toAdd = tempAssigned.filter((uid) => !currentUIDs.has(uid));
+
+      // Batch delete users not in tempAssigned
+      const deletePromises = toRemove.map((a) => deleteDoc(a.ref));
+
+      // Batch add new users
+      const addPromises = toAdd.map((uid) =>
+        addDoc(userRef, {
           projectID: selectedProject,
           uid,
-        });
-      }
+        })
+      );
+
+      // Execute all operations in parallel
+      await Promise.all([...deletePromises, ...addPromises]);
 
       onClose();
     } catch (err) {
       console.error("Error saving assignments:", err);
-    } finally {
     }
   };
 
   return (
-    <Modal isOpen={visible} onClose={onClose} size="lg">
+    <Modal isOpen={visible} onClose={onClose} size="full">
       <ModalBackdrop />
-      <ModalContent style={{backgroundColor: "#1f1f1f", borderWidth: 0}}>
+      <ModalContent
+        style={{
+          borderColor: "red",
+          borderWidth: 0,
+          backgroundColor: "#000000",
+          width: 892,
+          height: 530,
+        }}
+      >
         <ModalHeader>
-          <Heading size="lg" style={{color: "#ffffff"}}>Edit Project</Heading>
+          <Heading size="lg" style={{ color: "#ffffff" }}>
+            Edit Project
+          </Heading>
           <ModalCloseButton>
-            <Icon as={CloseIcon} color="white"/>
+            <Icon as={CloseIcon} color="white" />
           </ModalCloseButton>
         </ModalHeader>
         <ModalBody>
-          <ScrollView
-            style={{ maxHeight: 500 }} // limits scroll area
-            contentContainerStyle={{
-              paddingBottom: 20,
-              flexGrow: 1,
-            }}
-            showsVerticalScrollIndicator={false}
-          >
-            <Box style={{ margin: 5 }}>
-              <Text style={{ fontWeight: "bold", marginBottom: 5, color: "#cdcccc" }}>
-                Project Title
-              </Text>
-              <TextInput
-                style={{
-                  borderBottomWidth: 1,
-                  borderColor: "#fff",
-                  paddingVertical: 8,
-                  fontSize: 16,
-                  color: "#ffffffff",
-                }}
-                placeholder="Enter your Project Title"
-                placeholderTextColor="#999"
-                defaultValue={currentProjectData?.title}
-                onChangeText={setTempTitle}
-              />
-            </Box>
-
-            <Box style={{ margin: 5 }}>
-              <Text style={{ fontWeight: "bold", marginBottom: 5, color: "#cdcccc" }}>
-                Project Description
-              </Text>
-              <Textarea size="sm" isReadOnly={false} isInvalid={false} style={{height: 200}}>
-                <TextareaInput
-                style={{color: "#000000", backgroundColor: "#ffffff"}}
-                  placeholder="Enter your Project Description"
-                  defaultValue={currentProjectData?.description}
-                  onChangeText={setTempDescription}
+          <HStack>
+            <Box
+              style={{
+                borderWidth: 0,
+                flex: 1,
+                marginRight: 10,
+                marginTop: 25,
+              }}
+            >
+              <Box style={{ borderWidth: 0, marginBottom: 20 }}>
+                <Text
+                  style={{
+                    marginBottom: 5,
+                    color: "#ffffff",
+                  }}
+                >
+                  Project Name
+                </Text>
+                <TextInput
+                  style={{
+                    borderBottomWidth: 1,
+                    borderColor: "#fff",
+                    paddingVertical: 8,
+                    fontSize: 16,
+                    color: "#ffffffff",
+                  }}
+                  placeholder="Enter your Project Title"
+                  placeholderTextColor="#999"
+                  defaultValue={currentProjectData?.title}
+                  onChangeText={setTempTitle}
                 />
-              </Textarea>
-            </Box>
+              </Box>
 
-            <Box style={{ margin: 5 }}>
-              <Text style={{ fontWeight: "bold", color: "#cdcccc" }}>Project Deadline</Text>
-              <DateTimePicker
-                value={tempDeadline ? tempDeadline : projectDeadline}
-                onChange={setTempDeadline}
-                mode="date"
-                placeholder="Select a date and time"
-              />
+              <Box style={{ borderWidth: 0, marginBottom: 20 }}>
+                <Text
+                  style={{
+                    marginBottom: 5,
+                    color: "#ffffff",
+                  }}
+                >
+                  Project Description
+                </Text>
+                <Textarea
+                  size="sm"
+                  isReadOnly={false}
+                  isInvalid={false}
+                  style={{ maxHeight: 200 }}
+                >
+                  <TextareaInput
+                    style={{ color: "#000000", backgroundColor: "#ffffff" }}
+                    placeholder="Enter your Project Description"
+                    defaultValue={currentProjectData?.description}
+                    onChangeText={setTempDescription}
+                  />
+                </Textarea>
+              </Box>
+
+              <Box style={{ margin: 5 }}>
+                <Text
+                  style={{
+                    marginBottom: 5,
+                    color: "#ffffff",
+                  }}
+                >
+                  Project Deadline
+                </Text>
+                <DateTimePicker
+                  value={tempDeadline ? tempDeadline : projectDeadline}
+                  onChange={setTempDeadline}
+                  mode="date"
+                  placeholder="Select a date and time"
+                />
+              </Box>
             </Box>
 
             {/* Members */}
-            <Box style={{ margin: 5 }}>
-              <Text style={{ fontWeight: "bold", color: "#cdcccc" }}>Project Members</Text>
+            <Box
+              style={{ borderWidth: 0, flex: 1, marginLeft: 10, marginTop: 25 }}
+            >
+              <Text style={{ color: "#ffffffff" }}>Project Members</Text>
 
-              <Box
+              <ScrollView
                 style={{
-                  marginTop: 10,
-                  // borderWidth: 1,
+                  marginTop: 5,
+                  borderWidth: 0,
                   borderColor: "#ccc",
                   borderRadius: 8,
                   padding: 10,
                   backgroundColor: "#fff",
+                  height: 302,
                 }}
+                showsVerticalScrollIndicator={false}
               >
-                {/* Header */}
-                <Box
-                  style={{
-                    marginBottom: 8,
-                    borderBottomWidth: 0,
-                    borderBottomColor: "#000",
-                    paddingBottom: 4,
-                  }}
-                >
-                  <Text style={{ marginLeft: 8 }}>Select Members</Text>
-                </Box>
-
                 {/* Members List */}
                 <VStack space="sm">
                   {[
@@ -343,9 +387,9 @@ export default function ProjectEditModal({
                       );
                     })}
                 </VStack>
-              </Box>
+              </ScrollView>
             </Box>
-          </ScrollView>
+          </HStack>
         </ModalBody>
         <ModalFooter>
           <Button

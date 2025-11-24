@@ -2,64 +2,67 @@ import { Profile } from "@/_types";
 import React from "react";
 import { Card } from "../ui/card";
 import { Box } from "../ui/box";
-import { Role } from "@/_enums/role.enum";
 import { Grid, GridItem } from "../ui/grid";
-import { HStack } from "../ui/hstack";
+import { Role } from "@/_enums/role.enum";
 import { Avatar, AvatarFallbackText } from "../ui/avatar";
+import { HStack } from "../ui/hstack";
+import { VStack } from "../ui/vstack";
 import { useRouter } from "expo-router";
-import { Pressable } from "../ui/pressable";
 import { Text } from "../ui/text";
-import { VStack } from "../ui/vstack/index.web";
+import { Pressable } from "../ui/pressable";
 
-type FullStackDeveloperCardProps = {
-  profiles: Profile[];
+type InternCardProps = {
+  profiles: Profile[] | undefined;
 };
 
-const FullStackDeveloperCard: React.FC<FullStackDeveloperCardProps> = (props) => {
+const InternCard: React.FC<InternCardProps> = (props) => {
   const router = useRouter();
   return (
     <>
       <Card style={{ width: "100%", backgroundColor: "#171717" }}>
         <Box style={{ gap: 20 }}>
           <Box style={{ flexDirection: "row", justifyContent: "space-between" }}>
-            <Text style={{ color: "white", fontSize: 20, fontWeight: 800 }}>
-              Full Stack Developer/s
-            </Text>
+            <Text style={{ color: "white", fontSize: 20, fontWeight: 800 }}>Intern/s</Text>
             <Text style={{ color: "white", fontSize: 16, fontWeight: 500 }}>
-              {props.profiles.filter((t) => t.role === Role.FULL_STACK_DEVELOPER).length} employee/s
+              {props.profiles?.filter((profile) => profile.role === Role.INTERN)?.length ?? 0}{" "}
+              employee/s
             </Text>
           </Box>
-          {props.profiles.filter((t) => t.role === Role.FULL_STACK_DEVELOPER).length > 0 ? (
+          {(props.profiles?.filter((profile) => profile.role === Role.INTERN)?.length ?? 0) > 0 ? (
             <Grid _extra={{ className: "grid-cols-3 gap-4" }}>
-              {props.profiles.reduce((acc: React.ReactNode[], t) => {
-                if (t.role === Role.FULL_STACK_DEVELOPER) {
+              {props.profiles?.reduce((acc: React.ReactNode[], profile) => {
+                if (profile.role === Role.INTERN) {
                   acc.push(
-                    <GridItem key={t.id} _extra={{ className: "col-span-1" }}>
+                    <GridItem key={profile.id} _extra={{ className: "col-span-1" }}>
                       <Pressable
                         onPress={() => {
-                          router.push(`/(screens)/employee/${t.uid}`);
+                          router.push(`/(screens)/employee/${profile.uid}`);
                         }}
+                        style={{ height: "100%" }}
                       >
                         <Card
                           style={{
                             backgroundColor: "#000000",
-                            borderColor: "#1D4ED8",
+                            borderColor: "#a16006",
                             borderRightWidth: 1,
                             borderBottomWidth: 1,
                             borderLeftWidth: 8,
                             borderTopWidth: 1,
+                            height: "100%",
+                            justifyContent: "center",
+                            alignItems: "flex-start",
                           }}
                         >
                           <HStack style={{ alignItems: "center" }}>
                             <Avatar size="md" style={{ marginRight: 15 }}>
-                              <AvatarFallbackText>{`${t.firstName}${t.lastName}`}</AvatarFallbackText>
-                            </Avatar>{" "}
+                              <AvatarFallbackText>{`${profile.firstName}${profile.lastName}`}</AvatarFallbackText>
+                            </Avatar>
                             <VStack>
                               <Text style={{ color: "white", fontSize: 16, fontWeight: 600 }}>
-                                {t.firstName} {`"${t.nickName}"`} {t.lastName}
+                                {profile.firstName} {`"${profile.nickName}"`} {profile.lastName}
                               </Text>
                               <Text style={{ color: "white", fontSize: 14, opacity: 0.8 }}>
-                                {t.email}
+                                {profile.email}
                               </Text>
                             </VStack>
                           </HStack>
@@ -77,8 +80,8 @@ const FullStackDeveloperCard: React.FC<FullStackDeveloperCardProps> = (props) =>
                 color: "white",
                 fontSize: 16,
                 fontWeight: 500,
-                textAlign: "center",
                 paddingBottom: 20,
+                textAlign: "center",
               }}
             >
               No employees yet
@@ -90,4 +93,4 @@ const FullStackDeveloperCard: React.FC<FullStackDeveloperCardProps> = (props) =>
   );
 };
 
-export default FullStackDeveloperCard;
+export default InternCard;

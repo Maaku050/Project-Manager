@@ -31,12 +31,12 @@ export default function ProfileEditModal({ visible, onClose }: ProfileTypes) {
 
   useEffect(() => {
     // Initiallizing fields
-    if (!profile) return;
-
-    setFirstname(profile.firstName);
-    setLastName(profile.lastName);
-    setNickName(profile.nickName);
-  }, []);
+    if (profile) {
+      setFirstname(profile.firstName);
+      setLastName(profile.lastName);
+      setNickName(profile.nickName);
+    }
+  }, [visible]);
 
   // Functions
   const handleSave = async () => {
@@ -61,27 +61,17 @@ export default function ProfileEditModal({ visible, onClose }: ProfileTypes) {
   };
 
   return (
-    <Modal isOpen={visible} onClose={onClose} size="md">
+    <Modal isOpen={visible} onClose={onClose} size="sm">
       <ModalBackdrop />
-      <ModalContent>
+      <ModalContent className="bg-black ronded-12 border-0">
         <ModalHeader>
-          <Heading size="lg">Edit Profile</Heading>
+          <Heading size="lg" style={{color: "white"}}>Edit Profile</Heading>
           <ModalCloseButton>
-            <Icon as={CloseIcon} />
+            <Icon as={CloseIcon}  color="white" />
           </ModalCloseButton>
         </ModalHeader>
         <ModalBody>
-          <Text style={styles.label}>Email</Text>
-          <TextInput
-            style={styles.disabledInput}
-            placeholder="Email"
-            value={profile?.email}
-            autoCapitalize="none"
-            keyboardType="email-address"
-            editable={false}
-            selectTextOnFocus={false}
-            pointerEvents="none"
-          />
+          
 
           <Text style={styles.label}>First Name</Text>
           <TextInput
@@ -113,6 +103,18 @@ export default function ProfileEditModal({ visible, onClose }: ProfileTypes) {
             keyboardType="default"
           />
 
+          <Text style={styles.label}>Email</Text>
+          <TextInput
+            style={styles.disabledInput}
+            placeholder="Email"
+            value={profile?.email}
+            autoCapitalize="none"
+            keyboardType="email-address"
+            editable={false}
+            selectTextOnFocus={false}
+            pointerEvents="none"
+          />
+
           <Text style={styles.label}>Role</Text>
           <TextInput
             style={styles.disabledInput}
@@ -129,14 +131,14 @@ export default function ProfileEditModal({ visible, onClose }: ProfileTypes) {
           <Button
             variant="outline"
             action="secondary"
-            className="mr-3"
+            className="mr-3 text-black"
             onPress={onClose}
           >
-            <ButtonText>Cancel</ButtonText>
+            <ButtonText >Cancel</ButtonText>
           </Button>
-          <Button onPress={handleSave}>
-            <ButtonText>
-              {isSaving ? <Spinner size="small" color="white" /> : "Save"}
+          <Button onPress={handleSave} className="bg-white">
+            <ButtonText className="text-white" >
+              {isSaving ? <Spinner size="small" color="black" /> : "Save changes"}
             </ButtonText>
           </Button>
         </ModalFooter>
@@ -166,14 +168,14 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 7,
     marginBottom: 5,
-    color: "gray",
-    backgroundColor: "white",
+    color: "#1f1f1f",
+    backgroundColor: "#5a5a5aff",
   },
   label: {
-    fontSize: 13,
+    fontSize: 14,
     marginBottom: 4,
     marginTop: 5,
-    color: "gray",
+    color: "white",
   },
   error: { color: "red", marginBottom: 10, textAlign: "center" },
 });

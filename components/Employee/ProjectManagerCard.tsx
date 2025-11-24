@@ -4,39 +4,49 @@ import { Card } from "../ui/card";
 import { Box } from "../ui/box";
 import { Grid, GridItem } from "../ui/grid";
 import { Role } from "@/_enums/role.enum";
+import { HStack } from "../ui/hstack";
 import { Avatar, AvatarFallbackText } from "../ui/avatar";
-import { HStack } from "../ui/hstack/index.web";
 import { useRouter } from "expo-router";
 import { Text } from "../ui/text";
 import { Pressable } from "../ui/pressable";
 import { VStack } from "../ui/vstack";
 
-type QACardProps = {
-  profiles: Profile[];
+type ProjectManagerCardProps = {
+  profiles: Profile[] | undefined;
 };
 
-const QACard: React.FC<QACardProps> = (props) => {
+const ProjectManagerCard: React.FC<ProjectManagerCardProps> = (props) => {
   const router = useRouter();
+
   return (
     <>
       <Card style={{ width: "100%", backgroundColor: "#171717" }}>
         <Box style={{ gap: 20 }}>
           <Box style={{ flexDirection: "row", justifyContent: "space-between" }}>
-            <Text style={{ color: "white", fontSize: 20, fontWeight: 800 }}>QA/s</Text>
+            <Text style={{ color: "white", fontSize: 20, fontWeight: 800 }}>Project Manager/s</Text>
             <Text style={{ color: "white", fontSize: 16, fontWeight: 500 }}>
-              {props.profiles.filter((t) => t.role === Role.QA).length} employee/s
+              {props.profiles?.filter((profile) => profile.role === Role.PROJECT_MANAGER)?.length ??
+                0}{" "}
+              employee/s
             </Text>
           </Box>
-          {props.profiles.filter((t) => t.role === Role.QA).length > 0 ? (
+          {(props.profiles?.filter((profile) => profile.role === Role.PROJECT_MANAGER)?.length ??
+            0) > 0 ? (
             <Grid _extra={{ className: "grid-cols-3 gap-4" }}>
-              {props.profiles.reduce((acc: React.ReactNode[], t) => {
-                if (t.role === Role.QA) {
+              {props.profiles?.reduce((acc: React.ReactNode[], profile) => {
+                if (profile.role === Role.PROJECT_MANAGER) {
                   acc.push(
-                    <GridItem key={t.id} _extra={{ className: "col-span-1" }}>
+                    <GridItem
+                      key={profile.id}
+                      _extra={{
+                        className: "col-span-1",
+                      }}
+                    >
                       <Pressable
                         onPress={() => {
-                          router.push(`/(screens)/employee/${t.uid}`);
+                          router.push(`/(screens)/employee/${profile.uid}`);
                         }}
+                        style={{ height: "100%" }}
                       >
                         <Card
                           style={{
@@ -46,18 +56,21 @@ const QACard: React.FC<QACardProps> = (props) => {
                             borderBottomWidth: 1,
                             borderLeftWidth: 8,
                             borderTopWidth: 1,
+                            height: "100%",
+                            justifyContent: "center",
+                            alignItems: "flex-start",
                           }}
                         >
                           <HStack style={{ alignItems: "center" }}>
                             <Avatar size="md" style={{ marginRight: 15 }}>
-                              <AvatarFallbackText>{`${t.firstName}${t.lastName}`}</AvatarFallbackText>
-                            </Avatar>
+                              <AvatarFallbackText>{`${profile.firstName}${profile.lastName}`}</AvatarFallbackText>
+                            </Avatar>{" "}
                             <VStack>
                               <Text style={{ color: "white", fontSize: 16, fontWeight: 600 }}>
-                                {t.firstName} {`"${t.nickName}"`} {t.lastName}
+                                {profile.firstName} {`"${profile.nickName}"`} {profile.lastName}
                               </Text>
                               <Text style={{ color: "white", fontSize: 14, opacity: 0.8 }}>
-                                {t.email}
+                                {profile.email}
                               </Text>
                             </VStack>
                           </HStack>
@@ -88,4 +101,4 @@ const QACard: React.FC<QACardProps> = (props) => {
   );
 };
 
-export default QACard;
+export default ProjectManagerCard;

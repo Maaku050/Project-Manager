@@ -52,3 +52,11 @@ export type StarsPoints = {
   points: number;
   stars: number;
 };
+
+export type TaskLogs = {
+  id: string;
+  taskID: string;
+  text: string;
+  uid: string;
+  createdAt: Timestamp;
+};
