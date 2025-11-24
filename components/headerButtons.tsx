@@ -30,9 +30,7 @@ export default function HeaderButtons({ screen }: HeaderButtonType) {
         <Pressable onPress={() => router.replace("/(screens)/project")}>
           <HStack style={{ alignItems: "center", marginLeft: 20 }} space="sm">
             <ArrowLeft color={"white"} />
-            <Text style={{ color: "white", fontSize: 20 }}>
-              Project Details
-            </Text>
+            <Text style={{ color: "white", fontSize: 20 }}>Project Details</Text>
           </HStack>
         </Pressable>
       ) : screen === "taskWindow" ? (
@@ -47,13 +45,11 @@ export default function HeaderButtons({ screen }: HeaderButtonType) {
           <Folder color={"white"} />
           <Text style={{ color: "white", fontSize: 20 }}>Employees</Text>
         </HStack>
-      ) : screen === "employeeWindow" ? (
-        <Pressable onPress={() => router.replace("/(screens)/employee")}>
+      ) : screen === "employee-window" ? (
+        <Pressable onPress={() => router.push("/(screens)/employee")}>
           <HStack style={{ alignItems: "center", marginLeft: 20 }} space="sm">
             <ArrowLeft color={"white"} />
-            <Text style={{ color: "white", fontSize: 20 }}>
-              Employee Profile
-            </Text>
+            <Text style={{ color: "white", fontSize: 20 }}>Employee Profile</Text>
           </HStack>
         </Pressable>
       ) : (

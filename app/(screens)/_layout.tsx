@@ -5,10 +5,7 @@ import { useWindowDimensions } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 import { Drawer } from "expo-router/drawer";
-import {
-  DrawerContentScrollView,
-  DrawerItemList,
-} from "@react-navigation/drawer";
+import { DrawerContentScrollView, DrawerItemList } from "@react-navigation/drawer";
 import { Home, LayoutDashboard, Folder, Users } from "lucide-react-native";
 import "@/global.css";
 
@@ -18,6 +15,10 @@ import { ProjectProvider } from "@/context/projectContext";
 import { HeaderUserEmail } from "./home";
 import HeaderButtons from "@/components/headerButtons";
 import HeaderLogout from "@/components/headerLogout";
+import { useRouter } from "expo-router";
+import { Pressable } from "@/components/ui/pressable";
+import { HStack } from "@/components/ui/hstack";
+import { ArrowLeftIcon, Icon } from "@/components/ui/icon";
 
 // Custom Drawer Content
 function CustomDrawerContent(props: any) {
@@ -54,6 +55,7 @@ export default function RootLayout() {
   const dimensions = useWindowDimensions();
   const isLargeScreen = dimensions.width >= 1280;
   const isMediumScreen = dimensions.width <= 1280 && dimensions.width > 768;
+  const router = useRouter();
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -63,11 +65,7 @@ export default function RootLayout() {
             <Drawer
               drawerContent={(props) => <CustomDrawerContent {...props} />}
               screenOptions={{
-                drawerType: isLargeScreen
-                  ? "permanent"
-                  : isMediumScreen
-                    ? "slide"
-                    : "slide",
+                drawerType: isLargeScreen ? "permanent" : isMediumScreen ? "slide" : "slide",
                 drawerStyle: isLargeScreen
                   ? {
                       width: 240,
@@ -113,14 +111,10 @@ export default function RootLayout() {
                 name="home"
                 options={{
                   title: "Home",
-                  drawerIcon: ({ color }) => (
-                    <Home color={color} size={25} className="mr-2" />
-                  ),
+                  drawerIcon: ({ color }) => <Home color={color} size={25} className="mr-2" />,
                   headerTitle: () => null,
                   headerRight: () => <HeaderLogout />,
-                  headerLeft: isLargeScreen
-                    ? () => <HeaderButtons screen="home" />
-                    : undefined,
+                  headerLeft: isLargeScreen ? () => <HeaderButtons screen="home" /> : undefined,
                   headerTintColor: "white",
                   headerStyle: {
                     ...styles.headerSpace,
@@ -149,14 +143,10 @@ export default function RootLayout() {
                 name="project"
                 options={{
                   title: "Projects",
-                  drawerIcon: ({ color }) => (
-                    <Folder color={color} size={25} className="mr-2" />
-                  ),
+                  drawerIcon: ({ color }) => <Folder color={color} size={25} className="mr-2" />,
                   headerTitle: () => null,
                   headerRight: () => <HeaderLogout />,
-                  headerLeft: isLargeScreen
-                    ? () => <HeaderButtons screen="project" />
-                    : undefined,
+                  headerLeft: isLargeScreen ? () => <HeaderButtons screen="project" /> : undefined,
                   headerTintColor: "white",
                   headerStyle: {
                     ...styles.headerSpace,
@@ -164,18 +154,17 @@ export default function RootLayout() {
                 }}
               />
               <Drawer.Screen
-                name="employee"
+                name="employee/index"
                 options={{
                   title: "Employees",
-                  drawerIcon: ({ color }) => (
-                    <Users color={color} size={25} className="mr-2" />
-                  ),
+                  drawerIcon: ({ color }) => <Users color={color} size={25} className="mr-2" />,
                   headerTitle: () => null,
                   headerRight: () => <HeaderLogout />,
-                  headerLeft: isLargeScreen
-                    ? () => <HeaderButtons screen="employee" />
-                    : undefined,
+                  headerLeft: isLargeScreen ? () => <HeaderButtons screen="employee" /> : undefined,
                   headerTintColor: "white",
+                  headerStyle: {
+                    ...styles.headerSpace,
+                  },
                 }}
               />
               <Drawer.Screen
@@ -207,13 +196,36 @@ export default function RootLayout() {
                 }}
               />
               <Drawer.Screen
-                name="employee-window"
+                name="employee/[id]/index"
                 options={{
-                  title: "Employee",
-                  drawerItemStyle: { display: "none" },
+                  title: "Employee Profile",
                   headerTitle: () => null,
+                  // headerTitle: () => (
+                  //   <Pressable onPress={() => router.back()}>
+                  //     <HStack
+                  //       style={{
+                  //         justifyContent: "space-between",
+                  //         alignItems: "center",
+                  //         width: "100%",
+                  //       }}
+                  //     >
+                  //       <Icon
+                  //         as={ArrowLeftIcon}
+                  //         className="text-typography-500 w-7 h-7 "
+                  //         color="#ffffffff"
+                  //       />
+                  //       <Text style={{ fontSize: 23, fontWeight: "bold", color: "#ffffffff" }}>
+                  //         Employee Profile
+                  //       </Text>
+                  //     </HStack>
+                  //   </Pressable>
+                  // ),
                   headerRight: () => <HeaderLogout />,
-                  headerLeft: () => <HeaderButtons screen="employeeWindow" />,
+                  headerLeft: () => <HeaderButtons screen="employee-window" />,
+                  drawerItemStyle: { display: "none" },
+                  headerStyle: {
+                    ...styles.headerSpace,
+                  },
                   headerTintColor: "white",
                 }}
               />

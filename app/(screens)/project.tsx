@@ -20,8 +20,7 @@ export default function Sample() {
   const isMediumScreen = dimensions.width <= 1280 && dimensions.width > 768; // tablet UI condition
 
   const ongoingProjects = project.filter(
-    (t) =>
-      t.status === "Ongoing" && t?.deadline && t.deadline.toDate() > new Date()
+    (t) => t.status === "Ongoing" && t?.deadline && t.deadline.toDate() > new Date()
   );
 
   const closedProjects = project.filter((t) => t.status === "Closed");
@@ -48,9 +47,7 @@ export default function Sample() {
           }}
         >
           <Box style={{ borderWidth: 0, marginBottom: 30 }}>
-            <HStack
-              style={{ justifyContent: "space-between", alignItems: "center" }}
-            >
+            <HStack style={{ justifyContent: "space-between", alignItems: "center" }}>
               <Heading
                 style={{
                   fontSize: 18,
@@ -111,9 +108,7 @@ export default function Sample() {
           showsVerticalScrollIndicator={false}
         >
           <Box style={{ borderWidth: 0, marginBottom: 30 }}>
-            <HStack
-              style={{ justifyContent: "space-between", alignItems: "center" }}
-            >
+            <HStack style={{ justifyContent: "space-between", alignItems: "center" }}>
               <Heading
                 style={{
                   fontSize: 18,
@@ -272,10 +267,7 @@ export default function Sample() {
             ""
           )}
 
-          <ProjectAddModal
-            visible={showModal}
-            onClose={() => setShowModal(false)}
-          />
+          <ProjectAddModal visible={showModal} onClose={() => setShowModal(false)} />
         </ScrollView>
       )}
     </>
