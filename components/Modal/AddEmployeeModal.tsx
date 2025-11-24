@@ -33,6 +33,7 @@ import {
   SelectTrigger,
 } from "../ui/select";
 import { Input, InputField } from "../ui/input";
+import { ScrollView } from "react-native";
 
 const roleOptions = [
   { label: "Project Manager", value: "project_manager" },
@@ -165,6 +166,7 @@ const AddEmployeeModal = () => {
           handleModal(false);
         }}
         size="md"
+        className="overflow-y-auto"
       >
         <ModalBackdrop />
         <ModalContent className="bg-[#000000] border-0 gap-4">

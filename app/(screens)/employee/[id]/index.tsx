@@ -5,7 +5,7 @@ import { useProject } from "@/context/projectContext";
 import { VStack } from "@/components/ui/vstack";
 import { Box } from "@/components/ui/box";
 import { useLocalSearchParams } from "expo-router";
-import { ScrollView } from "react-native-gesture-handler";
+import { ScrollView } from "react-native";
 import { Status } from "@/_enums/status.enum";
 import ClosedProjectCard from "@/components/Employee/ClosedProjectCard";
 import OnGoingProjectCard from "@/components/Employee/OnGoingProjectCard";
