@@ -1,29 +1,13 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import {
-  collection,
-  onSnapshot,
-  orderBy,
-  query,
-  where,
-} from "firebase/firestore";
+import { collection, onSnapshot, orderBy, query, where } from "firebase/firestore";
 import { auth, db } from "@/firebase/firebaseConfig";
-
-interface Profile {
-  id: string;
-  firstName: string;
-  lastName: string;
-  nickName: string;
-  role: string;
-  email: string;
-  points: number;
-  uid: string;
-}
+import { Profile } from "@/_types";
 
 interface UserContextType {
   user: any;
   profile: Profile | null;
-  profiles: Profile[];
+  profiles: Profile[] | undefined;
   selectedEmployee: string | null;
   setSelectedEmployee: (id: string | null) => void;
 }
@@ -31,7 +15,7 @@ interface UserContextType {
 const UserContext = createContext<UserContextType>({
   user: null,
   profile: null,
-  profiles: [],
+  profiles: undefined,
   selectedEmployee: null,
   setSelectedEmployee: () => {},
 });
@@ -41,7 +25,7 @@ export const useUser = () => useContext(UserContext);
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [profiles, setProfiles] = useState<Profile[] | undefined>(undefined);
   const [selectedEmployee, setSelectedEmployee] = useState<string | null>(null);
 
   useEffect(() => {
@@ -58,16 +42,11 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
       setUser(currentUser);
 
-      const profileQuery = query(
-        collection(db, "profile"),
-        where("uid", "==", currentUser.uid)
-      );
+      const profileQuery = query(collection(db, "profile"), where("uid", "==", currentUser.uid));
 
       unsubProfile = onSnapshot(profileQuery, (snapshot) => {
         const doc = snapshot.docs[0];
-        setProfile(
-          doc ? { id: doc.id, ...(doc.data() as Omit<Profile, "id">) } : null
-        );
+        setProfile(doc ? { id: doc.id, ...(doc.data() as Omit<Profile, "id">) } : null);
       });
     });
 

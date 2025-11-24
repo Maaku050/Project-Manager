@@ -1,23 +1,12 @@
 import { Box } from "@/components/ui/box";
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  useWindowDimensions,
-} from "react-native";
+import { Pressable, ScrollView, StyleSheet, useWindowDimensions } from "react-native";
 import { Text } from "@/components/ui/text";
 import { useProject } from "@/context/projectContext";
 import { Divider } from "@/components/ui/divider";
 import { useState } from "react";
 import React from "react";
 import { HStack } from "@/components/ui/hstack";
-import {
-  CircleX,
-  EllipsisVertical,
-  Repeat,
-  SquarePen,
-  Trash,
-} from "lucide-react-native";
+import { CircleX, EllipsisVertical, Repeat, SquarePen, Trash } from "lucide-react-native";
 import ProjectEditModal from "@/modals/projectEditModal";
 import TaskAddModal from "@/modals/taskAddModal";
 import ProjectUsers from "@/components/projectAssignedUsers";
@@ -60,9 +49,7 @@ export default function ProjectWindow() {
         showsVerticalScrollIndicator={false}
       >
         <Box style={{ borderWidth: 0, marginBottom: 30 }}>
-          <HStack
-            style={{ justifyContent: "space-between", alignItems: "center" }}
-          >
+          <HStack style={{ justifyContent: "space-between", alignItems: "center" }}>
             <Text
               style={{
                 fontSize: 28,
@@ -78,10 +65,7 @@ export default function ProjectWindow() {
               disabledKeys={["Settings"]}
               trigger={({ ...triggerProps }) => {
                 return (
-                  <Pressable
-                    {...triggerProps}
-                    style={{ borderWidth: 0, borderColor: "white" }}
-                  >
+                  <Pressable {...triggerProps} style={{ borderWidth: 0, borderColor: "white" }}>
                     <EllipsisVertical color={"white"} />
                   </Pressable>
                 );
@@ -95,46 +79,28 @@ export default function ProjectWindow() {
                 }}
               >
                 <SquarePen />
-                <MenuItemLabel
-                  size="md"
-                  style={{ marginLeft: 10, fontWeight: "bold" }}
-                >
+                <MenuItemLabel size="md" style={{ marginLeft: 10, fontWeight: "bold" }}>
                   Edit project
                 </MenuItemLabel>
               </MenuItem>
 
               {currentProjectData.status === "Closed" ? (
-                <MenuItem
-                  textValue="Add account"
-                  onPress={() => setShowReopenProjectModal(true)}
-                >
+                <MenuItem textValue="Add account" onPress={() => setShowReopenProjectModal(true)}>
                   <Repeat />
-                  <MenuItemLabel
-                    size="md"
-                    style={{ marginLeft: 10, fontWeight: "bold" }}
-                  >
+                  <MenuItemLabel size="md" style={{ marginLeft: 10, fontWeight: "bold" }}>
                     Reopen project
                   </MenuItemLabel>
                 </MenuItem>
               ) : (
-                <MenuItem
-                  textValue="Add account"
-                  onPress={() => setShowCloseProjectModal(true)}
-                >
+                <MenuItem textValue="Add account" onPress={() => setShowCloseProjectModal(true)}>
                   <CircleX />
-                  <MenuItemLabel
-                    size="md"
-                    style={{ marginLeft: 10, fontWeight: "bold" }}
-                  >
+                  <MenuItemLabel size="md" style={{ marginLeft: 10, fontWeight: "bold" }}>
                     Close project
                   </MenuItemLabel>
                 </MenuItem>
               )}
 
-              <MenuItem
-                textValue="Add account"
-                onPress={() => setShowDeleteProjectModal(true)}
-              >
+              <MenuItem textValue="Add account" onPress={() => setShowDeleteProjectModal(true)}>
                 <Trash color={"red"} />
                 <MenuItemLabel
                   size="md"
@@ -173,19 +139,14 @@ export default function ProjectWindow() {
                     }}
                     space="md"
                   >
-                    <Text style={{ color: "#CDCCCC", fontSize: 18 }}>
-                      Status
-                    </Text>
+                    <Text style={{ color: "#CDCCCC", fontSize: 18 }}>Status</Text>
                     <Text style={{ color: "white", fontSize: 18 }}>
                       {currentProjectData.status}
                     </Text>
                   </HStack>
 
                   {/* Vertical Divider */}
-                  <Divider
-                    orientation="vertical"
-                    style={{ backgroundColor: "gray" }}
-                  />
+                  <Divider orientation="vertical" style={{ backgroundColor: "gray" }} />
 
                   {/* Deadline */}
                   <HStack
@@ -197,22 +158,15 @@ export default function ProjectWindow() {
                     }}
                     space="md"
                   >
-                    <Text style={{ color: "#CDCCCC", fontSize: 18 }}>
-                      Deadline
-                    </Text>
+                    <Text style={{ color: "#CDCCCC", fontSize: 18 }}>Deadline</Text>
                     <Text style={{ color: "white", fontSize: 18 }}>
                       {currentProjectData.deadline &&
-                        currentProjectData.deadline
-                          .toDate()
-                          .toLocaleDateString("en-US")}
+                        currentProjectData.deadline.toDate().toLocaleDateString("en-US")}
                     </Text>
                   </HStack>
 
                   {/* Vertical Divider */}
-                  <Divider
-                    orientation="vertical"
-                    style={{ backgroundColor: "gray" }}
-                  />
+                  <Divider orientation="vertical" style={{ backgroundColor: "gray" }} />
 
                   {/* Assigned Users */}
                   <HStack
@@ -224,9 +178,7 @@ export default function ProjectWindow() {
                     }}
                     space="md"
                   >
-                    <Text style={{ color: "#CDCCCC", fontSize: 18 }}>
-                      Assigned Members
-                    </Text>
+                    <Text style={{ color: "#CDCCCC", fontSize: 18 }}>Assigned Members</Text>
                     <ProjectUsers projectID={currentProjectData.id} />
                   </HStack>
                 </HStack>
@@ -235,10 +187,7 @@ export default function ProjectWindow() {
 
             {/* Divider */}
             <Box style={{ flex: 0 }}>
-              <Divider
-                orientation="vertical"
-                style={{ backgroundColor: "gray" }}
-              />
+              <Divider orientation="vertical" style={{ backgroundColor: "gray" }} />
             </Box>
 
             {/* Tasks Summary */}
@@ -250,9 +199,7 @@ export default function ProjectWindow() {
               }}
             >
               <Box>
-                <Text
-                  style={{ color: "#CDCCCC", fontSize: 15, marginBottom: 10 }}
-                >
+                <Text style={{ color: "#CDCCCC", fontSize: 15, marginBottom: 10 }}>
                   Task Summary
                 </Text>
                 <TaskSummary projectID={currentProjectData.id} />
@@ -296,10 +243,7 @@ export default function ProjectWindow() {
         onClose={() => setShowEditProjectModal(false)}
       />
 
-      <TaskAddModal
-        visible={showAddTaskModal}
-        onClose={() => setShowAddTaskModal(false)}
-      />
+      <TaskAddModal visible={showAddTaskModal} onClose={() => setShowAddTaskModal(false)} />
 
       <ProjectDeleteModal
         projectID={currentProjectData.id}

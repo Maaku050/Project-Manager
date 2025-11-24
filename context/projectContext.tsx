@@ -1,64 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import {
-  collection,
-  onSnapshot,
-  orderBy,
-  query,
-  Timestamp,
-} from "firebase/firestore";
+import { collection, onSnapshot, orderBy, query } from "firebase/firestore";
 import { db } from "@/firebase/firebaseConfig";
-
-// === TYPES ===
-interface Project {
-  id: string;
-  title: string;
-  description: string;
-  status: string;
-  startedAt: string | null;
-  deadline: Timestamp | null;
-  createdBy: string;
-}
-
-interface Task {
-  id: string;
-  projectID: string;
-  title: string;
-  description: string;
-  status: string;
-  start: Timestamp | null;
-  end: Timestamp | null;
-  completedAt: Timestamp | null;
-}
-
-interface Comment {
-  id: string;
-  taskID: string;
-  text: string;
-  uid: string;
-  createdAt: Timestamp;
-}
-
-interface TaskLogs {
-  id: string;
-  taskID: string;
-  text: string;
-  uid: string;
-  createdAt: Timestamp;
-}
-
-interface AssignedUser {
-  id: string;
-  projectID: string;
-  taskID: string;
-  uid: string;
-}
-
-interface StarsPoints {
-  id: string;
-  taskID: string;
-  points: number;
-  stars: number;
-}
+import { AssignedUser, Project, StarsPoints, Task, TaskLogs } from "@/_types";
 
 interface ProjectContextType {
   project: Project[];
@@ -94,11 +37,7 @@ const ProjectContext = createContext<ProjectContextType>({
 export const useProject = () => useContext(ProjectContext);
 
 // === PROVIDER ===
-export const ProjectProvider = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
+export const ProjectProvider = ({ children }: { children: React.ReactNode }) => {
   const [project, setProject] = useState<Project[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [comment, setComment] = useState<Comment[]>([]);
