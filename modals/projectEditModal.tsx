@@ -400,9 +400,13 @@ export default function ProjectEditModal({
           >
             <ButtonText>Cancel</ButtonText>
           </Button>
-          <Button onPress={handleSave}>
-            <ButtonText>
-              {isSaving ? <Spinner size="small" color="grey" /> : "Save"}
+          <Button onPress={handleSave} style={{ backgroundColor: "white" }}>
+            <ButtonText style={{ color: "black" }}>
+              {isSaving ? (
+                <Spinner size="small" color="grey" />
+              ) : (
+                "Save changes"
+              )}
             </ButtonText>
           </Button>
         </ModalFooter>

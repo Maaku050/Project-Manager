@@ -179,9 +179,17 @@ export default function TaskEditModal({ visible, onClose }: tasktModalType) {
   };
 
   return (
-    <Modal isOpen={visible} onClose={onClose} size="lg">
+    <Modal isOpen={visible} onClose={onClose} size="full">
       <ModalBackdrop />
-      <ModalContent style={{ backgroundColor: "#1f1f1f", borderWidth: 0 }}>
+      <ModalContent
+        style={{
+          borderColor: "red",
+          borderWidth: 0,
+          backgroundColor: "#000000",
+          width: 892,
+          height: 530,
+        }}
+      >
         <ModalHeader>
           <Heading size="lg" style={{ color: "#ffffffff" }}>
             Edit Task
@@ -191,125 +199,114 @@ export default function TaskEditModal({ visible, onClose }: tasktModalType) {
           </ModalCloseButton>
         </ModalHeader>
         <ModalBody>
-          <ScrollView
-            style={{ maxHeight: 500 }} // limits scroll area
-            contentContainerStyle={{
-              paddingBottom: 20,
-              flexGrow: 1,
-            }}
-            showsVerticalScrollIndicator={false}
-          >
-            <Box style={{ margin: 5 }}>
-              <Text
-                style={{
-                  fontWeight: "bold",
-                  marginBottom: 5,
-                  color: "#cdcccccc",
-                }}
-              >
-                Task Title
-              </Text>
-              <TextInput
-                style={{
-                  borderBottomWidth: 1,
-                  borderColor: "#ffffffff",
-                  paddingVertical: 8,
-                  fontSize: 16,
-                  color: "#ffffffff",
-                }}
-                placeholder="Enter the Task Title"
-                placeholderTextColor="#999"
-                value={tempTitle}
-                onChangeText={setTempTitle}
-              />
-            </Box>
-
-            <Box style={{ margin: 5 }}>
-              <Text
-                style={{
-                  fontWeight: "bold",
-                  marginBottom: 5,
-                  color: "#cdcccccc",
-                }}
-              >
-                Task Description
-              </Text>
-              <Textarea size="sm" isReadOnly={false} isInvalid={false}>
-                <TextareaInput
-                  placeholder="Enter the Task Description"
-                  value={tempDescription}
-                  onChangeText={setTempDescription}
+          <HStack>
+            <Box
+              style={{
+                borderWidth: 0,
+                flex: 1,
+                marginRight: 10,
+                marginTop: 25,
+              }}
+            >
+              <Box style={{ marginBottom: 20 }}>
+                <Text
                   style={{
-                    backgroundColor: "#ffffff",
+                    marginBottom: 5,
+                    color: "#ffffffff",
                   }}
+                >
+                  Task name
+                </Text>
+                <TextInput
+                  style={{
+                    borderBottomWidth: 1,
+                    borderColor: "#ffffffff",
+                    paddingVertical: 8,
+                    fontSize: 16,
+                    color: "#ffffffff",
+                  }}
+                  placeholder="Enter the Task Title"
+                  placeholderTextColor="#999"
+                  value={tempTitle}
+                  onChangeText={setTempTitle}
                 />
-              </Textarea>
-            </Box>
+              </Box>
 
-            <Box style={{ margin: 5 }}>
-              <Text style={{ fontWeight: "bold", color: "#cdcccccc" }}>
-                Task Deadline
-              </Text>
-              <HStack
-                style={{
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                }}
-              >
-                {/* Start */}
-                <Box style={{ flex: 1 }}>
-                  <DateTimePicker
-                    value={tempStart}
-                    onChange={setTempStart}
-                    mode="date"
-                    placeholder="Select a date and time"
+              <Box style={{ marginBottom: 20 }}>
+                <Text
+                  style={{
+                    marginBottom: 5,
+                    color: "#ffffffff",
+                  }}
+                >
+                  Task description
+                </Text>
+                <Textarea size="sm" isReadOnly={false} isInvalid={false}>
+                  <TextareaInput
+                    placeholder="Enter the Task Description"
+                    value={tempDescription}
+                    onChangeText={setTempDescription}
+                    style={{
+                      backgroundColor: "#ffffff",
+                    }}
                   />
-                </Box>
+                </Textarea>
+              </Box>
 
-                <Text style={{ marginHorizontal: 10, fontSize: 18 }}> - </Text>
+              <Box style={{ marginBottom: 20 }}>
+                <Text style={{ color: "#ffffffff" }}>Task timeline</Text>
+                <HStack
+                  style={{
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  {/* Start */}
+                  <Box style={{ flex: 1 }}>
+                    <DateTimePicker
+                      value={tempStart}
+                      onChange={setTempStart}
+                      mode="date"
+                      placeholder="Select a date and time"
+                    />
+                  </Box>
 
-                {/* End */}
-                <Box style={{ flex: 1 }}>
-                  <DateTimePicker
-                    value={tempEnd}
-                    onChange={setTempEnd}
-                    mode="date"
-                    placeholder="Select a date and time"
-                  />
-                </Box>
-              </HStack>
+                  <Text style={{ marginHorizontal: 10, fontSize: 18 }}>
+                    {" "}
+                    -{" "}
+                  </Text>
+
+                  {/* End */}
+                  <Box style={{ flex: 1 }}>
+                    <DateTimePicker
+                      value={tempEnd}
+                      onChange={setTempEnd}
+                      mode="date"
+                      placeholder="Select a date and time"
+                    />
+                  </Box>
+                </HStack>
+              </Box>
             </Box>
 
             {/* Members */}
-            <Box style={{ margin: 5 }}>
-              <Text style={{ fontWeight: "bold", color: "#cdcccccc" }}>
-                Task Members
-              </Text>
+            <Box
+              style={{ borderWidth: 0, flex: 1, marginLeft: 10, marginTop: 25 }}
+            >
+              <Text style={{ color: "#ffffffff" }}>Task Assignee</Text>
 
-              <Box
+              <ScrollView
                 style={{
-                  marginTop: 10,
-                  borderWidth: 1,
+                  marginTop: 5,
+                  borderWidth: 0,
                   borderColor: "#ccc",
                   borderRadius: 8,
                   padding: 10,
                   backgroundColor: "#fff",
+                  height: 302,
                 }}
+                showsVerticalScrollIndicator={false}
               >
-                {/* Header */}
-                <Box
-                  style={{
-                    marginBottom: 8,
-                    borderBottomWidth: 0,
-                    borderBottomColor: "#000",
-                    paddingBottom: 4,
-                  }}
-                >
-                  <Text style={{ marginLeft: 8, color: "#000000ff" }}>
-                    Select Members
-                  </Text>
-                </Box>
-
                 {/* Members List */}
                 <VStack space="sm">
                   {[
@@ -347,13 +344,6 @@ export default function TaskEditModal({ visible, onClose }: tasktModalType) {
                             <Text style={{ fontSize: 14, fontWeight: "bold" }}>
                               {role}
                             </Text>
-                            <Divider
-                              style={{
-                                flex: 1,
-                                marginHorizontal: 8,
-                                borderWidth: 0.5,
-                              }}
-                            />
                           </HStack>
 
                           <VStack>
@@ -416,9 +406,9 @@ export default function TaskEditModal({ visible, onClose }: tasktModalType) {
                       );
                     })}
                 </VStack>
-              </Box>
+              </ScrollView>
             </Box>
-          </ScrollView>
+          </HStack>
         </ModalBody>
         <ModalFooter>
           <Button
@@ -429,9 +419,13 @@ export default function TaskEditModal({ visible, onClose }: tasktModalType) {
           >
             <ButtonText>Cancel</ButtonText>
           </Button>
-          <Button onPress={updateTask}>
-            <ButtonText>
-              {isSaving ? <Spinner size="small" color="grey" /> : "Save"}
+          <Button onPress={updateTask} style={{ backgroundColor: "white" }}>
+            <ButtonText style={{ color: "black" }}>
+              {isSaving ? (
+                <Spinner size="small" color="grey" />
+              ) : (
+                "Save changes"
+              )}
             </ButtonText>
           </Button>
         </ModalFooter>

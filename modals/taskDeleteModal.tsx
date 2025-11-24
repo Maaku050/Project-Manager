@@ -61,7 +61,7 @@ export default function TaskDeleteModal({
             Deleting Task
           </Heading>
           <ModalCloseButton>
-            <Icon as={CloseIcon} />
+            <Icon as={CloseIcon} color="white" />
           </ModalCloseButton>
         </ModalHeader>
         <ModalBody>

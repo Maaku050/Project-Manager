@@ -383,9 +383,9 @@ export default function TaskAddModal({ visible, onClose }: tasktModalType) {
           >
             <ButtonText>Cancel</ButtonText>
           </Button>
-          <Button onPress={addTask}>
-            <ButtonText>
-              {isSaving ? <Spinner size="small" color="grey" /> : "Save"}
+          <Button onPress={addTask} style={{ backgroundColor: "white" }}>
+            <ButtonText style={{ color: "black" }}>
+              {isSaving ? <Spinner size="small" color="grey" /> : "Add task"}
             </ButtonText>
           </Button>
         </ModalFooter>
