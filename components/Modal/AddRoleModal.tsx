@@ -10,7 +10,7 @@ import {
   ModalHeader,
 } from "../ui/modal";
 import { Heading } from "../ui/heading";
-import { AlertCircleIcon, ChevronDownIcon, CloseIcon, Icon } from "../ui/icon";
+import { AlertCircleIcon, CloseIcon, Icon } from "../ui/icon";
 import { VStack } from "../ui/vstack";
 import {
   FormControl,
@@ -20,37 +20,12 @@ import {
   FormControlLabel,
   FormControlLabelText,
 } from "../ui/form-control";
-import {
-  Select,
-  SelectBackdrop,
-  SelectContent,
-  SelectDragIndicator,
-  SelectDragIndicatorWrapper,
-  SelectIcon,
-  SelectInput,
-  SelectItem,
-  SelectPortal,
-  SelectTrigger,
-} from "../ui/select";
-
-const roleOptions = [
-  { label: "Project Manager", value: "project_manager" },
-  { label: "Full Stack Developer", value: "full_stack_developer" },
-  { label: "UX Designer", value: "ux_designer" },
-  { label: "QA", value: "qa" },
-  { label: "Intern", value: "intern" },
-];
+import { Input, InputField } from "../ui/input";
 
 const AddRoleModal = () => {
   const [showModal, setShowModal] = useState(false);
   const [isInvalid, setIsInvalid] = useState(false);
   const [inputValue, setInputValue] = useState<string | undefined>(undefined);
-
-  const getSelectedLabel = () => {
-    if (!inputValue) return undefined;
-    const selectedOption = roleOptions.find((option) => option.value === inputValue);
-    return selectedOption?.label;
-  };
 
   const handleModal = (value: boolean) => {
     setShowModal(value);
@@ -104,33 +79,14 @@ const AddRoleModal = () => {
                 <FormControlLabel>
                   <FormControlLabelText className="text-[#FFFFFF]">Role</FormControlLabelText>
                 </FormControlLabel>
-                <Select
-                  onValueChange={(value) => {
-                    setInputValue(value);
-                  }}
-                >
-                  <SelectTrigger
-                    variant="outline"
-                    size="md"
-                    className={`data-[focus=true]:border-transparent data-[focus=true]:shadow-none bg-[#FFFFFF] rounded-md ${
-                      isInvalid ? "border-red-500 border-2" : "border-none"
-                    }`}
-                  >
-                    <SelectInput placeholder="Select option" value={getSelectedLabel()} />
-                    <SelectIcon className="mr-3" as={ChevronDownIcon} />
-                  </SelectTrigger>
-                  <SelectPortal>
-                    <SelectBackdrop />
-                    <SelectContent>
-                      <SelectDragIndicatorWrapper>
-                        <SelectDragIndicator />
-                      </SelectDragIndicatorWrapper>
-                      {roleOptions.map((option) => (
-                        <SelectItem key={option.value} label={option.label} value={option.value} />
-                      ))}
-                    </SelectContent>
-                  </SelectPortal>
-                </Select>
+                <Input className="data-[focus=true]:border-transparent data-[focus=true]:shadow-none bg-[#FFFFFF] border-none rounded-md">
+                  <InputField
+                    type="text"
+                    placeholder="Role"
+                    value={inputValue}
+                    onChangeText={(text) => setInputValue(text)}
+                  />
+                </Input>
                 <FormControlError>
                   <FormControlErrorIcon as={AlertCircleIcon} className="text-red-500" />
                   <FormControlErrorText className="text-red-500">
