@@ -52,6 +52,11 @@ export default function HeaderButtons({ screen }: HeaderButtonType) {
             <Text style={{ color: "white", fontSize: 20 }}>Employee Profile</Text>
           </HStack>
         </Pressable>
+      ) : screen === "profileEditWindow" ? (
+        <HStack style={{ alignItems: "center", marginLeft: 20 }} space="sm">
+          <House color={"white"} />
+          <Text style={{ color: "white", fontSize: 20 }}>Home</Text>
+        </HStack>
       ) : (
         ""
       )}

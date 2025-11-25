@@ -239,6 +239,18 @@ export default function RootLayout() {
                   headerTintColor: "white",
                 }}
               />
+              <Drawer.Screen
+              name="profileEditWindow"
+              options={{
+                title: "Edit Profile",
+                drawerItemStyle: {display: "none"},
+                headerTitle: () => null,
+                headerRight: () => <HeaderUserEmail />,
+                headerTintColor: "white",
+                headerStyle: {
+                  ...styles.headerSpace,
+                }
+              }} />
             </Drawer>
           </GluestackUIProvider>
         </ProjectProvider>

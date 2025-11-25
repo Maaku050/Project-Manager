@@ -1,7 +1,7 @@
 import React from "react";
 import { Text } from "@/components/ui/text";
 import { useUser } from "@/context/profileContext";
-import { StyleSheet } from "react-native";
+import { StyleSheet, useWindowDimensions } from "react-native";
 import keyframes from "react-native-reanimated/lib/typescript/css/stylesheet/keyframes";
 
 // import { useState } from "react";
@@ -15,8 +15,25 @@ type appMessageProp = {
 export default function AppMessage({ userId }: appMessageProp) {
 
     const { profiles } = useUser();
-    const myProfile = profiles.find((p) => p.uid === userId);
+    const myProfile = profiles?.find((p) => p.uid === userId);
     const profileNickname = myProfile?.nickName;
+    const dimensions = useWindowDimensions()
+    const isLargeScreen = dimensions.width >= 1280 // computer UI condition
+    const isMediumScreen = dimensions.width <= 1280 && dimensions.width > 768 // tablet UI condition
+
+    const styles = StyleSheet.create({
+    MessageFont: {
+        fontSize: isLargeScreen || isMediumScreen ? 24 : 14, 
+        color: "white", 
+        fontWeight: isLargeScreen || isMediumScreen ? "900" : "bold" , 
+        fontFamily: "roboto,",
+    },
+    messageAnimation: {
+        width: "100%",
+        flexWrap: "nowrap",
+    },
+});
+
 
 
     const messageText = {
@@ -247,20 +264,6 @@ export default function AppMessage({ userId }: appMessageProp) {
     );
 }
 
-const styles = StyleSheet.create({
-    MessageFont: {
-        fontSize: 24, 
-        color: "white", 
-        fontWeight: "bold", 
-        fontFamily: "roboto,",
-    },
-
-    messageAnimation: {
-        width: "100%",
-        flexWrap: "nowrap",
-    },
-
-})
 
 
 
