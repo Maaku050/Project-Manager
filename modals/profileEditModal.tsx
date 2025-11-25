@@ -61,7 +61,7 @@ export default function ProfileEditModal({ visible, onClose }: ProfileTypes) {
   };
 
   return (
-    <Modal isOpen={visible} onClose={onClose} size="sm">
+    <Modal isOpen={visible} onClose={onClose} size="md">
       <ModalBackdrop />
       <ModalContent className="bg-black ronded-12 border-0">
         <ModalHeader>
@@ -81,6 +81,7 @@ export default function ProfileEditModal({ visible, onClose }: ProfileTypes) {
             onChangeText={setFirstname}
             autoCapitalize="none"
             keyboardType="default"
+
           />
 
           <Text style={styles.label}>Last Name</Text>
@@ -91,6 +92,7 @@ export default function ProfileEditModal({ visible, onClose }: ProfileTypes) {
             onChangeText={setLastName}
             autoCapitalize="none"
             keyboardType="default"
+            
           />
 
           <Text style={styles.label}>Nick Name</Text>
@@ -101,6 +103,7 @@ export default function ProfileEditModal({ visible, onClose }: ProfileTypes) {
             onChangeText={setNickName}
             autoCapitalize="none"
             keyboardType="default"
+            
           />
 
           <Text style={styles.label}>Email</Text>
@@ -137,7 +140,7 @@ export default function ProfileEditModal({ visible, onClose }: ProfileTypes) {
             <ButtonText >Cancel</ButtonText>
           </Button>
           <Button onPress={handleSave} className="bg-white">
-            <ButtonText className="text-white" >
+            <ButtonText className="text-black" >
               {isSaving ? <Spinner size="small" color="black" /> : "Save changes"}
             </ButtonText>
           </Button>
@@ -157,19 +160,25 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#0000005b",
     borderRadius: 8,
-    padding: 7,
+    padding: 12,
     marginBottom: 5,
     color: "#000000ff",
     backgroundColor: "white",
+    fontSize: 18,
+    outline: "none",
+    outlineWidth: 0,
+    outlineColor: "transparent",
+
   },
   disabledInput: {
     borderWidth: 1,
     borderColor: "#0000005b",
     borderRadius: 8,
-    padding: 7,
+    padding: 12,
     marginBottom: 5,
     color: "#1f1f1f",
     backgroundColor: "#5a5a5aff",
+    fontSize: 18,
   },
   label: {
     fontSize: 14,

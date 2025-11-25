@@ -16,7 +16,7 @@ type TaskCardType = {
 };
 
 export default function TaskCard({ taskID }: TaskCardType) {
-  const { tasks, setSelectedTask } = useProject();
+  const { tasks, setSelectedTask, setSelectedProject, project } = useProject();
   const [hoveredId, setHoveredId] = useState("");
   const currentTask = tasks.find((t) => t.id === taskID);
   if (!currentTask) {
@@ -32,6 +32,7 @@ export default function TaskCard({ taskID }: TaskCardType) {
       onHoverOut={() => setHoveredId("")}
       onPress={() => {
         router.push("/(screens)/taskWindow");
+        setSelectedProject(currentTask.projectID);
         setSelectedTask(currentTask.id);
       }}
     >

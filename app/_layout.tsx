@@ -2,6 +2,7 @@
 import { useRouter, Stack } from "expo-router";
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 import "@/global.css";
+import { irBlack } from "react-syntax-highlighter/dist/esm/styles/hljs";
 
 export default function RootLayout() {
   return (
