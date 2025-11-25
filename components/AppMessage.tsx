@@ -7,10 +7,8 @@ import keyframes from "react-native-reanimated/lib/typescript/css/stylesheet/key
 // import { useState } from "react";
 
 type appMessageProp = {
-    userId: string | undefined;
+  userId: string | undefined;
 };
-
-
 
 export default function AppMessage({ userId }: appMessageProp) {
 
