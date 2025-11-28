@@ -158,31 +158,31 @@ export default function Home() {
 
             {isLargeScreen || isMediumScreen ? (
               <Button
-              onPress={() => setShowEditModal(true)}
-              className="bg-transparent"
-            >
-              <ButtonText>
-                <SquarePen
-                  color={'white'}
-                  size={24}
-                />
-              </ButtonText>
-            </Button>
+                onPress={() => setShowEditModal(true)}
+                className="bg-transparent"
+              >
+                <ButtonText>
+                  <SquarePen
+                    color={'white'}
+                    size={24}
+                  />
+                </ButtonText>
+              </Button>
             ) : (
               <Button
-              onPress={() => router.push("/(screens)/profileEditWindow")}
-              className="bg-transparent color-white"
-              size='sm'
-            >
-              <ButtonText>
-                <SquarePen
-                  color={'white'}
-                  size={16}
-                />
-              </ButtonText>
-            </Button>
+                onPress={() => router.push("/(screens)/profileEditWindow")}
+                className="bg-transparent color-white"
+                size='sm'
+              >
+                <ButtonText>
+                  <SquarePen
+                    color={'white'}
+                    size={16}
+                  />
+                </ButtonText>
+              </Button>
             )}
-            
+
           </Box>
 
           {/* ------------------messages ----------------------- */}
@@ -489,7 +489,20 @@ export default function Home() {
                   const bTime = b.deadline
                     ? b.deadline.toDate().getTime()
                     : Infinity
+
+                  const aClosed = a.deadline &&
+                    a.deadline.toDate().getTime() &&
+                    a.status === "Closed";
+                  const bClosed = b.deadline &&
+                    b.deadline.toDate().getTime() &&
+                    b.status === "Closed";
+
+                  if (aClosed && !bClosed) return +1
+                  if (!aClosed && bClosed) return +2
+
                   return aTime - bTime
+
+
                 })
                 .map((Id) => (
                   <ProjectCard key={Id.id} projectID={Id.id} />

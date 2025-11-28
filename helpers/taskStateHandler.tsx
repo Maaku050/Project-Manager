@@ -6,7 +6,18 @@ import {
   addDoc,
   collection,
   serverTimestamp,
+  query,
+  where,
+  getDoc,
+  getDocs,
+  increment,
+  writeBatch,
 } from "firebase/firestore";
+import { useUser } from "@/context/profileContext";
+import { useProject } from "@/context/projectContext";
+
+
+
 
 const handleLog = async (taskID: string, state: string) => {
   const logRef = collection(db, "taskLogs");
@@ -45,13 +56,34 @@ const handleLog = async (taskID: string, state: string) => {
   } catch (error) {}
 };
 
-const handleStartTask = async (taskID: string, restart: boolean) => {
+const handleStartTask = async (taskID: string, points: number, restart: boolean) => {
   try {
+
     const taskRef = doc(db, "tasks", taskID);
     await updateDoc(taskRef, {
-      status: "Ongoing",
-      createdAt: null,
+    status: "Ongoing",
+    createdAt: null,
     });
+
+  //     const assignRef = collection(db, "profile");
+  //     const q = query(assignRef, 
+  //       where("uid", "==", UserID)
+  //     );
+      
+  //     const querySnapshot = await getDocs(q);
+  //     if (!querySnapshot.empty) {
+      
+  //       const profileDoc = querySnapshot.docs[0];
+  //       const profileID = profileDoc.id;
+        
+  //        const userRef = doc(db, "profile", profileID);
+  //       await updateDoc(userRef, {
+  //         points: increment(-points)
+  //       });
+  //     }
+  // console.log('✅ Success! minus -', points, 'points to user', UserID);
+
+
 
     await handleLog(taskID, restart ? "start" : "restart");
   } catch (error) {
@@ -73,9 +105,12 @@ const handleUnstartTask = async (taskID: string) => {
 };
 
 const handleCompleteTask = async (
+  assignedUserIDs: string[],
   taskID: string,
+  points: number,
   taskDeadline: Timestamp | null
 ) => {
+
   try {
     const taskRef = doc(db, "tasks", taskID);
 
@@ -93,11 +128,69 @@ const handleCompleteTask = async (
       return deadline >= today ? "CompleteAndOnTime" : "CompleteAndOverdue";
     })();
 
-    await updateDoc(taskRef, { status, completedAt: Timestamp.now() });
+    await updateDoc(taskRef, 
+      { status, 
+        completedAt: Timestamp.now(),
+       });
+    // call the handle add points here
+
+    // Create a Set of assigned user IDs for faster lookup
+
+  
+    // if (assignedUserInTask?.length > 0) {
+    //   for (const user of assignedUserInTask) {
+    //      console.log(`all assigned user: ${user}`);
+    //   }
+    // }
+   
+
+    // if (assignedUserIDs.length > 0) {
+    //   for (const user in assignedUserIDs) {
+        await handleAddPoints(assignedUserIDs, points);
+    //   }
+    // }
+    console.log(`assigned user id: ${assignedUserIDs}`);
+    
     await handleLog(taskID, "complete");
   } catch (error) {
     console.log("Error completing task:", error);
   }
 };
+
+
+const handleAddPoints = async (uid: string, points: number) => {
+  try {
+    const batch = writeBatch(db);
+
+    const profileRef = collection(db, "profile");
+    const q = query(profileRef, where("uid", "==", uid));
+    const snapshot = await getDocs(q);
+
+    if (snapshot.empty) {
+      console.log("No profile found for UID:", uid);
+      return;
+    }
+
+    // for (const IDs of snapshot.docs){
+    // const docSnap = snapshot.docs[IDs];
+    // const docRef = doc(db, "profile", docSnap.id);
+
+    // batch.update(docRef, { points: increment(points) });
+
+    // await batch.commit();
+    // console.log(`✅ Added ${points} points to user ${uid}`);
+    // }
+
+    const docSnap = snapshot.docs[0];
+    const docRef = doc(db, "profile", docSnap.id);
+    batch.update(docRef, { points: increment(points) });
+    await batch.commit();
+
+    console.log(`✅ Added ${points} points to user ${uid}`);
+  } catch (err) {
+    console.error("Error saving:", err);
+  }
+};
+
 
 export { handleStartTask, handleUnstartTask, handleCompleteTask };

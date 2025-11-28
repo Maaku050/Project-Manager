@@ -10,6 +10,8 @@ import TasktUsers from "./taskAssignedUsers";
 import { router } from "expo-router";
 import { getDateLabel } from "@/helpers/getDateLabel";
 import TaskStateButton from "./taskStateButton";
+import PopStar from "@/components/Stars/starRating";
+
 
 type TaskCardType = {
   taskID: string;
@@ -78,6 +80,8 @@ export default function TaskCard({ taskID }: TaskCardType) {
           }}
           space="md"
         >
+
+          <HStack style={{width: "100%", alignItems: "stretch"}}>
           <Text
             style={{
               fontSize: 18,
@@ -86,10 +90,16 @@ export default function TaskCard({ taskID }: TaskCardType) {
               textDecorationLine:
                 hoveredId === currentTask.id ? "underline" : "none",
               flex: 1,
+              // width: "100%"
             }}
           >
             {currentTask.title}
           </Text>
+            
+            {/* <HStack style={{width: "10%"}}>
+              <PopStar taskID={currentTask.id} />
+            </HStack> */}
+          </HStack>
 
           <HStack
             style={{
@@ -150,7 +160,8 @@ export default function TaskCard({ taskID }: TaskCardType) {
                 orientation="vertical"
                 style={{ backgroundColor: "white", height: 25 }}
               />
-
+              
+              
               <TasktUsers taskID={currentTask.id} />
             </HStack>
 

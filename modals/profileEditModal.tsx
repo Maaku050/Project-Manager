@@ -51,6 +51,8 @@ export default function ProfileEditModal({ visible, onClose }: ProfileTypes) {
         firstName: firstName.trim(),
         lastName: lastName.trim(),
         nickName: nickName.trim(),
+        
+        
       });
     } catch (err) {
       console.error("Error saving profile details: ", err);

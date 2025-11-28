@@ -24,6 +24,7 @@ export type Project = {
 export type Task = {
   id: string;
   projectID: string;
+  starPoints: string;
   title: string;
   description: string;
   status: string;
