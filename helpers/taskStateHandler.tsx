@@ -25,65 +25,79 @@ const handleLog = async (taskID: string, state: string) => {
     {
       state === "start"
         ? await addDoc(logRef, {
+          taskID,
+          uid: auth.currentUser?.uid,
+          createdAt: serverTimestamp(),
+          text: "started this task",
+        })
+        : state === "unstart"
+          ? await addDoc(logRef, {
             taskID,
             uid: auth.currentUser?.uid,
             createdAt: serverTimestamp(),
-            text: "started this task",
+            text: "unstarted this task",
           })
-        : state === "unstart"
-          ? await addDoc(logRef, {
+          : state === "complete"
+            ? await addDoc(logRef, {
               taskID,
               uid: auth.currentUser?.uid,
               createdAt: serverTimestamp(),
-              text: "unstarted this task",
+              text: "completed this task",
             })
-          : state === "complete"
-            ? await addDoc(logRef, {
+            : state === "restart"
+              ? await addDoc(logRef, {
                 taskID,
                 uid: auth.currentUser?.uid,
                 createdAt: serverTimestamp(),
-                text: "completed this task",
+                text: "restarted this task",
               })
-            : state === "restart"
-              ? await addDoc(logRef, {
-                  taskID,
-                  uid: auth.currentUser?.uid,
-                  createdAt: serverTimestamp(),
-                  text: "restarted this task",
-                })
               : "";
     }
-  } catch (error) {}
+  } catch (error) { }
 };
 
-const handleStartTask = async (taskID: string, points: number, restart: boolean) => {
+const handleStartTask = async (uid: string[],taskID: string, points: number, restart: boolean) => {
   try {
+
+
 
     const taskRef = doc(db, "tasks", taskID);
     await updateDoc(taskRef, {
-    status: "Ongoing",
-    createdAt: null,
+      status: "Ongoing",
+      createdAt: null,
     });
 
-  //     const assignRef = collection(db, "profile");
-  //     const q = query(assignRef, 
-  //       where("uid", "==", UserID)
-  //     );
-      
-  //     const querySnapshot = await getDocs(q);
-  //     if (!querySnapshot.empty) {
-      
-  //       const profileDoc = querySnapshot.docs[0];
-  //       const profileID = profileDoc.id;
-        
-  //        const userRef = doc(db, "profile", profileID);
-  //       await updateDoc(userRef, {
-  //         points: increment(-points)
-  //       });
-  //     }
-  // console.log('✅ Success! minus -', points, 'points to user', UserID);
 
+    // const batch = writeBatch(db);
+    // const profileRef = collection(db, "profile");
+    // const q = query(profileRef, where("uid", "==", uid));
+    // const snapshot = await getDocs(q);
+    // const docSnap = snapshot.docs[0];
+    // if (snapshot.empty) {
+    //   console.log("No profile found for UID:", uid);
+    //   return;
+    // }
+    // const docRef = doc(db, "profile", docSnap.id);
+    // batch.update(docRef, { points: increment(-points) });
+    // await batch.commit();
 
+    
+    for (const user of uid){
+        const assignRef = collection(db, "profile");
+        const q = query(assignRef, 
+          where("uid", "==", user)
+        );
+        const querySnapshot = await getDocs(q);
+        if (!querySnapshot.empty) {
+          const profileDoc = querySnapshot.docs[0];
+
+           const userRef = doc(db, "profile", profileDoc.id);
+          await updateDoc(userRef, {
+            points: increment(-points)
+          });
+        }
+        console.log('✅ Success! minus -', points, 'points to user', uid);
+    }
 
     await handleLog(taskID, restart ? "start" : "restart");
   } catch (error) {
@@ -110,7 +124,7 @@ const handleCompleteTask = async (
   points: number,
   taskDeadline: Timestamp | null
 ) => {
-
+  console.log('assignedUserIDs', assignedUserIDs)
   try {
     const taskRef = doc(db, "tasks", taskID);
 
@@ -128,29 +142,30 @@ const handleCompleteTask = async (
       return deadline >= today ? "CompleteAndOnTime" : "CompleteAndOverdue";
     })();
 
-    await updateDoc(taskRef, 
-      { status, 
+    await updateDoc(taskRef,
+      {
+        status,
         completedAt: Timestamp.now(),
-       });
+      });
     // call the handle add points here
 
     // Create a Set of assigned user IDs for faster lookup
 
-  
+
     // if (assignedUserInTask?.length > 0) {
     //   for (const user of assignedUserInTask) {
     //      console.log(`all assigned user: ${user}`);
     //   }
     // }
-   
 
-    // if (assignedUserIDs.length > 0) {
-    //   for (const user in assignedUserIDs) {
-        await handleAddPoints(assignedUserIDs, points);
-    //   }
-    // }
+
+    if (assignedUserIDs.length > 0) {
+      for (const user of assignedUserIDs) {
+    await handleAddPoints(user, points);
+      }
+    }
     console.log(`assigned user id: ${assignedUserIDs}`);
-    
+
     await handleLog(taskID, "complete");
   } catch (error) {
     console.log("Error completing task:", error);
@@ -162,26 +177,17 @@ const handleAddPoints = async (uid: string, points: number) => {
   try {
     const batch = writeBatch(db);
 
+  
     const profileRef = collection(db, "profile");
     const q = query(profileRef, where("uid", "==", uid));
     const snapshot = await getDocs(q);
+    const docSnap = snapshot.docs[0];
 
     if (snapshot.empty) {
       console.log("No profile found for UID:", uid);
       return;
     }
 
-    // for (const IDs of snapshot.docs){
-    // const docSnap = snapshot.docs[IDs];
-    // const docRef = doc(db, "profile", docSnap.id);
-
-    // batch.update(docRef, { points: increment(points) });
-
-    // await batch.commit();
-    // console.log(`✅ Added ${points} points to user ${uid}`);
-    // }
-
-    const docSnap = snapshot.docs[0];
     const docRef = doc(db, "profile", docSnap.id);
     batch.update(docRef, { points: increment(points) });
     await batch.commit();

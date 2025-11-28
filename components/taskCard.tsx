@@ -96,9 +96,9 @@ export default function TaskCard({ taskID }: TaskCardType) {
             {currentTask.title}
           </Text>
             
-            {/* <HStack style={{width: "10%"}}>
+            <HStack style={{width: "10%"}}>
               <PopStar taskID={currentTask.id} />
-            </HStack> */}
+            </HStack>
           </HStack>
 
           <HStack
