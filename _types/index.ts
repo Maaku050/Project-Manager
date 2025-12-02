@@ -1,62 +1,72 @@
-import { Timestamp } from "firebase/firestore";
+import { Timestamp } from 'firebase/firestore'
 
 export type Profile = {
-  id: string;
-  firstName: string;
-  lastName: string;
-  nickName: string;
-  role: string;
-  email: string;
-  points: number;
-  uid: string;
-};
+  id: string
+  firstName: string
+  lastName: string
+  nickName: string
+  role: string
+  email: string
+  points: number
+  uid: string
+  status: string
+}
 
 export type Project = {
-  id: string;
-  title: string;
-  description: string;
-  status: string;
-  startedAt: string | null;
-  deadline: Timestamp | null;
-  createdBy: string;
-};
+  id: string
+  title: string
+  description: string
+  status: string
+  startedAt: string | null
+  deadline: Timestamp | null
+  createdBy: string
+}
 
 export type Task = {
-  id: string;
-  projectID: string;
-  title: string;
-  description: string;
-  status: string;
-  start: Timestamp | null;
-  end: Timestamp | null;
-};
+  id: string
+  projectID: string
+  title: string
+  description: string
+  status: string
+  start: Timestamp | null
+  end: Timestamp | null
+}
 
 export type Comment = {
-  id: string;
-  taskID: string;
-  text: string;
-  uid: string;
-  createdAt: Timestamp;
-};
+  id: string
+  taskID: string
+  text: string
+  uid: string
+  createdAt: Timestamp
+}
 
 export type AssignedUser = {
-  id: string;
-  projectID: string;
-  taskID: string;
-  uid: string;
-};
+  id: string
+  projectID: string
+  taskID: string
+  uid: string
+}
 
 export type StarsPoints = {
-  id: string;
-  taskID: string;
-  points: number;
-  stars: number;
-};
+  id: string
+  taskID: string
+  points: number
+  stars: number
+}
 
 export type TaskLogs = {
-  id: string;
-  taskID: string;
-  text: string;
-  uid: string;
-  createdAt: Timestamp;
-};
+  id: string
+  taskID: string
+  text: string
+  uid: string
+  createdAt: Timestamp
+}
+
+export type Journal = {
+  id: string
+  title: string
+  description: string
+  date: Timestamp
+  projectID: string
+  createdBy: string
+}

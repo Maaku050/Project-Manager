@@ -82,6 +82,7 @@ export default function Home() {
         backgroundColor: 'black',
         flexGrow: 1,
       }}
+      showsVerticalScrollIndicator={false}
     >
       {isLargeScreen || isMediumScreen ? undefined : (
         <HStack
@@ -155,34 +156,26 @@ export default function Home() {
               right: isLargeScreen || isMediumScreen ? 12 : 5,
             }}
           >
-
             {isLargeScreen || isMediumScreen ? (
               <Button
-              onPress={() => setShowEditModal(true)}
-              className="bg-transparent"
-            >
-              <ButtonText>
-                <SquarePen
-                  color={'white'}
-                  size={24}
-                />
-              </ButtonText>
-            </Button>
+                onPress={() => setShowEditModal(true)}
+                className="bg-transparent"
+              >
+                <ButtonText>
+                  <SquarePen color={'white'} size={24} />
+                </ButtonText>
+              </Button>
             ) : (
               <Button
-              onPress={() => router.push("/(screens)/profileEditWindow")}
-              className="bg-transparent color-white"
-              size='sm'
-            >
-              <ButtonText>
-                <SquarePen
-                  color={'white'}
-                  size={16}
-                />
-              </ButtonText>
-            </Button>
+                onPress={() => router.push('/(screens)/profileEditWindow')}
+                className="bg-transparent color-white"
+                size="sm"
+              >
+                <ButtonText>
+                  <SquarePen color={'white'} size={16} />
+                </ButtonText>
+              </Button>
             )}
-            
           </Box>
 
           {/* ------------------messages ----------------------- */}

@@ -2,50 +2,54 @@ import { Button, ButtonText } from '@/components/ui/button'
 import { Heading } from '@/components/ui/heading'
 import { CloseIcon, Icon } from '@/components/ui/icon'
 import {
-  Modal,
   ModalBackdrop,
-  ModalBody,
-  ModalCloseButton,
   ModalContent,
-  ModalFooter,
   ModalHeader,
+  ModalCloseButton,
+  ModalBody,
+  ModalFooter,
+  Modal,
 } from '@/components/ui/modal'
 import { Spinner } from '@/components/ui/spinner'
+import { useUser } from '@/context/profileContext'
 import { db } from '@/firebase/firebaseConfig'
-import { router } from 'expo-router'
+import { useLocalSearchParams } from 'expo-router/build/hooks'
 import { doc, updateDoc } from 'firebase/firestore'
 import React, { useState } from 'react'
 import { Text } from 'react-native'
 
-type TaskDeleteModalType = {
-  taskID: string
+type UnarchiveEmployeeModalType = {
   visible: boolean
   onClose: () => void
 }
 
-export default function TaskDeleteModal({
-  taskID,
+export default function UnarchiveEmployeeModal({
   visible,
   onClose,
-}: TaskDeleteModalType) {
+}: UnarchiveEmployeeModalType) {
+  const { profiles } = useUser()
+  const { id } = useLocalSearchParams()
   const [isHover, setIsHover] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
-  const handleDeleteTask = async () => {
+  const selectedEmployee = profiles?.find((user) => user.uid === id)
+
+  const handleUnarchiveEmployee = async () => {
+    if (!selectedEmployee) return
+    setIsSaving(true)
     try {
-      setIsSaving(true)
-      const tasktRef = doc(db, 'tasks', taskID)
-      await updateDoc(tasktRef, {
-        status: 'Archived',
+      const employeeRef = doc(db, 'profile', selectedEmployee.id)
+      await updateDoc(employeeRef, {
+        status: 'Active',
       })
+
+      console.log('Unarchived employee successfully!')
     } catch (error) {
-      console.log('Error deleting task!', error)
+      console.log('Unarchiving employee failed!', error)
     } finally {
       setIsSaving(false)
       onClose()
-      router.replace('/(screens)/projectWindow')
     }
   }
-
   return (
     <Modal isOpen={visible} onClose={onClose} size="md">
       <ModalBackdrop />
@@ -58,7 +62,7 @@ export default function TaskDeleteModal({
       >
         <ModalHeader>
           <Heading size="xl" style={{ color: 'white' }}>
-            Deleting Task
+            Unarchiving Employee
           </Heading>
           <ModalCloseButton>
             <Icon as={CloseIcon} color="white" />
@@ -66,7 +70,7 @@ export default function TaskDeleteModal({
         </ModalHeader>
         <ModalBody>
           <Text style={{ color: 'white', fontSize: 18 }}>
-            Are you sure you want to delete task?
+            Are you sure you want to unarchive this employee?
           </Text>
         </ModalBody>
         <ModalFooter>
@@ -76,16 +80,19 @@ export default function TaskDeleteModal({
             onPress={onClose}
             onHoverIn={() => setIsHover(true)}
             onHoverOut={() => setIsHover(false)}
-            style={{ backgroundColor: isHover ? 'gray' : '' }}
+            style={{
+              backgroundColor: isHover ? 'gray' : '',
+              borderRadius: 8,
+            }}
           >
             <ButtonText style={{ color: 'white' }}>Cancel</ButtonText>
           </Button>
-          <Button onPress={handleDeleteTask} action="negative">
+          <Button onPress={handleUnarchiveEmployee}>
             <ButtonText>
               {isSaving ? (
                 <Spinner size="small" color="white" style={{ marginTop: 6 }} />
               ) : (
-                'Delete Task'
+                'Unarchive Employee'
               )}
             </ButtonText>
           </Button>
