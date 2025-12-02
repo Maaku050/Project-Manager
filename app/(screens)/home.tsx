@@ -157,7 +157,6 @@ export default function Home() {
               right: isLargeScreen || isMediumScreen ? 12 : 5,
             }}
           >
-
             {isLargeScreen || isMediumScreen ? (
               <Button
                 onPress={() => setShowEditModal(true)}

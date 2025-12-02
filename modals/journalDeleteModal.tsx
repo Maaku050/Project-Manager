@@ -12,37 +12,34 @@ import {
 } from '@/components/ui/modal'
 import { Spinner } from '@/components/ui/spinner'
 import { db } from '@/firebase/firebaseConfig'
-import { router } from 'expo-router'
-import { doc, updateDoc } from 'firebase/firestore'
+import { deleteDoc, doc } from 'firebase/firestore'
 import React, { useState } from 'react'
 import { Text } from 'react-native'
 
 type TaskDeleteModalType = {
-  taskID: string
+  journalID: string
   visible: boolean
   onClose: () => void
 }
 
-export default function TaskDeleteModal({
-  taskID,
+export default function JournalDeleteModal({
+  journalID,
   visible,
   onClose,
 }: TaskDeleteModalType) {
   const [isHover, setIsHover] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
-  const handleDeleteTask = async () => {
+
+  const handleDeleteJournal = async () => {
+    setIsSaving(true)
     try {
-      setIsSaving(true)
-      const tasktRef = doc(db, 'tasks', taskID)
-      await updateDoc(tasktRef, {
-        status: 'Archived',
-      })
+      const journalRef = doc(db, 'journal', journalID)
+      await deleteDoc(journalRef)
     } catch (error) {
-      console.log('Error deleting task!', error)
+      console.log('Error deleting journal!', error)
     } finally {
       setIsSaving(false)
       onClose()
-      router.replace('/(screens)/projectWindow')
     }
   }
 
@@ -58,7 +55,7 @@ export default function TaskDeleteModal({
       >
         <ModalHeader>
           <Heading size="xl" style={{ color: 'white' }}>
-            Deleting Task
+            Deleting Journal
           </Heading>
           <ModalCloseButton>
             <Icon as={CloseIcon} color="white" />
@@ -66,7 +63,7 @@ export default function TaskDeleteModal({
         </ModalHeader>
         <ModalBody>
           <Text style={{ color: 'white', fontSize: 18 }}>
-            Are you sure you want to delete task?
+            Are you sure you want to delete this journal?
           </Text>
         </ModalBody>
         <ModalFooter>
@@ -80,12 +77,12 @@ export default function TaskDeleteModal({
           >
             <ButtonText style={{ color: 'white' }}>Cancel</ButtonText>
           </Button>
-          <Button onPress={handleDeleteTask} action="negative">
+          <Button onPress={handleDeleteJournal} action="negative">
             <ButtonText>
               {isSaving ? (
                 <Spinner size="small" color="white" style={{ marginTop: 6 }} />
               ) : (
-                'Delete Task'
+                'Delete journal'
               )}
             </ButtonText>
           </Button>
