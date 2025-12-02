@@ -42,44 +42,45 @@ export default function Home() {
   const taskMessage = userTask.length === 0
   const projectMassage = myProject.length === 0
 
-  const allTodoTasks = userTask
-    .filter((t) => t.status === 'To-do')
-    .sort((a, b) => {
-      const aTime = a.start ? a.start.toDate().getTime() : Infinity
-      const bTime = b.start ? b.start.toDate().getTime() : Infinity
-      return aTime - bTime
-    })
+  const myTask =  userTask
+                .filter((stat) => stat.status === "Ongoing" || stat.status === "To-do")
+                .sort((a, b) => {
+                  a.status === "Ongoing" && b.status === "Ongoing"
+                  const aOverdue = a.end && a.end.toDate() < new Date()
+                  const bOverdue = b.end && b.end.toDate() < new Date()
 
-  const todoTasks = allTodoTasks.filter(
-    (t) => t.start && t.start.toDate() > new Date()
-  )
-  const overdueTodoTasks = allTodoTasks.filter(
-    (t) => t.start && t.start.toDate() < new Date()
-  )
+                  if (aOverdue && !bOverdue) return -1
+                  if (!aOverdue && bOverdue) return 1
 
-  const AllOngoingTasks = userTask.filter((t) => t.status === 'Ongoing')
+                  const aTime = a.end ? a.end.toDate().getTime() : Infinity
+                  const bTime = b.end ? b.end.toDate().getTime() : Infinity
+                  return aTime - bTime
+                })
+                .slice(0, 10);
 
-  const ongoingTasks = AllOngoingTasks.filter(
-    (t) => t.end && t.end.toDate() > new Date()
-  )
-
-  const overdueTasks = AllOngoingTasks.filter(
-    (t) => t.end && t.end.toDate() < new Date()
-  )
-
-  const currentToDo = overdueTodoTasks.length
-  const currentOngoing = ongoingTasks.length + todoTasks.length
-  const currentoverdue = overdueTasks.length
+// Over due in to do task
+  const currentOverdueToDo = myTask
+                                .filter((stat) =>  stat.status === "Ongoing")
+                                .filter((task) => task.end && task.end.toDate() < new Date()).length
+// ongoing task in to do and ongoing; combined
+  const currentOngoing =  myTask
+                            .filter((stat) => stat.status === "Ongoing" || stat.status === "To-do")
+                            .filter((task) => task.end && task.end.toDate() > new Date()).length;
+// over due in ongoing task
+  const currentOverdueOngoing = myTask
+                                  .filter((stat) => stat.status === "To-do")
+                                  .filter((task) => task.start && task.start.toDate() < new Date() ).length;
 
   useEffect(() => {
     console.log('Home current user projects: ', myProject)
   }, [])
 
   return (
+
     <ScrollView
       contentContainerStyle={{
         padding: 24,
-        backgroundColor: 'black',
+        backgroundColor: '#000000',
         flexGrow: 1,
       }}
       showsVerticalScrollIndicator={false}
@@ -162,20 +163,27 @@ export default function Home() {
                 className="bg-transparent"
               >
                 <ButtonText>
-                  <SquarePen color={'white'} size={24} />
+                  <SquarePen
+                    color={'white'}
+                    size={24}
+                  />
                 </ButtonText>
               </Button>
             ) : (
               <Button
-                onPress={() => router.push('/(screens)/profileEditWindow')}
+                onPress={() => router.push("/(screens)/profileEditWindow")}
                 className="bg-transparent color-white"
-                size="sm"
+                size='sm'
               >
                 <ButtonText>
-                  <SquarePen color={'white'} size={16} />
+                  <SquarePen
+                    color={'white'}
+                    size={16}
+                  />
                 </ButtonText>
               </Button>
             )}
+
           </Box>
 
           {/* ------------------messages ----------------------- */}
@@ -309,7 +317,7 @@ export default function Home() {
                     }}
                   />
                   <Text style={{ color: 'white', fontSize: 16 }}>
-                    {currentToDo}
+                    {currentOverdueToDo}
                   </Text>
                 </HStack>
                 <HStack
@@ -329,7 +337,7 @@ export default function Home() {
                     }}
                   />
                   <Text style={{ color: 'white', fontSize: 16 }}>
-                    {currentoverdue}
+                    {currentOverdueOngoing}
                   </Text>
                 </HStack>
               </HStack>
@@ -365,23 +373,13 @@ export default function Home() {
                 }}
                 showsVerticalScrollIndicator={false}
               >
-                {AllOngoingTasks.sort((a, b) => {
-                  const aOverdue = a.end && a.end.toDate() < new Date()
-                  const bOverdue = b.end && b.end.toDate() < new Date()
 
-                  if (aOverdue && !bOverdue) return -1
-                  if (!aOverdue && bOverdue) return 1
+               {myTask
+                .map((tasks) => (
+                   <TaskCard key={tasks.id} taskID={tasks.id} />
+                ))
+                }
 
-                  const aTime = a.end ? a.end.toDate().getTime() : Infinity
-                  const bTime = b.end ? b.end.toDate().getTime() : Infinity
-                  return aTime - bTime
-                }).map((tasks) => (
-                  <TaskCard key={tasks.id} taskID={tasks.id} />
-                ))}
-
-                {allTodoTasks.map((tasks) => (
-                  <TaskCard key={tasks.id} taskID={tasks.id} />
-                ))}
               </ScrollView>
             )}
           </VStack>
@@ -482,7 +480,20 @@ export default function Home() {
                   const bTime = b.deadline
                     ? b.deadline.toDate().getTime()
                     : Infinity
+
+                  const aClosed = a.deadline &&
+                    a.deadline.toDate().getTime() &&
+                    a.status === "Closed";
+                  const bClosed = b.deadline &&
+                    b.deadline.toDate().getTime() &&
+                    b.status === "Closed";
+
+                  if (aClosed && !bClosed) return +1
+                  if (!aClosed && bClosed) return +2
+
                   return aTime - bTime
+
+
                 })
                 .map((Id) => (
                   <ProjectCard key={Id.id} projectID={Id.id} />
@@ -491,6 +502,10 @@ export default function Home() {
           )}
           ;{/* myProject.map((item) => <ProjectCard projectID={item.id} />) */}
         </Box>
+          <HStack style={{width: "100%", borderWidth: 1, justifyContent: "space-between"}}>
+            <HStack style={{height: 20, width: 20, backgroundColor: "#505050ff"}}></HStack>
+            <HStack style={{height: 20, width: 20, backgroundColor: "#8f8f8fff"}}></HStack>
+          </HStack>
       </Box>
 
       <ProfileEditModal
@@ -498,6 +513,7 @@ export default function Home() {
         onClose={() => setShowEditModal(false)}
       />
     </ScrollView>
+
   )
 }
 

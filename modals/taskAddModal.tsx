@@ -56,6 +56,7 @@ export default function TaskAddModal({ visible, onClose }: tasktModalType) {
   const [tempEnd, setTempEnd] = useState<Date | null>(null);
   const [tempDeadline, setTempDeadline] = useState<Date | null>(null);
   const [tempAssigned, setTempAssigned] = useState<string[]>([]);
+  // const [tempStarRate, setTempStarRate] = useState<Number>(0);
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
   // Contexts
@@ -105,7 +106,7 @@ export default function TaskAddModal({ visible, onClose }: tasktModalType) {
         status: "To-do",
         start: Timestamp.fromDate(toLocalStart),
         end: Timestamp.fromDate(toLocalEnd),
-        starID: null,
+        starPoints: 0,
       });
 
       const taskID = docRef.id;
@@ -143,7 +144,7 @@ export default function TaskAddModal({ visible, onClose }: tasktModalType) {
         createdAt: serverTimestamp(),
         text: "created this task",
       });
-    } catch (error) {}
+    } catch (error) { }
   };
 
   return (

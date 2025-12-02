@@ -383,10 +383,10 @@ export default function Home() {
                 </Box>
               ) : (
                 <>
-                  {ongoingProjects.map((p) => (
+                  {overdueProjects.map((p) => (
                     <ProjectBar key={p.id} projectID={p.id} />
                   ))}
-                  {overdueProjects.map((p) => (
+                  {ongoingProjects.map((p) => (
                     <ProjectBar key={p.id} projectID={p.id} />
                   ))}
                   {closedProjects.map((p) => (
@@ -394,6 +394,11 @@ export default function Home() {
                   ))}
                 </>
               )}
+
+              <HStack style={{width: "100%", borderWidth: 1, justifyContent: "space-between"}}>
+                <HStack style={{height: 20, width: 20, backgroundColor: "#505050ff"}}></HStack>
+                <HStack style={{height: 20, width: 20, backgroundColor: "#8f8f8fff"}}></HStack>
+              </HStack>
             </View>
           </Box>
         </ScrollView>

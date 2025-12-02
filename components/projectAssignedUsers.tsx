@@ -13,8 +13,9 @@ type ProjectUsersType = {
 };
 
 export default function ProjectUsers({ projectID }: ProjectUsersType) {
-  const { profiles } = useUser();
+ 
   const { assignedUser, project } = useProject();
+   const { profiles } = useUser();
 
   const currentProject = project.find((t) => t.id === projectID);
   if (!currentProject) return;

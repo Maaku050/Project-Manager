@@ -23,14 +23,15 @@ export type Project = {
 }
 
 export type Task = {
-  id: string
-  projectID: string
-  title: string
-  description: string
-  status: string
-  start: Timestamp | null
-  end: Timestamp | null
-}
+  id: string;
+  projectID: string;
+  starPoints: string;
+  title: string;
+  description: string;
+  status: string;
+  start: Timestamp | null;
+  end: Timestamp | null;
+};
 
 export type Comment = {
   id: string
