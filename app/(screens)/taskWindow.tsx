@@ -1,27 +1,27 @@
-import React, { useState } from "react";
-import { Pressable, ScrollView, useWindowDimensions } from "react-native";
-import { useProject } from "@/context/projectContext";
-import { Box } from "@/components/ui/box";
-import { HStack } from "@/components/ui/hstack";
-import { VStack } from "@/components/ui/vstack";
-import { Divider } from "@/components/ui/divider";
-import { EllipsisVertical, SquarePen, Trash } from "lucide-react-native";
-import TaskEditModal from "@/modals/taskEditModal";
-import { Heading } from "@/components/ui/heading";
-import { Text } from "@/components/ui/text";
-import { Menu, MenuItem, MenuItemLabel } from "@/components/ui/menu";
-import { getDateLabel } from "@/helpers/getDateLabel";
-import TaskStateButton from "@/components/taskStateButton";
-import TaskDeleteModal from "@/modals/taskDeleteModal";
-import TaskCommentSection from "@/components/taskCommentSection";
-import TasktUsers from "@/components/taskAssignedUsers";
+import React, { useState } from 'react'
+import { Pressable, ScrollView, useWindowDimensions } from 'react-native'
+import { useProject } from '@/context/projectContext'
+import { Box } from '@/components/ui/box'
+import { HStack } from '@/components/ui/hstack'
+import { VStack } from '@/components/ui/vstack'
+import { Divider } from '@/components/ui/divider'
+import { EllipsisVertical, SquarePen, Trash } from 'lucide-react-native'
+import TaskEditModal from '@/modals/taskEditModal'
+import { Heading } from '@/components/ui/heading'
+import { Text } from '@/components/ui/text'
+import { Menu, MenuItem, MenuItemLabel } from '@/components/ui/menu'
+import { getDateLabel } from '@/helpers/getDateLabel'
+import TaskStateButton from '@/components/taskStateButton'
+import TaskDeleteModal from '@/modals/taskDeleteModal'
+import TaskCommentSection from '@/components/taskCommentSection'
+import TasktUsers from '@/components/taskAssignedUsers'
 
 export default function TaskWindow() {
-  const { selectedProject, tasks, selectedTask, project } = useProject();
+  const { selectedProject, tasks, selectedTask, project } = useProject()
 
-  const dimensions = useWindowDimensions();
-  const isLargeScreen = dimensions.width >= 1280; // computer UI condition
-  const isMediumScreen = dimensions.width <= 1280 && dimensions.width > 768; // tablet UI condition
+  const dimensions = useWindowDimensions()
+  const isLargeScreen = dimensions.width >= 1280 // computer UI condition
+  const isMediumScreen = dimensions.width <= 1280 && dimensions.width > 768 // tablet UI condition
   const currentTask = tasks.find(
     (t) => t.projectID === selectedProject && t.id === selectedTask
   );
@@ -38,14 +38,14 @@ export default function TaskWindow() {
           flex: 1,
           paddingTop: 30,
           paddingHorizontal: 15,
-          backgroundColor: "#000000",
+          backgroundColor: '#000000',
         }}
         showsVerticalScrollIndicator={false}
       >
         <HStack
           style={{
-            justifyContent: "space-between",
-            alignItems: "center",
+            justifyContent: 'space-between',
+            alignItems: 'center',
             borderLeftWidth: 8,
             borderColor:
               currentTask.status === "To-do" &&
@@ -73,38 +73,38 @@ export default function TaskWindow() {
           }}
         >
           <Box>
-            <Text style={{ color: "#ffffff" }}>
+            <Text style={{ color: '#ffffff' }}>
               {currentProjectData?.title}
             </Text>
-            <Heading style={{ color: "#ffffff" }}>{currentTask?.title}</Heading>
+            <Heading style={{ color: '#ffffff' }}>{currentTask?.title}</Heading>
           </Box>
-          <HStack style={{ alignItems: "center" }} space="lg">
+          <HStack style={{ alignItems: 'center' }} space="lg">
             <TaskStateButton taskID={currentTask.id} from="taskWindow" />
             <Menu
               placement="top"
               offset={5}
-              disabledKeys={["Settings"]}
+              disabledKeys={['Settings']}
               trigger={({ ...triggerProps }) => {
                 return (
                   <Pressable
                     {...triggerProps}
-                    style={{ borderWidth: 0, borderColor: "white" }}
+                    style={{ borderWidth: 0, borderColor: 'white' }}
                   >
-                    <EllipsisVertical color={"white"} />
+                    <EllipsisVertical color={'white'} />
                   </Pressable>
-                );
+                )
               }}
             >
               <MenuItem
                 textValue="Add account"
                 onPress={() => {
-                  setShowEditTaskModal(true);
+                  setShowEditTaskModal(true)
                 }}
               >
                 <SquarePen />
                 <MenuItemLabel
                   size="md"
-                  style={{ marginLeft: 10, fontWeight: "bold" }}
+                  style={{ marginLeft: 10, fontWeight: 'bold' }}
                 >
                   Edit task
                 </MenuItemLabel>
@@ -114,10 +114,10 @@ export default function TaskWindow() {
                 textValue="Add account"
                 onPress={() => setShowDeleteTaskModal(true)}
               >
-                <Trash color={"red"} />
+                <Trash color={'red'} />
                 <MenuItemLabel
                   size="md"
-                  style={{ marginLeft: 10, fontWeight: "bold", color: "red" }}
+                  style={{ marginLeft: 10, fontWeight: 'bold', color: 'red' }}
                 >
                   Delete task
                 </MenuItemLabel>
@@ -129,13 +129,13 @@ export default function TaskWindow() {
         <HStack style={{ borderWidth: 0, marginTop: 10 }}>
           <Text
             style={{
-              color: "white",
+              color: 'white',
               flex: 2,
             }}
           >
             {currentTask.description}
           </Text>
-          <Divider orientation="vertical" style={{ backgroundColor: "gray" }} />
+          <Divider orientation="vertical" style={{ backgroundColor: 'gray' }} />
           <VStack style={{ borderWidth: 0, flex: 1 }} space="lg">
             <HStack
               style={{
@@ -143,8 +143,8 @@ export default function TaskWindow() {
               }}
               space="sm"
             >
-              <Text style={{ color: "#CDCCCC" }}>Status</Text>
-              <Text style={{ color: "white" }}>{currentTask.status}</Text>
+              <Text style={{ color: '#CDCCCC' }}>Status</Text>
+              <Text style={{ color: 'white' }}>{currentTask.status}</Text>
             </HStack>
             <HStack
               style={{
@@ -152,30 +152,30 @@ export default function TaskWindow() {
               }}
               space="sm"
             >
-              <Text style={{ color: "#CDCCCC" }}>Timeline</Text>
+              <Text style={{ color: '#CDCCCC' }}>Timeline</Text>
 
               <Text
                 style={{
                   color:
                     currentTask.start && currentTask.start.toDate() > new Date()
-                      ? "white"
-                      : "#B91C1C",
+                      ? 'white'
+                      : '#B91C1C',
                   fontSize: 12,
                 }}
               >
-                {getDateLabel(currentTask.start, "start")}
+                {getDateLabel(currentTask.start, 'start')}
               </Text>
-              <Text style={{ color: "#CDCCCC" }}>-</Text>
+              <Text style={{ color: '#CDCCCC' }}>-</Text>
               <Text
                 style={{
                   color:
                     currentTask.end && currentTask.end.toDate() > new Date()
-                      ? "white"
-                      : "#B91C1C",
+                      ? 'white'
+                      : '#B91C1C',
                   fontSize: 12,
                 }}
               >
-                {getDateLabel(currentTask.end, "due")}
+                {getDateLabel(currentTask.end, 'due')}
               </Text>
             </HStack>
             <HStack
@@ -184,7 +184,7 @@ export default function TaskWindow() {
               }}
               space="sm"
             >
-              <Text style={{ color: "#CDCCCC" }}>Status</Text>
+              <Text style={{ color: '#CDCCCC' }}>Status</Text>
               <TasktUsers taskID={currentTask.id} />
             </HStack>
           </VStack>
@@ -203,5 +203,5 @@ export default function TaskWindow() {
         />
       </ScrollView>
     </>
-  );
+  )
 }
