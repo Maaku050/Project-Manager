@@ -12,11 +12,13 @@ import {
   RotateCcw,
   Undo2,
 } from "lucide-react-native";
-import React, { useState } from "react";
+import React, { use, useState } from "react";
 import { Text } from "react-native";
 import { ButtonIcon, ButtonText, Button } from "./ui/button";
 import { HStack } from "./ui/hstack";
 import { Menu, MenuItem, MenuItemLabel } from "./ui/menu";
+import { useUser } from "@/context/profileContext";
+import { processFontWeight } from "react-native-reanimated/lib/typescript/css/native";
 
 type TaskStateButtonType = {
   taskID: string;
@@ -24,12 +26,17 @@ type TaskStateButtonType = {
 };
 
 export default function TaskStateButton({ taskID, from }: TaskStateButtonType) {
-  const { tasks } = useProject();
+  const { tasks, assignedUser } = useProject();
+  const { profile, profiles } = useUser();
   const currentTask = tasks.find((t) => t.id === taskID);
+  const allAssignedUser = profiles?.filter((p) => assignedUser.some((u) => u.taskID === taskID && u.uid === p.uid));
+  // const allAssignedUser = assignedUser.find((user) => user.taskID === taskID && user.uid === profile?.uid);
   const [startButtonHover, setStartButtonHover] = useState("");
   const [unstartButtonHover, setUnstartButtonHover] = useState("");
   const [restartButtonHover, setRestartButtonHover] = useState("");
   if (!currentTask) return;
+  if (!allAssignedUser) return;
+  // const numTest: number = "hello";
 
   return (
     <>
@@ -40,7 +47,11 @@ export default function TaskStateButton({ taskID, from }: TaskStateButtonType) {
           size={from === "taskWindow" ? "md" : "sm"}
           onHoverIn={() => setStartButtonHover(currentTask.id)}
           onHoverOut={() => setStartButtonHover("")}
-          onPress={() => handleStartTask(currentTask.id, true)}
+          onPress={() => handleStartTask(
+            allAssignedUser.map(profile => profile.uid), 
+            currentTask.id, 
+            0, 
+            true)}
         >
           <ButtonIcon as={Play} color="white" />
           <ButtonText style={{ color: "white" }}>Start</ButtonText>
@@ -67,31 +78,45 @@ export default function TaskStateButton({ taskID, from }: TaskStateButtonType) {
                 <ButtonText style={{ color: "white" }}>Unstart</ButtonText>
               </Button>
 
+
               <Button
                 variant="solid"
                 action="positive"
                 size="md"
                 onPress={() =>
-                  handleCompleteTask(currentTask.id, currentTask.end)
-                }
-              >
+                  handleCompleteTask(
+                    allAssignedUser.map(profile => profile.uid),
+                    currentTask.id,
+                    currentTask.starPoints,
+                    currentTask.end)
+                }>
+
                 <ButtonIcon as={Check} color="white" />
                 <ButtonText style={{ color: "white" }}>Complete</ButtonText>
               </Button>
+
             </HStack>
           ) : (
             <HStack space="xs">
+
               <Button
                 variant="solid"
                 action="positive"
                 size={from === "taskWindow" ? "md" : "sm"}
                 onPress={() =>
-                  handleCompleteTask(currentTask.id, currentTask.end)
+                  handleCompleteTask(
+                    allAssignedUser.map(profile => profile.uid),
+                    currentTask.id,
+                    currentTask.starPoints,
+                    currentTask.end,)
                 }
+
               >
+
                 <ButtonIcon as={Check} color="white" />
                 <ButtonText style={{ color: "white" }}>Complete</ButtonText>
               </Button>
+
               <Menu
                 placement="top"
                 offset={5}
@@ -131,13 +156,18 @@ export default function TaskStateButton({ taskID, from }: TaskStateButtonType) {
         </>
       ) : currentTask.status === "CompleteAndOnTime" ||
         currentTask.status === "CompleteAndOverdue" ? (
+
         <Button
           variant={restartButtonHover === currentTask.id ? "solid" : "outline"}
           action="negative"
           size={from === "taskWindow" ? "md" : "sm"}
           onHoverIn={() => setRestartButtonHover(currentTask.id)}
           onHoverOut={() => setRestartButtonHover("")}
-          onPress={() => handleStartTask(currentTask.id, false)}
+          onPress={() => handleStartTask(
+            allAssignedUser.map(profile => profile.uid), 
+            currentTask.id, 
+            currentTask.starPoints, 
+            false)}
         >
           <ButtonIcon as={RotateCcw} color="white" />
           <ButtonText style={{ color: "white" }}>Restart</ButtonText>

@@ -24,12 +24,12 @@ export default function TaskWindow() {
   const isMediumScreen = dimensions.width <= 1280 && dimensions.width > 768 // tablet UI condition
   const currentTask = tasks.find(
     (t) => t.projectID === selectedProject && t.id === selectedTask
-  )
-  const currentProjectData = project.find((t) => t.id === selectedProject)
+  );
+  const currentProjectData = project.find((t) => t.id === selectedProject);
 
-  const [showEditTaskModal, setShowEditTaskModal] = useState(false)
-  const [showDeleteTaskModal, setShowDeleteTaskModal] = useState(false)
-  if (!currentTask || !currentProjectData) return
+  const [showEditTaskModal, setShowEditTaskModal] = useState(false);
+  const [showDeleteTaskModal, setShowDeleteTaskModal] = useState(false);
+  if (!currentTask || !currentProjectData) return;
 
   return (
     <>
@@ -48,27 +48,27 @@ export default function TaskWindow() {
             alignItems: 'center',
             borderLeftWidth: 8,
             borderColor:
-              currentTask.status === 'To-do' &&
-              currentTask.start &&
-              currentTask.start.toDate() > new Date()
-                ? 'green'
-                : currentTask.status === 'To-do' &&
-                    currentTask.start &&
-                    currentTask.start.toDate() < new Date()
-                  ? '#D76C1F'
-                  : currentTask.status === 'Ongoing' &&
+              currentTask.status === "To-do" &&
+                currentTask.start &&
+                currentTask.start.toDate() > new Date()
+                ? "green"
+                : currentTask.status === "To-do" &&
+                  currentTask.start &&
+                  currentTask.start.toDate() < new Date()
+                  ? "#D76C1F"
+                  : currentTask.status === "Ongoing" &&
+                    currentTask.end &&
+                    currentTask.end.toDate() > new Date()
+                    ? "green"
+                    : currentTask.status === "Ongoing" &&
                       currentTask.end &&
-                      currentTask.end.toDate() > new Date()
-                    ? 'green'
-                    : currentTask.status === 'Ongoing' &&
-                        currentTask.end &&
-                        currentTask.end.toDate() < new Date()
-                      ? '#B91C1C'
-                      : currentTask.status === 'CompleteAndOnTime'
-                        ? 'green'
-                        : currentTask.status === 'CompleteAndOverdue'
-                          ? '#D76C1F'
-                          : 'red',
+                      currentTask.end.toDate() < new Date()
+                      ? "#B91C1C"
+                      : currentTask.status === "CompleteAndOnTime"
+                        ? "green"
+                        : currentTask.status === "CompleteAndOverdue"
+                          ? "#D76C1F"
+                          : "red",
             paddingLeft: 8,
           }}
         >

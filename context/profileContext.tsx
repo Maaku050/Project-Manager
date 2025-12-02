@@ -15,7 +15,7 @@ interface UserContextType {
 const UserContext = createContext<UserContextType>({
   user: null,
   profile: null,
-  profiles: undefined,
+  profiles: [],
   selectedEmployee: null,
   setSelectedEmployee: () => {},
 });
@@ -25,7 +25,7 @@ export const useUser = () => useContext(UserContext);
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [profiles, setProfiles] = useState<Profile[] | undefined>(undefined);
+  const [profiles, setProfiles] = useState<Profile[]>();
   const [selectedEmployee, setSelectedEmployee] = useState<string | null>(null);
 
   useEffect(() => {
