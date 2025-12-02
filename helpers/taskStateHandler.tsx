@@ -67,20 +67,6 @@ const handleStartTask = async (uid: string[],taskID: string, points: number, res
       createdAt: null,
     });
 
-
-    // const batch = writeBatch(db);
-    // const profileRef = collection(db, "profile");
-    // const q = query(profileRef, where("uid", "==", uid));
-    // const snapshot = await getDocs(q);
-    // const docSnap = snapshot.docs[0];
-    // if (snapshot.empty) {
-    //   console.log("No profile found for UID:", uid);
-    //   return;
-    // }
-    // const docRef = doc(db, "profile", docSnap.id);
-    // batch.update(docRef, { points: increment(-points) });
-    // await batch.commit();
-
     
     for (const user of uid){
         const assignRef = collection(db, "profile");
@@ -147,16 +133,6 @@ const handleCompleteTask = async (
         status,
         completedAt: Timestamp.now(),
       });
-    // call the handle add points here
-
-    // Create a Set of assigned user IDs for faster lookup
-
-
-    // if (assignedUserInTask?.length > 0) {
-    //   for (const user of assignedUserInTask) {
-    //      console.log(`all assigned user: ${user}`);
-    //   }
-    // }
 
 
     if (assignedUserIDs.length > 0) {

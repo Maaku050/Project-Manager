@@ -172,7 +172,6 @@ export default function TaskStateButton({ taskID, from }: TaskStateButtonType) {
           <ButtonIcon as={RotateCcw} color="white" />
           <ButtonText style={{ color: "white" }}>Restart</ButtonText>
         </Button>
-
       ) : (
         ""
       )}

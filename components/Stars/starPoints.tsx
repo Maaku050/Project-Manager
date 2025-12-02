@@ -11,7 +11,7 @@ type prop = {
     starID: string | undefined;
 };
 
-export default function taskStars({ starID }: prop) {
+export default function TaskStars({ starID }: prop) {
 
 
     const [isStar, setIsStar] = useState(Number);
@@ -58,9 +58,9 @@ export default function taskStars({ starID }: prop) {
 
     return (
         <>
-            <Text className="text-typography-900">
+            {/* <Text className="text-typography-900">
                 Current Rating: {isStar} star(s)
-            </Text>
+            </Text> */}
             <HStack style={{ gap: 8 }}>
                 <Pressable onPress={() => saveRatingToFirestore(1)}>
                     <Star color={"#EFBF04"} fill={"#EFBF04"} size={40} />
