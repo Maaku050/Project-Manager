@@ -218,7 +218,14 @@ export default function ProjectWindow() {
                       Status
                     </Text>
                     <Text style={{ color: 'white', fontSize: 18 }}>
-                      {currentProjectData.status}
+                      {currentProjectData.deadline &&
+                      currentProjectData.deadline?.toDate() < new Date() &&
+                      currentProjectData.status === 'Closed'
+                        ? 'Overdue/Closed'
+                        : currentProjectData.deadline &&
+                            currentProjectData.deadline?.toDate() < new Date()
+                          ? 'Overdue'
+                          : currentProjectData.status}
                     </Text>
                   </HStack>
 

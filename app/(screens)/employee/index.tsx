@@ -12,8 +12,11 @@ import AddRoleModal from '@/components/Modal/AddRoleModal'
 import AddEmployeeModal from '@/components/Modal/AddEmployeeModal'
 import EmployeeSkeleton from '@/components/Skeleton/EmployeeSkeleton'
 import ArchivedEmployeeCard from '@/components/Employee/ArchivedEmployeeCard'
+import EmployeeCard from '@/components/Employee/EmployeeCard'
+import { useProject } from '@/context/projectContext'
 
 export default function EmployeeScreen() {
+  const { roles } = useProject()
   const { profiles, setSelectedEmployee } = useUser()
   console.log('🚀 ~ EmployeeScreen ~ profiles:', profiles)
   const isLoading = !profiles
@@ -28,6 +31,7 @@ export default function EmployeeScreen() {
         alignItems: 'flex-start',
         padding: 12,
       }}
+      showsVerticalScrollIndicator={false}
     >
       <Box
         style={{
@@ -67,11 +71,36 @@ export default function EmployeeScreen() {
                 </ButtonGroup>
               </Box>
             </Box>
-            <ProjectManagerCard profiles={profiles} />
+            {roles
+              .sort((a, b) => {
+                // Project Manager always comes first
+                if (a.role === 'Project Manager') return -1
+                if (b.role === 'Project Manager') return 1
+
+                // Intern always comes last
+                if (a.role === 'Intern') return 1
+                if (b.role === 'Intern') return -1
+
+                // For other roles, sort by createdAt (oldest first)
+                const aTime = a.createdAt?.toDate?.() || new Date(0)
+                const bTime = b.createdAt?.toDate?.() || new Date(0)
+
+                return aTime.getTime() - bTime.getTime() // Ascending order (oldest first)
+              })
+              .map((role) => (
+                <EmployeeCard
+                  key={role.id}
+                  profiles={profiles}
+                  role={role.role}
+                  color={role.color}
+                />
+              ))}
+
+            {/* <ProjectManagerCard profiles={profiles} />
             <FullStackDeveloperCard profiles={profiles} />
             <UXDesignerCard profiles={profiles} />
             <QACard profiles={profiles} />
-            <InternCard profiles={profiles} />
+            <InternCard profiles={profiles} /> */}
             <ArchivedEmployeeCard profiles={profiles} />
           </>
         ) : (

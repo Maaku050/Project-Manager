@@ -15,6 +15,7 @@ import TaskStateButton from '@/components/taskStateButton'
 import TaskDeleteModal from '@/modals/taskDeleteModal'
 import TaskCommentSection from '@/components/taskCommentSection'
 import TasktUsers from '@/components/taskAssignedUsers'
+import TaskCard from '@/components/taskCard'
 
 export default function TaskWindow() {
   const { selectedProject, tasks, selectedTask, project } = useProject()
@@ -24,12 +25,11 @@ export default function TaskWindow() {
   const isMediumScreen = dimensions.width <= 1280 && dimensions.width > 768 // tablet UI condition
   const currentTask = tasks.find(
     (t) => t.projectID === selectedProject && t.id === selectedTask
-  );
-  const currentProjectData = project.find((t) => t.id === selectedProject);
-
-  const [showEditTaskModal, setShowEditTaskModal] = useState(false);
-  const [showDeleteTaskModal, setShowDeleteTaskModal] = useState(false);
-  if (!currentTask || !currentProjectData) return;
+  )
+  const currentProjectData = project.find((t) => t.id === selectedProject)
+  const [showEditTaskModal, setShowEditTaskModal] = useState(false)
+  const [showDeleteTaskModal, setShowDeleteTaskModal] = useState(false)
+  if (!currentTask || !currentProjectData) return
 
   return (
     <>
@@ -48,27 +48,27 @@ export default function TaskWindow() {
             alignItems: 'center',
             borderLeftWidth: 8,
             borderColor:
-              currentTask.status === "To-do" &&
-                currentTask.start &&
-                currentTask.start.toDate() > new Date()
-                ? "green"
-                : currentTask.status === "To-do" &&
-                  currentTask.start &&
-                  currentTask.start.toDate() < new Date()
-                  ? "#D76C1F"
-                  : currentTask.status === "Ongoing" &&
-                    currentTask.end &&
-                    currentTask.end.toDate() > new Date()
-                    ? "green"
-                    : currentTask.status === "Ongoing" &&
+              currentTask.status === 'To-do' &&
+              currentTask.start &&
+              currentTask.start.toDate() > new Date()
+                ? 'green'
+                : currentTask.status === 'To-do' &&
+                    currentTask.start &&
+                    currentTask.start.toDate() < new Date()
+                  ? '#D76C1F'
+                  : currentTask.status === 'Ongoing' &&
                       currentTask.end &&
-                      currentTask.end.toDate() < new Date()
-                      ? "#B91C1C"
-                      : currentTask.status === "CompleteAndOnTime"
-                        ? "green"
-                        : currentTask.status === "CompleteAndOverdue"
-                          ? "#D76C1F"
-                          : "red",
+                      currentTask.end.toDate() > new Date()
+                    ? 'green'
+                    : currentTask.status === 'Ongoing' &&
+                        currentTask.end &&
+                        currentTask.end.toDate() < new Date()
+                      ? '#B91C1C'
+                      : currentTask.status === 'CompleteAndOnTime'
+                        ? 'green'
+                        : currentTask.status === 'CompleteAndOverdue'
+                          ? '#D76C1F'
+                          : 'red',
             paddingLeft: 8,
           }}
         >
@@ -135,7 +135,10 @@ export default function TaskWindow() {
           >
             {currentTask.description}
           </Text>
-          <Divider orientation="vertical" style={{ backgroundColor: 'gray' }} />
+          <Divider
+            orientation="vertical"
+            style={{ backgroundColor: '#414141' }}
+          />
           <VStack style={{ borderWidth: 0, flex: 1 }} space="lg">
             <HStack
               style={{
@@ -189,6 +192,55 @@ export default function TaskWindow() {
             </HStack>
           </VStack>
         </HStack>
+        {currentTask.childTasks.length > 0 ? (
+          <>
+            <Divider
+              orientation="horizontal"
+              style={{ backgroundColor: '#414141', marginVertical: 10 }}
+            />
+            <Text style={{ color: '#F3F3F3', marginBottom: 10 }}>
+              {currentTask.childTasks.length} prerequisite task/s
+            </Text>
+            <HStack
+              style={{
+                alignContent: 'flex-start',
+                flexDirection: 'row',
+                flexWrap: 'wrap',
+                borderWidth: 0,
+                alignItems: 'stretch',
+              }}
+              space="md"
+            >
+              {currentTask.childTasks.map((taskid) => (
+                <TaskCard taskID={taskid} origin="taskWindow" />
+              ))}
+            </HStack>
+          </>
+        ) : null}
+
+        {currentTask.parentTasks ? (
+          <>
+            <Divider
+              orientation="horizontal"
+              style={{ backgroundColor: '#414141', marginVertical: 10 }}
+            />
+            <Text style={{ color: '#F3F3F3', marginBottom: 10 }}>
+              1 blocking task
+            </Text>
+            <HStack
+              style={{
+                alignContent: 'flex-start',
+                flexDirection: 'row',
+                flexWrap: 'wrap',
+                borderWidth: 0,
+                alignItems: 'stretch',
+              }}
+              space="md"
+            >
+              <TaskCard taskID={currentTask.parentTasks} origin="taskWindow" />
+            </HStack>
+          </>
+        ) : null}
 
         <TaskCommentSection taskID={currentTask.id} />
 
