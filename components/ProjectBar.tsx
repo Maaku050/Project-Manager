@@ -59,24 +59,24 @@ export default function ProjectBar({ projectID }: items) {
     },
   })
 
-  const progressCalculation = (projectID: string) => {
-    const currentProjectTasks = tasks.filter((t) => t.projectID === projectID)
+  // const progressCalculation = (projectID: string) => {
+  //   const currentProjectTasks = tasks.filter((t) => t.projectID === projectID)
 
-    const ongoingTasks = currentProjectTasks.filter(
-      (t) => t.status === 'Ongoing'
-    )
+  //   const ongoingTasks = currentProjectTasks.filter(
+  //     (t) => t.status === 'Ongoing'
+  //   )
 
-    const completedTasks = currentProjectTasks.filter(
-      (t) => t.status === 'Completed'
-    )
+  //   const completedTasks = currentProjectTasks.filter(
+  //     (t) => t.status === 'Completed'
+  //   )
 
-    const totalTasks = currentProjectTasks.length
+  //   const totalTasks = currentProjectTasks.length
 
-    const progress =
-      ((ongoingTasks.length * 0.5 + completedTasks.length * 1) / totalTasks) *
-      100
-    return progress
-  }
+  //   const progress =
+  //     ((ongoingTasks.length * 0.5 + completedTasks.length * 1) / totalTasks) *
+  //     100
+  //   return progress
+  // }
 
   const currentProject = project.find((t) => t.id === projectID)
   if (!currentProject) return
