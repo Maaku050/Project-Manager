@@ -23,15 +23,17 @@ export type Project = {
 }
 
 export type Task = {
-  id: string;
-  projectID: string;
-  starPoints: string;
-  title: string;
-  description: string;
-  status: string;
-  start: Timestamp | null;
-  end: Timestamp | null;
-};
+  id: string
+  projectID: string
+  starPoints: string
+  title: string
+  description: string
+  status: string
+  start: Timestamp | null
+  end: Timestamp | null
+  parentTasks: string
+  childTasks: string[]
+}
 
 export type Comment = {
   id: string
@@ -70,4 +72,11 @@ export type Journal = {
   date: Timestamp
   projectID: string
   createdBy: string
+}
+
+export type Roles = {
+  id: string
+  role: string
+  createdAt: Timestamp
+  color: string
 }

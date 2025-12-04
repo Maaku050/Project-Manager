@@ -8,6 +8,7 @@ import {
   Task,
   TaskLogs,
   Journal,
+  Roles,
 } from '@/_types'
 
 interface ProjectContextType {
@@ -24,6 +25,7 @@ interface ProjectContextType {
   loading: boolean
   error: string | null
   journal: Journal[]
+  roles: Roles[]
 }
 
 // === CONTEXT ===
@@ -41,6 +43,7 @@ const ProjectContext = createContext<ProjectContextType>({
   loading: true,
   error: null,
   journal: [],
+  roles: [],
 })
 
 export const useProject = () => useContext(ProjectContext)
@@ -53,6 +56,7 @@ export const ProjectProvider = ({
 }) => {
   const [project, setProject] = useState<Project[]>([])
   const [journal, setJournal] = useState<Journal[]>([])
+  const [roles, setRoles] = useState<Roles[]>([])
   const [tasks, setTasks] = useState<Task[]>([])
   const [comment, setComment] = useState<Comment[]>([])
   const [taskLogs, setTaskLogs] = useState<TaskLogs[]>([])
@@ -95,6 +99,7 @@ export const ProjectProvider = ({
       }
     )
 
+    // --- Journals ---
     const unsubJournal = onSnapshot(
       query(collection(db, 'journal')),
       (snapshot) => {
@@ -108,6 +113,24 @@ export const ProjectProvider = ({
       (err) => {
         console.error('❌ Error loading journal:', err)
         setError('Failed to load journal')
+        checkAllLoaded()
+      }
+    )
+
+    // --- Journals ---
+    const unsubRoles = onSnapshot(
+      query(collection(db, 'roles')),
+      (snapshot) => {
+        const list: Roles[] = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...(doc.data() as Omit<Roles, 'id'>),
+        }))
+        setRoles(list)
+        checkAllLoaded()
+      },
+      (err) => {
+        console.error('❌ Error loading roles:', err)
+        setError('Failed to load roles')
         checkAllLoaded()
       }
     )
@@ -206,6 +229,7 @@ export const ProjectProvider = ({
     return () => {
       unsubProject()
       unsubJournal()
+      unsubRoles()
       unsubTasks()
       unsubComments()
       unsubTaskLogs()
@@ -231,6 +255,7 @@ export const ProjectProvider = ({
         loading,
         error,
         journal,
+        roles,
       }}
     >
       {children}

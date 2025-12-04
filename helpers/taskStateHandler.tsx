@@ -1,4 +1,4 @@
-import { auth, db } from "@/firebase/firebaseConfig";
+import { auth, db } from '@/firebase/firebaseConfig'
 import {
   doc,
   updateDoc,
@@ -12,97 +12,169 @@ import {
   getDocs,
   increment,
   writeBatch,
-} from "firebase/firestore";
-import { useUser } from "@/context/profileContext";
-import { useProject } from "@/context/projectContext";
-
-
-
+} from 'firebase/firestore'
+import { useUser } from '@/context/profileContext'
+import { useProject } from '@/context/projectContext'
 
 const handleLog = async (taskID: string, state: string) => {
-  const logRef = collection(db, "taskLogs");
+  const logRef = collection(db, 'taskLogs')
   try {
     {
-      state === "start"
+      state === 'start'
         ? await addDoc(logRef, {
-          taskID,
-          uid: auth.currentUser?.uid,
-          createdAt: serverTimestamp(),
-          text: "started this task",
-        })
-        : state === "unstart"
-          ? await addDoc(logRef, {
             taskID,
             uid: auth.currentUser?.uid,
             createdAt: serverTimestamp(),
-            text: "unstarted this task",
+            text: 'started this task',
           })
-          : state === "complete"
-            ? await addDoc(logRef, {
+        : state === 'unstart'
+          ? await addDoc(logRef, {
               taskID,
               uid: auth.currentUser?.uid,
               createdAt: serverTimestamp(),
-              text: "completed this task",
+              text: 'unstarted this task',
             })
-            : state === "restart"
-              ? await addDoc(logRef, {
+          : state === 'complete'
+            ? await addDoc(logRef, {
                 taskID,
                 uid: auth.currentUser?.uid,
                 createdAt: serverTimestamp(),
-                text: "restarted this task",
+                text: 'completed this task',
               })
-              : "";
+            : state === 'restart'
+              ? await addDoc(logRef, {
+                  taskID,
+                  uid: auth.currentUser?.uid,
+                  createdAt: serverTimestamp(),
+                  text: 'restarted this task',
+                })
+              : ''
     }
-  } catch (error) { }
-};
+  } catch (error) {}
+}
 
-const handleStartTask = async (uid: string[],taskID: string, points: number, restart: boolean) => {
+const handleRestartTask = async (
+  taskID: string,
+  tasks: any[],
+  uid: string[],
+  points: number,
+  assignedUser: any[] // Add assignedUser array to find parent's assigned users
+) => {
   try {
+    const taskRef = doc(db, 'tasks', taskID)
+    const currentTask = tasks.find((task) => task.id === taskID)
 
-
-
-    const taskRef = doc(db, "tasks", taskID);
-    await updateDoc(taskRef, {
-      status: "Ongoing",
-      createdAt: null,
-    });
-
-    
-    for (const user of uid){
-        const assignRef = collection(db, "profile");
-        const q = query(assignRef, 
-          where("uid", "==", user)
-        );
-        const querySnapshot = await getDocs(q);
-        if (!querySnapshot.empty) {
-          const profileDoc = querySnapshot.docs[0];
-
-           const userRef = doc(db, "profile", profileDoc.id);
-          await updateDoc(userRef, {
-            points: increment(-points)
-          });
-        }
-        console.log('✅ Success! minus -', points, 'points to user', uid);
+    if (!currentTask) {
+      console.error('Task not found')
+      return
     }
 
-    await handleLog(taskID, restart ? "start" : "restart");
-  } catch (error) {
-    console.log("Error starting task: ", error);
+    // Update the current task to Ongoing
+    await updateDoc(taskRef, {
+      status: 'Ongoing',
+    })
+
+    // Deduct points from current task's assigned users
+    for (const user of uid) {
+      const assignRef = collection(db, 'profile')
+      const q = query(assignRef, where('uid', '==', user))
+      const querySnapshot = await getDocs(q)
+      if (!querySnapshot.empty) {
+        const profileDoc = querySnapshot.docs[0]
+
+        const userRef = doc(db, 'profile', profileDoc.id)
+        await updateDoc(userRef, {
+          points: increment(-points),
+        })
+      }
+      console.log('✅ Success! minus -', points, 'points to user', user)
+    }
+
+    // Check if this task has a parent
+    if (currentTask.parentTasks) {
+      const parentTask = tasks.find(
+        (task) => task.id === currentTask.parentTasks
+      )
+
+      // If parent exists and is completed, restart it too
+      if (
+        parentTask &&
+        (parentTask.status === 'CompleteAndOnTime' ||
+          parentTask.status === 'CompleteAndOverdue')
+      ) {
+        const parentTaskRef = doc(db, 'tasks', parentTask.id)
+        await updateDoc(parentTaskRef, {
+          status: 'Ongoing',
+        })
+
+        // Get parent task's assigned users
+        const parentAssignedUsers = assignedUser
+          .filter((a) => a.taskID === parentTask.id)
+          .map((a) => a.uid)
+
+        // Deduct points from parent task's assigned users
+        for (const user of parentAssignedUsers) {
+          const assignRef = collection(db, 'profile')
+          const q = query(assignRef, where('uid', '==', user))
+          const querySnapshot = await getDocs(q)
+          if (!querySnapshot.empty) {
+            const profileDoc = querySnapshot.docs[0]
+
+            const userRef = doc(db, 'profile', profileDoc.id)
+            await updateDoc(userRef, {
+              points: increment(-parentTask.starPoints),
+            })
+          }
+          console.log(
+            '✅ Success! minus -',
+            parentTask.starPoints,
+            'points from parent task user',
+            user
+          )
+        }
+        await handleLog(parentTask.id, 'restart')
+        console.log('Parent task also restarted and points deducted')
+      }
+    }
+
+    await handleLog(taskID, 'restart')
+    console.log('Task restarted successfully')
+  } catch (error: any) {
+    console.error('Error restarting task:', error.message)
   }
-};
+}
+
+const handleStartTask = async (
+  uid: string[],
+  taskID: string,
+  points: number,
+  restart: boolean
+) => {
+  try {
+    const taskRef = doc(db, 'tasks', taskID)
+    await updateDoc(taskRef, {
+      status: 'Ongoing',
+      createdAt: null,
+    })
+
+    await handleLog(taskID, restart ? 'start' : 'restart')
+  } catch (error) {
+    console.log('Error starting task: ', error)
+  }
+}
 
 const handleUnstartTask = async (taskID: string) => {
   try {
-    const taskRef = doc(db, "tasks", taskID);
+    const taskRef = doc(db, 'tasks', taskID)
     await updateDoc(taskRef, {
-      status: "To-do",
-    });
+      status: 'To-do',
+    })
 
-    await handleLog(taskID, "unstart");
+    await handleLog(taskID, 'unstart')
   } catch (error) {
-    console.log("Error Unstarting task: ", error);
+    console.log('Error Unstarting task: ', error)
   }
-};
+}
 
 const handleCompleteTask = async (
   assignedUserIDs: string[],
@@ -112,67 +184,67 @@ const handleCompleteTask = async (
 ) => {
   console.log('assignedUserIDs', assignedUserIDs)
   try {
-    const taskRef = doc(db, "tasks", taskID);
+    const taskRef = doc(db, 'tasks', taskID)
 
     const status = (() => {
-      if (!taskDeadline) return "Archived";
+      if (!taskDeadline) return 'Archived'
 
       // Clone Timestamp date so we don't mutate it
-      const deadline = new Date(taskDeadline.toDate());
-      const today = new Date();
+      const deadline = new Date(taskDeadline.toDate())
+      const today = new Date()
 
       // Normalize both to midnight for fair comparison
-      deadline.setHours(0, 0, 0, 0);
-      today.setHours(0, 0, 0, 0);
+      deadline.setHours(0, 0, 0, 0)
+      today.setHours(0, 0, 0, 0)
 
-      return deadline >= today ? "CompleteAndOnTime" : "CompleteAndOverdue";
-    })();
+      return deadline >= today ? 'CompleteAndOnTime' : 'CompleteAndOverdue'
+    })()
 
-    await updateDoc(taskRef,
-      {
-        status,
-        completedAt: Timestamp.now(),
-      });
-
+    await updateDoc(taskRef, {
+      status,
+      completedAt: Timestamp.now(),
+    })
 
     if (assignedUserIDs.length > 0) {
       for (const user of assignedUserIDs) {
-    await handleAddPoints(user, points);
+        await handleAddPoints(user, points)
       }
     }
-    console.log(`assigned user id: ${assignedUserIDs}`);
+    console.log(`assigned user id: ${assignedUserIDs}`)
 
-    await handleLog(taskID, "complete");
+    await handleLog(taskID, 'complete')
   } catch (error) {
-    console.log("Error completing task:", error);
+    console.log('Error completing task:', error)
   }
-};
-
+}
 
 const handleAddPoints = async (uid: string, points: number) => {
   try {
-    const batch = writeBatch(db);
+    const batch = writeBatch(db)
 
-  
-    const profileRef = collection(db, "profile");
-    const q = query(profileRef, where("uid", "==", uid));
-    const snapshot = await getDocs(q);
-    const docSnap = snapshot.docs[0];
+    const profileRef = collection(db, 'profile')
+    const q = query(profileRef, where('uid', '==', uid))
+    const snapshot = await getDocs(q)
+    const docSnap = snapshot.docs[0]
 
     if (snapshot.empty) {
-      console.log("No profile found for UID:", uid);
-      return;
+      console.log('No profile found for UID:', uid)
+      return
     }
 
-    const docRef = doc(db, "profile", docSnap.id);
-    batch.update(docRef, { points: increment(points) });
-    await batch.commit();
+    const docRef = doc(db, 'profile', docSnap.id)
+    batch.update(docRef, { points: increment(points) })
+    await batch.commit()
 
-    console.log(`✅ Added ${points} points to user ${uid}`);
+    console.log(`✅ Added ${points} points to user ${uid}`)
   } catch (err) {
-    console.error("Error saving:", err);
+    console.error('Error saving:', err)
   }
-};
+}
 
-
-export { handleStartTask, handleUnstartTask, handleCompleteTask };
+export {
+  handleStartTask,
+  handleUnstartTask,
+  handleCompleteTask,
+  handleRestartTask,
+}
