@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Box } from '@/components/ui/box'
 import { ScrollView, StyleSheet, useWindowDimensions } from 'react-native'
 import { Text } from '@/components/ui/text'
-import { useRouter } from 'expo-router'
+import { useRouter, useLocalSearchParams } from 'expo-router'
 import { View } from '@/components/Themed'
 import { useProject } from '@/context/projectContext'
 import { HStack } from '@/components/ui/hstack'
@@ -10,32 +10,64 @@ import { Divider } from '@/components/ui/divider'
 import { VStack } from '@/components/ui/vstack'
 import { LayoutDashboard } from 'lucide-react-native'
 import ProjectBar from '@/components/ProjectBar'
+import Pagination from '@/components/customPagination'
+
+const PROJECT_PER_PAGE = 10
+
 
 export default function Home() {
   const router = useRouter()
   const { project } = useProject()
+  const params = useLocalSearchParams()
+  const [allProjecctPage, setAllProjectPage] = useState(1)
 
   const dimensions = useWindowDimensions()
   const isLargeScreen = dimensions.width >= 1280 // computer UI condition
   const isMediumScreen = dimensions.width <= 1280 && dimensions.width > 768 // tablet UI condition
 
-  const ongoingProjects = project.filter(
-    (t) =>
-      t.status === 'Ongoing' && t?.deadline && t.deadline.toDate() > new Date()
-  )
+    const allProject = project.sort((a, b) => {
+       const aOverdue =
+                    a.deadline &&
+                    a.deadline.toDate() < new Date() &&
+                    a.status != 'Archived' &&
+                    a.status != 'Closed'
+                  const bOverdue =
+                    b.deadline &&
+                    b.deadline.toDate() < new Date() &&
+                    b.status != 'Arcived' &&
+                    b.status != 'Closed'
 
-  const closedProjects = project.filter((t) => t.status === 'Closed')
+                  if (aOverdue && !bOverdue) return -1
+                  if (!aOverdue && bOverdue) return 1
 
-  const overdueProjects = project.filter(
-    (t) =>
-      t?.deadline &&
-      t.deadline.toDate() < new Date() &&
-      t.status != 'Archived' &&
-      t.status != 'Closed'
-  )
+                  const aTime = a.deadline
+                    ? a.deadline.toDate().getTime()
+                    : Infinity
+                  const bTime = b.deadline
+                    ? b.deadline.toDate().getTime()
+                    : Infinity
 
-  const totalProject =
-    ongoingProjects.length + overdueProjects.length + closedProjects.length
+                  const aClosed = a.status === "Closed";
+                  const bClosed = b.status === "Closed";
+
+                  if (aClosed && !bClosed) return +1
+                  if (!aClosed && bClosed) return +2
+                  return aTime - bTime
+    });
+
+    
+
+     // ---------------pagination-------------------------
+  const totalPages = Math.ceil(allProject.length / PROJECT_PER_PAGE)
+  const startIndex = (allProjecctPage - 1) * PROJECT_PER_PAGE
+  const endIndex = startIndex + PROJECT_PER_PAGE
+  const sliceProject = allProject.slice(startIndex, endIndex)
+
+  const handlePageChange = (page: number) => {
+    setAllProjectPage(page)
+    router.setParams({ page: page.toString() })
+  }
+
 
   const styles = StyleSheet.create({
     ProjectContainer: {
@@ -163,7 +195,7 @@ export default function Home() {
                 ...styles.statusTextLarge,
               }}
             >
-              {totalProject}
+              {allProject.length}
             </Text>
             <Text
               style={{
@@ -186,7 +218,12 @@ export default function Home() {
                 color: '#3a9e60ff',
               }}
             >
-              {project.filter((t) => t.status === 'Ongoing').length}
+              {allProject.filter((t) => 
+                t.deadline 
+                // ? t.deadline.toDate().getTime() : Infinity 
+                && t.deadline.toDate() > new Date()
+                && t.status === "Ongoing" || t.status === "Pending"
+                ).length}
             </Text>
             <Text
               style={{
@@ -210,9 +247,10 @@ export default function Home() {
               }}
             >
               {
-                project.filter(
+                allProject.filter(
                   (t) =>
-                    t.status !== 'Completed' &&
+                    t.status !== 'Closed' &&
+                    t.status !== "Arcived" &&
                     t.deadline &&
                     t.deadline.toDate() < new Date()
                 ).length
@@ -240,8 +278,8 @@ export default function Home() {
               }}
             >
               {
-                project.filter(
-                  (t) => t.status === 'Closed' || t.status === 'closed'
+                allProject.filter(
+                  (t) => t.status === 'Closed'
                 ).length
               }
             </Text>
@@ -383,23 +421,12 @@ export default function Home() {
                 </Box>
               ) : (
                 <>
-                  {overdueProjects.map((p) => (
-                    <ProjectBar key={p.id} projectID={p.id} />
-                  ))}
-                  {ongoingProjects.map((p) => (
-                    <ProjectBar key={p.id} projectID={p.id} />
-                  ))}
-                  {closedProjects.map((p) => (
-                    <ProjectBar key={p.id} projectID={p.id} />
-                  ))}
+                {sliceProject.map((ID) =>  <ProjectBar projectID={ID.id} /> )}
+                
                 </>
               )}
-
-              <HStack style={{width: "100%", borderWidth: 1, justifyContent: "space-between"}}>
-                <HStack style={{height: 20, width: 20, backgroundColor: "#505050ff"}}></HStack>
-                <HStack style={{height: 20, width: 20, backgroundColor: "#8f8f8fff"}}></HStack>
-              </HStack>
             </View>
+            <Pagination currentPage={allProjecctPage} totalPages={totalPages} onPageChange={handlePageChange}  />
           </Box>
         </ScrollView>
       </VStack>
