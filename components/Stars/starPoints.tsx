@@ -50,7 +50,9 @@ export default function TaskStars({ starID }: prop) {
         numberIndicator: {
             position: "absolute",
             top: 10,
-            right: 16.8,
+            right: 15.8,
+            fontSize: 16,
+            fontWeight: "bold"
         }
     })
 
