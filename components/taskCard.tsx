@@ -7,7 +7,7 @@ import { HStack } from './ui/hstack'
 import { Pressable } from './ui/pressable'
 import { Divider } from './ui/divider'
 import TasktUsers from './taskAssignedUsers'
-import { router } from 'expo-router'
+import { useLocalSearchParams, useRouter } from 'expo-router'
 import { getDateLabel } from '@/helpers/getDateLabel'
 import TaskStateButton from './taskStateButton'
 import PopStar from '@/components/Stars/starRating'
@@ -20,7 +20,10 @@ type TaskCardType = {
 }
 
 export default function TaskCard({ taskID, origin }: TaskCardType) {
-  const { tasks, setSelectedTask, setSelectedProject, project } = useProject()
+  const { tasks, project } = useProject()
+  const router = useRouter()
+  const params = useLocalSearchParams()
+  const projectID = params.project as string
   const [hoveredId, setHoveredId] = useState('')
   const currentTask = tasks.find((t) => t.id === taskID)
   const currentProject = project.find((t) => t.id === currentTask?.projectID)
@@ -29,20 +32,29 @@ export default function TaskCard({ taskID, origin }: TaskCardType) {
       <Text style={{ color: 'gray', fontStyle: 'italic' }}>Task not found</Text>
     )
   }
+  if (!currentProject) return
+
+  const handleTaskPress = () => {
+    // ✅ Navigate with both project and task IDs
+
+    router.push({
+      pathname: '/(screens)/taskWindow',
+      params: {
+        project: projectID, // Keep project ID
+        task: currentTask.id, // Add task ID
+      },
+    })
+  }
 
   return (
     <Pressable
       style={{
-        width: origin === 'taskWindow' ? '32%' : '100%',
+        width: origin === 'taskWindow' ? 400 : '100%', // Fixed width for horizontal scroll
         marginBottom: 5,
       }}
       onHoverIn={() => setHoveredId(currentTask.id)}
       onHoverOut={() => setHoveredId('')}
-      onPress={() => {
-        router.push('/(screens)/taskWindow')
-        setSelectedProject(currentTask.projectID)
-        setSelectedTask(currentTask.id)
-      }}
+      onPress={handleTaskPress}
     >
       <Card
         size="lg"
@@ -76,8 +88,6 @@ export default function TaskCard({ taskID, origin }: TaskCardType) {
                         ? '#D76C1F'
                         : 'red',
           height: '100%', // ensures card fills container
-          display: 'flex',
-          flexDirection: 'column', // stack items vertically
         }}
       >
         <VStack
@@ -95,11 +105,6 @@ export default function TaskCard({ taskID, origin }: TaskCardType) {
               }}
             >
               <VStack>
-                {origin === 'home' ? (
-                  <Text style={{ color: '#E5E5E5' }}>
-                    {currentProject?.title}
-                  </Text>
-                ) : null}
                 <TaskLinkTag taskID={currentTask.id} />
               </VStack>
 
@@ -114,14 +119,7 @@ export default function TaskCard({ taskID, origin }: TaskCardType) {
               justifyContent: 'space-between',
             }}
           >
-            <VStack>
-              {!currentTask.parentTasks &&
-              currentTask.childTasks?.length == 0 &&
-              origin === 'home' ? (
-                <Text style={{ color: '#E5E5E5' }}>
-                  {currentProject?.title}
-                </Text>
-              ) : null}
+            <VStack space="xs">
               <Text
                 style={{
                   fontSize: 18,
@@ -135,6 +133,11 @@ export default function TaskCard({ taskID, origin }: TaskCardType) {
               >
                 {truncate(currentTask.title, 50, 'chars')}
               </Text>
+              {origin === 'home' ? (
+                <Text style={{ color: '#E5E5E5' }}>
+                  {truncate(currentProject.title, 50, 'chars')}
+                </Text>
+              ) : null}
             </VStack>
 
             {!currentTask.parentTasks && currentTask.childTasks?.length == 0 ? (

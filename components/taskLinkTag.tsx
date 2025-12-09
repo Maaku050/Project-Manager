@@ -62,8 +62,8 @@ export default function TaskLinkTag({ taskID }: TaskLinkTagType) {
       .filter(Boolean) // Remove any undefined values
 
     // Determine how many to display (max 2)
-    const displayTasks = childTaskObjects.slice(0, 2)
-    const hasMore = childTaskObjects.length > 2
+    const displayTasks = childTaskObjects.slice(0, 3)
+    const hasMore = childTaskObjects.length > 3
 
     return (
       <HStack style={{ alignItems: 'center' }} space="xs">

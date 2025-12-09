@@ -252,7 +252,6 @@ export default function Pagination({
       style={{
         padding: 12,
         borderRadius: 6,
-        marginTop: 20,
       }}
     >
       <HStack

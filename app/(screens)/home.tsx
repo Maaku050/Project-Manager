@@ -21,7 +21,6 @@ import ProjectCard from '@/components/projectCard'
 import TaskCard from '@/components/taskCard'
 import Pagination from '@/components/customPagination'
 
-
 const PROJECT_PER_PAGE = 15
 
 export default function Home() {
@@ -46,35 +45,31 @@ export default function Home() {
     assignedUser.some((a) => a.projectID === p.id && a.uid === profile?.uid)
   )
 
-  const sortedProject = myProject.sort((a, b) =>
-    { const aOverdue =
-                    a.deadline &&
-                    a.deadline.toDate() < new Date() &&
-                    a.status != 'Archived' &&
-                    a.status != 'Closed'
-                  const bOverdue =
-                    b.deadline &&
-                    b.deadline.toDate() < new Date() &&
-                    b.status != 'Arcived' &&
-                    b.status != 'Closed'
+  const sortedProject = myProject.sort((a, b) => {
+    const aOverdue =
+      a.deadline &&
+      a.deadline.toDate() < new Date() &&
+      a.status != 'Archived' &&
+      a.status != 'Closed'
+    const bOverdue =
+      b.deadline &&
+      b.deadline.toDate() < new Date() &&
+      b.status != 'Arcived' &&
+      b.status != 'Closed'
 
-                  if (aOverdue && !bOverdue) return -1
-                  if (!aOverdue && bOverdue) return 1
+    if (aOverdue && !bOverdue) return -1
+    if (!aOverdue && bOverdue) return 1
 
-                  const aTime = a.deadline
-                    ? a.deadline.toDate().getTime()
-                    : Infinity
-                  const bTime = b.deadline
-                    ? b.deadline.toDate().getTime()
-                    : Infinity
+    const aTime = a.deadline ? a.deadline.toDate().getTime() : Infinity
+    const bTime = b.deadline ? b.deadline.toDate().getTime() : Infinity
 
-                  const aClosed = a.status === "Closed";
-                  const bClosed = b.status === "Closed";
+    const aClosed = a.status === 'Closed'
+    const bClosed = b.status === 'Closed'
 
-                  if (aClosed && !bClosed) return +1
-                  if (!aClosed && bClosed) return +2
-                  return aTime - bTime
-                })
+    if (aClosed && !bClosed) return +1
+    if (!aClosed && bClosed) return +2
+    return aTime - bTime
+  })
 
   // ---------------pagination-------------------------
   const totalPages = Math.ceil(myProject.length / PROJECT_PER_PAGE)
@@ -86,7 +81,6 @@ export default function Home() {
     setMyProjectPage(page)
     router.setParams({ page: page.toString() })
   }
-
 
   const taskMessage = userTask.length === 0
   const projectMassage = myProject.length === 0
@@ -495,13 +489,18 @@ export default function Home() {
             </View>
           ) : (
             <>
-                {sliceProject.map((Id) => (
-                  <ProjectCard key={Id.id} projectID={Id.id} />
-                ))}
+              {sliceProject.map((Id) => (
+                <ProjectCard key={Id.id} projectID={Id.id} />
+              ))}
             </>
-          )};
+          )}
+          ;
         </Box>
-         <Pagination currentPage={myProjecctPage} totalPages={totalPages} onPageChange={handlePageChange} />
+        <Pagination
+          currentPage={myProjecctPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
       </Box>
 
       <ProfileEditModal

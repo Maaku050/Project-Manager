@@ -1,5 +1,4 @@
-// DateTimePicker.tsx
-import React, { useState } from "react";
+import React, { useState } from 'react'
 import {
   Platform,
   View,
@@ -7,229 +6,307 @@ import {
   Pressable,
   Modal,
   StyleSheet,
-  GestureResponderEvent,
-} from "react-native";
+  useWindowDimensions,
+} from 'react-native'
 import RNDateTimePicker, {
   DateTimePickerEvent,
-} from "@react-native-community/datetimepicker";
-import { Spinner } from "./ui/spinner";
-
-type Mode = "date" | "time" | "datetime";
+} from '@react-native-community/datetimepicker'
 
 type Props = {
-  value: Date | null;
-  onChange: (date: Date | null) => void;
-  mode?: Mode;
-  label?: string;
-  minimumDate?: Date;
-  maximumDate?: Date;
-  placeholder?: string;
-  loading?: boolean;
-  defaultValue?: Date | null; // ✅ NEW PROP
-};
-
-function formatLocalInputValue(d: Date | null, mode: Mode) {
-  if (!d) return "";
-  // datetime-local expects 'YYYY-MM-DDTHH:MM'
-  const pad = (n: number) => n.toString().padStart(2, "0");
-  const Y = d.getFullYear();
-  const M = pad(d.getMonth() + 1);
-  const D = pad(d.getDate());
-  const hh = pad(d.getHours());
-  const mm = pad(d.getMinutes());
-  if (mode === "date") return `${Y}-${M}-${D}`;
-  if (mode === "time") return `${hh}:${mm}`;
-  return `${Y}-${M}-${D}T${hh}:${mm}`;
+  value: Date | null
+  onChange: (date: Date | null) => void
+  placeholder?: string
 }
 
 export default function DateTimePicker({
   value,
-  defaultValue,
   onChange,
-  mode = "datetime",
-  label,
-  minimumDate,
-  maximumDate,
-  placeholder = "Select...",
-  loading,
+  placeholder = 'Select date',
 }: Props) {
-  const [show, setShow] = useState(false);
+  const [showModal, setShowModal] = useState(false)
+  const dimensions = useWindowDimensions()
+  const isMobile = dimensions.width <= 768
+  const isDesktop = dimensions.width >= 1280
 
-  // ---- WEB ----
-  if (Platform.OS === "web") {
-    // decide input type
-    const inputType =
-      mode === "date" ? "date" : mode === "time" ? "time" : "datetime-local";
-
-    const handleWebChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const v = e.target.value;
-      if (!v) {
-        onChange(null);
-        return;
-      }
-      // For datetime-local the format is "YYYY-MM-DDTHH:MM" (local)
-      const parsed =
-        inputType === "time"
-          ? (() => {
-              // only time -> combine with today's date
-              const [hh, mm] = v.split(":").map(Number);
-              const d = value ? new Date(value) : new Date();
-              d.setHours(hh, mm, 0, 0);
-              return d;
-            })()
-          : new Date(v);
-      if (isNaN(parsed.getTime())) {
-        onChange(null);
-      } else {
-        onChange(parsed);
-      }
-    };
-
-    return (
-      <View style={[styles.container, { position: "relative" }]}>
-        {label ? <Text style={styles.label}>{label}</Text> : null}
-        <View
-          style={{
-            position: "relative",
-            display: "contents",
-            alignItems: "center",
-          }}
-        >
-          <input
-            aria-label={label ?? "date-time"}
-            type={inputType}
-            value={value ? formatLocalInputValue(value, mode) : ""}
-            onChange={handleWebChange}
-            min={
-              minimumDate ? formatLocalInputValue(minimumDate, mode) : undefined
-            }
-            max={
-              maximumDate ? formatLocalInputValue(maximumDate, mode) : undefined
-            }
-            disabled={loading}
-            style={{
-              color: "#000000",
-              padding: 12,
-              borderRadius: 8,
-              borderWidth: 1,
-              borderColor: "#ffffffff",
-              backgroundColor: "#ffffffff",
-              outline: "none",
-              opacity: loading ? 0.6 : 1,
-            }}
-            placeholder="Enter project Deadline"
-          />
-
-          {loading && (
-            <View
-              style={{
-                position: "absolute",
-                right: 0,
-                left: 0,
-                marginTop: 6,
-              }}
-            >
-              <Spinner size="large" color="gray" />
-            </View>
-          )}
-        </View>
-      </View>
-    );
+  // Format date for display
+  const formatDate = (date: Date | null): string => {
+    if (!date) return placeholder
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    })
   }
 
-  // ---- MOBILE (iOS / Android) ----
-  const onChangeMobile = (event: DateTimePickerEvent, selected?: Date) => {
-    // On Android the event might be 'dismissed' (type === 'dismissed')
-    // the community picker wraps event.nativeEvent?.timestamp in some versions
-    // We use selected value when available.
-    if (event.type === "dismissed") {
-      setShow(false);
-      return;
+  // Format date for input value (YYYY-MM-DD)
+  const formatInputValue = (date: Date | null): string => {
+    if (!date) return ''
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+  }
+
+  // WEB VERSION
+  if (Platform.OS === 'web' && isMobile) {
+    return (
+      // <View style={styles.container}>
+      //   <Pressable onPress={() => setShowModal(true)} style={styles.button}>
+      //     <Text style={[styles.buttonText, !value && styles.placeholderText]}>
+      //       {formatDate(value)}
+      //     </Text>
+      //   </Pressable>
+
+      //   {showModal && (
+      //     <Modal
+      //       visible
+      //       transparent
+      //       animationType="fade"
+      //       onRequestClose={() => setShowModal(false)}
+      //     >
+      //       <Pressable
+      //         style={styles.modalOverlay}
+      //         onPress={() => setShowModal(false)}
+      //       >
+      //         <Pressable
+      //           style={styles.modalContent}
+      //           onPress={(e) => e.stopPropagation()}
+      //         >
+      //           <View style={styles.modalHeader}>
+      //             <Text style={styles.modalTitle}>Select Date</Text>
+      //             <Pressable
+      //               onPress={() => setShowModal(false)}
+      //               style={styles.closeButton}
+      //             >
+      //               <Text style={styles.closeText}>×</Text>
+      //             </Pressable>
+      //           </View>
+
+      //           <View style={styles.inputContainer}>
+      //             <input
+      //               type="date"
+      //               value={formatInputValue(value)}
+      //               onChange={(e) => {
+      //                 const newDate = e.target.value
+      //                   ? new Date(e.target.value)
+      //                   : null
+      //                 onChange(newDate)
+      //               }}
+      //               style={{
+      //                 width: '100%',
+      //                 padding: 12,
+      //                 fontSize: 16,
+      //                 border: '1px solid #ddd',
+      //                 borderRadius: 8,
+      //                 outline: 'none',
+      //               }}
+      //             />
+      //           </View>
+
+      //           <Pressable
+      //             onPress={() => setShowModal(false)}
+      //             style={styles.doneButton}
+      //           >
+      //             <Text style={styles.doneButtonText}>Done</Text>
+      //           </Pressable>
+      //         </Pressable>
+      //       </Pressable>
+      //     </Modal>
+      //   )}
+      // </View>
+      <View style={styles.container}>
+        <Text
+          style={{ position: 'absolute', marginLeft: 10, color: '#999999' }}
+        >
+          {value ? null : placeholder}
+        </Text>
+        <input
+          type="date"
+          value={formatInputValue(value)}
+          onChange={(e) => {
+            const newDate = e.target.value ? new Date(e.target.value) : null
+            onChange(newDate)
+          }}
+          style={{
+            width: '100%',
+            padding: 12,
+            fontSize: 16,
+            border: '1px solid #ddd',
+            borderRadius: 8,
+            outline: 'none',
+          }}
+        />
+      </View>
+    )
+  } else if (Platform.OS === 'web' && !isMobile) {
+    return (
+      <View style={styles.container}>
+        <input
+          type="date"
+          value={formatInputValue(value)}
+          onChange={(e) => {
+            const newDate = e.target.value ? new Date(e.target.value) : null
+            onChange(newDate)
+          }}
+          style={{
+            width: '100%',
+            padding: 12,
+            fontSize: 16,
+            border: '1px solid #ddd',
+            borderRadius: 8,
+            outline: 'none',
+          }}
+        />
+      </View>
+    )
+  }
+
+  // MOBILE VERSION (iOS/Android)
+  const handleDateChange = (
+    event: DateTimePickerEvent,
+    selectedDate?: Date
+  ) => {
+    if (event.type === 'dismissed') {
+      setShowModal(false)
+      return
     }
-
-    const current = selected ?? value ?? new Date();
-    onChange(current);
-    // on iOS you may want to keep showing (inline) but here we hide after pick.
-    setShow(false);
-  };
-
-  const open = (e?: GestureResponderEvent) => setShow(true);
+    if (selectedDate) {
+      onChange(selectedDate)
+    }
+    setShowModal(false)
+  }
 
   return (
     <View style={styles.container}>
-      {label ? <Text style={styles.label}>{label}</Text> : null}
-      <Pressable onPress={!loading ? open : undefined} style={styles.button}>
-        {loading ? (
-          <Spinner size="small" color="gray" />
-        ) : (
-          <Text style={styles.buttonText}>
-            {(value ?? defaultValue)?.toLocaleString() ?? placeholder}
-          </Text>
-        )}
+      <Pressable onPress={() => setShowModal(true)} style={styles.button}>
+        <Text style={[styles.buttonText, !value && styles.placeholderText]}>
+          {formatDate(value)}
+        </Text>
       </Pressable>
 
-      {/* Show platform picker */}
-      {show && (
-        <>
-          {/* For iOS the RNDateTimePicker is often shown inline or in a modal. */}
-          <Modal
-            visible
-            transparent
-            animationType="fade"
-            onRequestClose={() => setShow(false)}
-          >
-            <View style={styles.modalOverlay}>
-              <View style={styles.modalContent}>
-                <RNDateTimePicker
-                  value={value ?? defaultValue ?? new Date()} // ✅ use defaultValue if value is null
-                  mode={mode === "datetime" ? "date" : (mode as any)}
-                  display={Platform.OS === "ios" ? "spinner" : "default"}
-                  onChange={onChangeMobile}
-                  minimumDate={minimumDate}
-                  maximumDate={maximumDate}
-                />
-                <Pressable onPress={() => setShow(false)} style={styles.close}>
-                  <Text style={styles.closeText}>Close</Text>
-                </Pressable>
+      {showModal && (
+        <Modal
+          visible
+          transparent
+          animationType="slide"
+          onRequestClose={() => setShowModal(false)}
+        >
+          <View style={styles.mobileModalOverlay}>
+            <View style={styles.mobileModalContent}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>Select Date</Text>
               </View>
+
+              <RNDateTimePicker
+                value={value || new Date()}
+                mode="date"
+                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                onChange={handleDateChange}
+              />
+
+              <Pressable
+                onPress={() => setShowModal(false)}
+                style={styles.doneButton}
+              >
+                <Text style={styles.doneButtonText}>Done</Text>
+              </Pressable>
             </View>
-          </Modal>
-        </>
+          </View>
+        </Modal>
       )}
     </View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
-  container: { marginVertical: 8 },
-  label: { marginBottom: 6, fontSize: 14 },
-  button: {
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "#ddd",
-    backgroundColor: "#fff",
+  container: {
+    width: '100%',
+    justifyContent: 'center',
   },
-  buttonText: { fontSize: 15 },
+  button: {
+    width: '100%',
+    minHeight: 48,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#dddddd',
+    borderRadius: 8,
+    justifyContent: 'center',
+  },
+  buttonText: {
+    fontSize: 14,
+    color: '#000000',
+  },
+  placeholderText: {
+    color: '#999999',
+  },
+
+  // Web modal styles
   modalOverlay: {
     flex: 1,
-    justifyContent: "flex-end",
-    backgroundColor: "rgba(0,0,0,0.35)",
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   modalContent: {
-    backgroundColor: "#fff",
-    padding: 16,
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    width: '90%',
+    maxWidth: 400,
+    padding: 20,
   },
-  close: {
-    marginTop: 12,
-    padding: 10,
-    alignSelf: "flex-end",
+
+  // Mobile modal styles
+  mobileModalOverlay: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  mobileModalContent: {
+    backgroundColor: '#ffffff',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingBottom: 20,
+  },
+
+  // Shared modal styles
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eeeeee',
+    marginBottom: 16,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#000000',
+  },
+  closeButton: {
+    padding: 4,
   },
   closeText: {
-    fontSize: 16,
-    color: "#007AFF",
+    fontSize: 28,
+    color: '#666666',
+    lineHeight: 28,
   },
-});
+  inputContainer: {
+    marginBottom: 16,
+  },
+  doneButton: {
+    width: '100%',
+    padding: 14,
+    backgroundColor: '#007AFF',
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 16,
+  },
+  doneButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#ffffff',
+  },
+})

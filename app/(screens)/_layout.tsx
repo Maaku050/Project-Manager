@@ -8,6 +8,7 @@ import { Drawer } from 'expo-router/drawer'
 import {
   DrawerContentScrollView,
   DrawerItemList,
+  DrawerToggleButton,
 } from '@react-navigation/drawer'
 import { Home, LayoutDashboard, Folder, Users } from 'lucide-react-native'
 import '@/global.css'
@@ -37,12 +38,12 @@ function CustomDrawerContent(props: any) {
           padding: 30,
           alignItems: 'center',
           backgroundColor: '#000',
-          paddingTop: 50,
-          paddingBottom: 40,
+          paddingTop: 20,
+          paddingBottom: 20,
         }}
       >
         <Image
-          source={require('@/assets/images/favicon.png')} // Your logo path
+          source={require('@/assets/images/final dark logo.png')} // Your logo path
           style={{ width: 120, height: 60 }}
           resizeMode="contain"
         />
@@ -58,6 +59,7 @@ export default function RootLayout() {
   const dimensions = useWindowDimensions()
   const isLargeScreen = dimensions.width >= 1280
   const isMediumScreen = dimensions.width <= 1280 && dimensions.width > 768
+  const isMobile = dimensions.width <= 768
   const router = useRouter()
 
   return (
@@ -159,9 +161,15 @@ export default function RootLayout() {
                   ),
                   headerTitle: () => null,
                   headerRight: () => <HeaderLogout />,
-                  headerLeft: isLargeScreen
-                    ? () => <HeaderButtons screen="project" />
-                    : undefined,
+                  headerLeft: () =>
+                    isMobile ? (
+                      <HStack style={{ alignItems: 'center' }}>
+                        <DrawerToggleButton tintColor="white" />
+                        <HeaderButtons screen="project" />
+                      </HStack>
+                    ) : (
+                      <HeaderButtons screen="project" />
+                    ),
                   headerTintColor: 'white',
                   headerStyle: {
                     ...styles.headerSpace,
@@ -193,7 +201,37 @@ export default function RootLayout() {
                   drawerItemStyle: { display: 'none' },
                   headerTitle: () => null,
                   headerRight: () => <HeaderLogout />,
-                  headerLeft: () => <HeaderButtons screen="projectWindow" />,
+                  headerLeft: () =>
+                    isMobile ? (
+                      <HStack style={{ alignItems: 'center' }}>
+                        <DrawerToggleButton tintColor="white" />
+                        <HeaderButtons screen="projectWindow" />
+                      </HStack>
+                    ) : (
+                      <HeaderButtons screen="projectWindow" />
+                    ),
+                  headerTintColor: 'white',
+                  headerStyle: {
+                    ...styles.headerSpace,
+                  },
+                }}
+              />
+              <Drawer.Screen
+                name="addTaskScreen"
+                options={{
+                  title: 'addTaskScreen',
+                  drawerItemStyle: { display: 'none' },
+                  headerTitle: () => null,
+                  headerRight: () => <HeaderLogout />,
+                  headerLeft: () =>
+                    isMobile ? (
+                      <HStack style={{ alignItems: 'center' }}>
+                        <DrawerToggleButton tintColor="white" />
+                        <HeaderButtons screen="projectWindow" />
+                      </HStack>
+                    ) : (
+                      <HeaderButtons screen="projectWindow" />
+                    ),
                   headerTintColor: 'white',
                   headerStyle: {
                     ...styles.headerSpace,
@@ -207,9 +245,125 @@ export default function RootLayout() {
                   drawerItemStyle: { display: 'none' },
                   headerTitle: () => null,
                   headerRight: () => <HeaderLogout />,
-                  headerLeft: () => (
-                    <HeaderButtons screen="projectJournalScreen" />
-                  ),
+                  headerLeft: () =>
+                    isMobile ? (
+                      <HStack style={{ alignItems: 'center' }}>
+                        <DrawerToggleButton tintColor="white" />
+                        <HeaderButtons screen="projectWindow" />
+                      </HStack>
+                    ) : (
+                      <HeaderButtons screen="projectJournalScreen" />
+                    ),
+                  headerTintColor: 'white',
+                  headerStyle: {
+                    ...styles.headerSpace,
+                  },
+                }}
+              />
+              <Drawer.Screen
+                name="addProjectScreen"
+                options={{
+                  title: 'addProjectScreen',
+                  drawerItemStyle: { display: 'none' },
+                  headerTitle: () => null,
+                  headerRight: () => <HeaderLogout />,
+                  headerTintColor: 'white',
+                  headerLeft: () =>
+                    isMobile ? (
+                      <HStack style={{ alignItems: 'center' }}>
+                        <DrawerToggleButton tintColor="white" />
+                        <HeaderButtons screen="projectWindow" />
+                      </HStack>
+                    ) : (
+                      <HeaderButtons screen="projectJournalScreen" />
+                    ),
+                  headerStyle: {
+                    ...styles.headerSpace,
+                  },
+                }}
+              />
+              <Drawer.Screen
+                name="addJournalScreen"
+                options={{
+                  title: 'addJournalScreen',
+                  drawerItemStyle: { display: 'none' },
+                  headerTitle: () => null,
+                  headerRight: () => <HeaderLogout />,
+                  headerLeft: () =>
+                    isMobile ? (
+                      <HStack style={{ alignItems: 'center' }}>
+                        <DrawerToggleButton tintColor="white" />
+                        <HeaderButtons screen="projectWindow" />
+                      </HStack>
+                    ) : (
+                      <HeaderButtons screen="projectJournalScreen" />
+                    ),
+                  headerTintColor: 'white',
+                  headerStyle: {
+                    ...styles.headerSpace,
+                  },
+                }}
+              />
+              <Drawer.Screen
+                name="editJournalScreen"
+                options={{
+                  title: 'editJournalScreen',
+                  drawerItemStyle: { display: 'none' },
+                  headerTitle: () => null,
+                  headerRight: () => <HeaderLogout />,
+                  headerLeft: () =>
+                    isMobile ? (
+                      <HStack style={{ alignItems: 'center' }}>
+                        <DrawerToggleButton tintColor="white" />
+                        <HeaderButtons screen="projectWindow" />
+                      </HStack>
+                    ) : (
+                      <HeaderButtons screen="projectJournalScreen" />
+                    ),
+                  headerTintColor: 'white',
+                  headerStyle: {
+                    ...styles.headerSpace,
+                  },
+                }}
+              />
+              <Drawer.Screen
+                name="editProjectScreen"
+                options={{
+                  title: 'editProjectScreen',
+                  drawerItemStyle: { display: 'none' },
+                  headerTitle: () => null,
+                  headerRight: () => <HeaderLogout />,
+                  headerLeft: () =>
+                    isMobile ? (
+                      <HStack style={{ alignItems: 'center' }}>
+                        <DrawerToggleButton tintColor="white" />
+                        <HeaderButtons screen="projectWindow" />
+                      </HStack>
+                    ) : (
+                      <HeaderButtons screen="projectJournalScreen" />
+                    ),
+                  headerTintColor: 'white',
+                  headerStyle: {
+                    ...styles.headerSpace,
+                  },
+                }}
+              />
+              <Drawer.Screen
+                name="editTaskScreen"
+                options={{
+                  title: 'editTaskScreen',
+                  drawerItemStyle: { display: 'none' },
+                  headerTitle: () => null,
+                  headerRight: () => <HeaderLogout />,
+                  headerLeft: () =>
+                    isMobile ? (
+                      <HStack style={{ alignItems: 'center' }}>
+                        <DrawerToggleButton tintColor="white" />
+                        <HeaderButtons screen="projectWindow" />
+                      </HStack>
+                    ) : (
+                      <HeaderButtons screen="projectJournalScreen" />
+                    ),
                   headerTintColor: 'white',
                   headerStyle: {
                     ...styles.headerSpace,
@@ -223,7 +377,15 @@ export default function RootLayout() {
                   drawerItemStyle: { display: 'none' },
                   headerTitle: () => null,
                   headerRight: () => <HeaderLogout />,
-                  headerLeft: () => <HeaderButtons screen="taskWindow" />,
+                  headerLeft: () =>
+                    isMobile ? (
+                      <HStack style={{ alignItems: 'center' }}>
+                        <DrawerToggleButton tintColor="white" />
+                        <HeaderButtons screen="projectWindow" />
+                      </HStack>
+                    ) : (
+                      <HeaderButtons screen="taskWindow" />
+                    ),
                   headerTintColor: 'white',
                   headerStyle: {
                     ...styles.headerSpace,

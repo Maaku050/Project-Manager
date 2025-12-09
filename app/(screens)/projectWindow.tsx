@@ -4,6 +4,7 @@ import {
   ScrollView,
   StyleSheet,
   useWindowDimensions,
+  View,
 } from 'react-native'
 import { Text } from '@/components/ui/text'
 import { useProject } from '@/context/projectContext'
@@ -12,8 +13,10 @@ import { useState } from 'react'
 import React from 'react'
 import { HStack } from '@/components/ui/hstack'
 import {
+  ArrowLeft,
   CircleX,
   EllipsisVertical,
+  Folder,
   NotebookPen,
   Repeat,
   SquarePen,
@@ -34,21 +37,41 @@ import ProjectReopenModal from '@/modals/projectReopenModal'
 import { Button, ButtonIcon, ButtonText } from '@/components/ui/button'
 import { useRouter, useLocalSearchParams } from 'expo-router'
 import { truncate } from '@/helpers/truncateWords'
+import ProjectWindowSkeleton from '@/components/Skeleton/ProjectWindowSkeleton'
+import { Icon } from '@/components/ui/icon'
+import { VStack } from '@/components/ui/vstack'
 
 export default function ProjectWindow() {
   const dimensions = useWindowDimensions()
+  const isMobile = dimensions.width <= 1000
   const router = useRouter()
+  const params = useLocalSearchParams()
+  const projectID = params.project as string
   const [showAddTaskModal, setShowAddTaskModal] = useState(false)
   const [showEditProjectModal, setShowEditProjectModal] = useState(false)
   const [showDeleteProjectModal, setShowDeleteProjectModal] = useState(false)
   const [showCloseProjectModal, setShowCloseProjectModal] = useState(false)
   const [showReopenProjectModal, setShowReopenProjectModal] = useState(false)
   const [journalHover, setJournalHover] = useState(false)
-  const { selectedProject, project, setSelectedProject } = useProject()
-  const currentProjectData = project.find((t) => t.id === selectedProject)
+  const { project, loading } = useProject()
+  const currentProjectData = project.find((t) => t.id === projectID)
 
-  if (!currentProjectData) {
-    return <Text>Loading project data...</Text>
+  // if (loading || !currentProjectData) {
+  if (loading || !currentProjectData) {
+    return (
+      <ScrollView
+        style={{
+          flex: 1,
+          padding: isMobile ? 12 : 30,
+          backgroundColor: '#000000',
+          borderWidth: 0,
+          borderColor: 'red',
+        }}
+        showsVerticalScrollIndicator={false}
+      >
+        <ProjectWindowSkeleton />
+      </ScrollView>
+    )
   }
 
   return (
@@ -56,51 +79,82 @@ export default function ProjectWindow() {
       <ScrollView
         style={{
           flex: 1,
-          paddingTop: 30,
-          paddingBottom: 20,
-          paddingHorizontal: 15,
+          padding: isMobile ? 12 : 30,
           backgroundColor: '#000000',
           borderWidth: 0,
           borderColor: 'red',
         }}
         showsVerticalScrollIndicator={false}
       >
-        <Box style={{ borderWidth: 0, marginBottom: 30 }}>
+        {isMobile ? (
+          <Pressable
+            onPress={() => router.replace('/(screens)/project')}
+            style={{ marginBottom: 20 }}
+          >
+            <HStack style={{ alignItems: 'center', borderWidth: 0 }} space="sm">
+              <ArrowLeft color={'white'} />
+              <Text style={{ color: 'white', fontSize: 15 }}>
+                Project Details
+              </Text>
+            </HStack>
+          </Pressable>
+        ) : null}
+        <Box style={{ borderWidth: 0, marginBottom: isMobile ? 10 : 30 }}>
           <HStack
             style={{ justifyContent: 'space-between', alignItems: 'center' }}
           >
             <Text
               style={{
-                fontSize: 28,
+                fontSize: isMobile ? 18 : 28,
                 fontWeight: 'bold',
                 color: 'white',
+                maxWidth: isMobile ? 270 : 900,
               }}
             >
               {currentProjectData.title}
             </Text>
             <HStack style={{ alignItems: 'center' }} space="md">
-              <Button
-                style={{ borderRadius: 8 }}
-                variant="outline"
-                onHoverIn={() => setJournalHover(true)}
-                onHoverOut={() => setJournalHover(false)}
-                onPress={() => {
-                  router.replace({
-                    pathname: '/(screens)/projectJournalScreen',
-                    params: {
-                      project: currentProjectData.id.toString(),
-                    },
-                  })
-                }}
-              >
-                <ButtonIcon
-                  as={NotebookPen}
-                  color={journalHover ? 'black' : 'white'}
-                />
-                <ButtonText style={{ color: journalHover ? 'black' : 'white' }}>
-                  Project Journal
-                </ButtonText>
-              </Button>
+              {isMobile ? (
+                <Pressable
+                  onPress={() => {
+                    router.replace({
+                      pathname: '/(screens)/projectJournalScreen',
+                      params: {
+                        project: currentProjectData.id.toString(),
+                      },
+                    })
+                  }}
+                >
+                  <Icon as={NotebookPen} color={'white'} />
+                </Pressable>
+              ) : (
+                <Button
+                  style={{ borderRadius: 8 }}
+                  variant="outline"
+                  onHoverIn={() => setJournalHover(true)}
+                  onHoverOut={() => setJournalHover(false)}
+                  onPress={() => {
+                    router.replace({
+                      pathname: '/(screens)/projectJournalScreen',
+                      params: {
+                        project: currentProjectData.id.toString(),
+                      },
+                    })
+                  }}
+                >
+                  <ButtonIcon
+                    as={NotebookPen}
+                    color={journalHover ? 'black' : 'white'}
+                  />
+
+                  <ButtonText
+                    style={{ color: journalHover ? 'black' : 'white' }}
+                  >
+                    Project Journal
+                  </ButtonText>
+                </Button>
+              )}
+
               <Menu
                 placement="top"
                 offset={5}
@@ -119,8 +173,11 @@ export default function ProjectWindow() {
                 <MenuItem
                   textValue="Add account"
                   onPress={() => {
-                    setSelectedProject(currentProjectData.id)
-                    setShowEditProjectModal(true)
+                    isMobile
+                      ? router.replace(
+                          `./editProjectScreen?project=${projectID}&origin=projectWindow`
+                        )
+                      : setShowEditProjectModal(true)
                   }}
                 >
                   <SquarePen />
@@ -167,7 +224,11 @@ export default function ProjectWindow() {
                   <Trash color={'red'} />
                   <MenuItemLabel
                     size="md"
-                    style={{ marginLeft: 10, fontWeight: 'bold', color: 'red' }}
+                    style={{
+                      marginLeft: 10,
+                      fontWeight: 'bold',
+                      color: 'red',
+                    }}
                   >
                     Delete project
                   </MenuItemLabel>
@@ -178,10 +239,8 @@ export default function ProjectWindow() {
         </Box>
 
         <Box style={{ borderWidth: 0 }}>
-          <HStack>
-            {/* Description / Status / Deadline / Assigned users */}
-            <Box style={{ flex: 3, paddingRight: 20 }}>
-              {/* Description */}
+          {isMobile ? (
+            <VStack>
               <Pressable
                 onPress={() => {
                   router.replace({
@@ -195,125 +254,221 @@ export default function ProjectWindow() {
                 <Text
                   style={{
                     color: 'white',
-                    marginBottom: 20,
+                    marginBottom: 5,
+                    fontSize: 12,
+                    borderWidth: 0,
                   }}
                 >
                   {truncate(currentProjectData.description, 50, 'words')}
                 </Text>
               </Pressable>
 
-              <Box style={{ borderWidth: 0, flex: 1 }}>
-                <HStack style={{ flex: 1, alignItems: 'center' }}>
-                  {/* Status */}
-                  <HStack
-                    style={{
-                      flex: 1,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      paddingVertical: 10,
-                    }}
-                    space="md"
-                  >
-                    <Text style={{ color: '#CDCCCC', fontSize: 18 }}>
-                      Status
-                    </Text>
-                    <Text style={{ color: 'white', fontSize: 18 }}>
-                      {currentProjectData.deadline &&
-                      currentProjectData.deadline?.toDate() < new Date() &&
-                      currentProjectData.status === 'Closed'
-                        ? 'Overdue/Closed'
-                        : currentProjectData.deadline &&
-                            currentProjectData.deadline?.toDate() < new Date()
-                          ? 'Overdue'
-                          : currentProjectData.status}
-                    </Text>
-                  </HStack>
+              <HStack
+                style={{
+                  alignItems: 'center',
+                  marginBottom: 10,
+                }}
+                space="md"
+              >
+                <Text style={{ color: '#CDCCCC', fontSize: 16 }}>Status</Text>
+                <Text style={{ color: 'white', fontSize: 16 }}>
+                  {currentProjectData.deadline &&
+                  currentProjectData.deadline?.toDate() < new Date() &&
+                  currentProjectData.status === 'Closed'
+                    ? 'Overdue/Closed'
+                    : currentProjectData.deadline &&
+                        currentProjectData.deadline?.toDate() < new Date()
+                      ? 'Overdue'
+                      : currentProjectData.status}
+                </Text>
+              </HStack>
 
-                  {/* Vertical Divider */}
-                  <Divider
-                    orientation="vertical"
-                    style={{ backgroundColor: 'gray' }}
-                  />
+              <HStack
+                style={{
+                  alignItems: 'center',
+                  marginBottom: 10,
+                }}
+                space="md"
+              >
+                <Text style={{ color: '#CDCCCC', fontSize: 16 }}>Deadline</Text>
+                <Text style={{ color: 'white', fontSize: 16 }}>
+                  {currentProjectData.deadline &&
+                    currentProjectData.deadline
+                      .toDate()
+                      .toLocaleDateString('en-US')}
+                </Text>
+              </HStack>
 
-                  {/* Deadline */}
-                  <HStack
-                    style={{
-                      flex: 1,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      paddingVertical: 10,
-                    }}
-                    space="md"
-                  >
-                    <Text style={{ color: '#CDCCCC', fontSize: 18 }}>
-                      Deadline
-                    </Text>
-                    <Text style={{ color: 'white', fontSize: 18 }}>
-                      {currentProjectData.deadline &&
-                        currentProjectData.deadline
-                          .toDate()
-                          .toLocaleDateString('en-US')}
-                    </Text>
-                  </HStack>
+              <HStack
+                style={{
+                  alignItems: 'center',
+                  marginBottom: 10,
+                }}
+                space="sm"
+              >
+                <Text style={{ color: '#CDCCCC', fontSize: 16 }}>
+                  Assigned Members
+                </Text>
+                <ProjectUsers projectID={currentProjectData.id} />
+              </HStack>
 
-                  {/* Vertical Divider */}
-                  <Divider
-                    orientation="vertical"
-                    style={{ backgroundColor: 'gray' }}
-                  />
-
-                  {/* Assigned Users */}
-                  <HStack
-                    style={{
-                      flex: 2,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      paddingVertical: 10,
-                    }}
-                    space="md"
-                  >
-                    <Text style={{ color: '#CDCCCC', fontSize: 18 }}>
-                      Assigned Members
-                    </Text>
-                    <ProjectUsers projectID={currentProjectData.id} />
-                  </HStack>
-                </HStack>
-              </Box>
-            </Box>
-
-            {/* Divider */}
-            <Box style={{ flex: 0 }}>
               <Divider
-                orientation="vertical"
+                orientation="horizontal"
                 style={{ backgroundColor: 'gray' }}
               />
-            </Box>
 
-            {/* Tasks Summary */}
-            <Box
-              style={{
-                flex: 1,
-                borderWidth: 0,
-                paddingLeft: 20,
-              }}
-            >
               <Box>
                 <Text
-                  style={{ color: '#CDCCCC', fontSize: 15, marginBottom: 10 }}
+                  style={{
+                    color: '#CDCCCC',
+                    fontSize: 15,
+                    marginBottom: 10,
+                    marginTop: 10,
+                  }}
                 >
                   Task Summary
                 </Text>
                 <TaskSummary projectID={currentProjectData.id} />
               </Box>
-            </Box>
-          </HStack>
+            </VStack>
+          ) : (
+            <HStack>
+              {/* Description / Status / Deadline / Assigned users */}
+              <Box style={{ flex: 3, paddingRight: 20 }}>
+                {/* Description */}
+                <Pressable
+                  onPress={() => {
+                    router.replace({
+                      pathname: '/(screens)/projectJournalScreen',
+                      params: {
+                        project: currentProjectData.id.toString(),
+                      },
+                    })
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: 'white',
+                      marginBottom: 20,
+                    }}
+                  >
+                    {truncate(currentProjectData.description, 50, 'words')}
+                  </Text>
+                </Pressable>
+
+                <Box style={{ borderWidth: 0, flex: 1 }}>
+                  <HStack style={{ flex: 1, alignItems: 'center' }}>
+                    {/* Status */}
+                    <HStack
+                      style={{
+                        flex: 1,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        paddingVertical: 10,
+                      }}
+                      space="md"
+                    >
+                      <Text style={{ color: '#CDCCCC', fontSize: 18 }}>
+                        Status
+                      </Text>
+                      <Text style={{ color: 'white', fontSize: 18 }}>
+                        {currentProjectData.deadline &&
+                        currentProjectData.deadline?.toDate() < new Date() &&
+                        currentProjectData.status === 'Closed'
+                          ? 'Overdue/Closed'
+                          : currentProjectData.deadline &&
+                              currentProjectData.deadline?.toDate() < new Date()
+                            ? 'Overdue'
+                            : currentProjectData.status}
+                      </Text>
+                    </HStack>
+
+                    {/* Vertical Divider */}
+                    <Divider
+                      orientation="vertical"
+                      style={{ backgroundColor: 'gray' }}
+                    />
+
+                    {/* Deadline */}
+                    <HStack
+                      style={{
+                        flex: 1,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        paddingVertical: 10,
+                      }}
+                      space="md"
+                    >
+                      <Text style={{ color: '#CDCCCC', fontSize: 18 }}>
+                        Deadline
+                      </Text>
+                      <Text style={{ color: 'white', fontSize: 18 }}>
+                        {currentProjectData.deadline &&
+                          currentProjectData.deadline
+                            .toDate()
+                            .toLocaleDateString('en-US')}
+                      </Text>
+                    </HStack>
+
+                    {/* Vertical Divider */}
+                    <Divider
+                      orientation="vertical"
+                      style={{ backgroundColor: 'gray' }}
+                    />
+
+                    {/* Assigned Users */}
+                    <HStack
+                      style={{
+                        flex: 2,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        paddingVertical: 10,
+                      }}
+                      space="md"
+                    >
+                      <Text style={{ color: '#CDCCCC', fontSize: 18 }}>
+                        Assigned Members
+                      </Text>
+                      <ProjectUsers projectID={currentProjectData.id} />
+                    </HStack>
+                  </HStack>
+                </Box>
+              </Box>
+
+              {/* Divider */}
+              <Box style={{ flex: 0 }}>
+                <Divider
+                  orientation="vertical"
+                  style={{ backgroundColor: 'gray' }}
+                />
+              </Box>
+
+              {/* Tasks Summary */}
+              <Box
+                style={{
+                  flex: 1,
+                  borderWidth: 0,
+                  marginLeft: 20,
+                }}
+              >
+                <Box>
+                  <Text
+                    style={{ color: '#CDCCCC', fontSize: 15, marginBottom: 10 }}
+                  >
+                    Task Summary
+                  </Text>
+                  <TaskSummary projectID={currentProjectData.id} />
+                </Box>
+              </Box>
+            </HStack>
+          )}
         </Box>
 
         <Box
           style={{
             borderWidth: 0,
             marginTop: 20,
-            marginBottom: 10,
+            marginBottom: isMobile ? 20 : 10,
           }}
         >
           <TaskProgressBar
@@ -322,24 +477,45 @@ export default function ProjectWindow() {
           />
         </Box>
 
-        <Box style={{ borderWidth: 0, flex: 1 }}>
-          <HStack space="sm" style={{ alignItems: 'stretch' }}>
-            <Box style={{ flex: 1 }}>
-              <TodoTasks projectID={currentProjectData.id} />
-            </Box>
+        {isMobile ? (
+          <>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              <HStack space="sm" style={{ alignItems: 'stretch' }}>
+                <Box style={{ minWidth: 300, maxWidth: 400 }}>
+                  <TodoTasks projectID={currentProjectData.id} />
+                </Box>
 
-            <Box style={{ flex: 1 }}>
-              <OngoingTasks projectID={currentProjectData.id} />
-            </Box>
+                <Box style={{ minWidth: 300, maxWidth: 400 }}>
+                  <OngoingTasks projectID={currentProjectData.id} />
+                </Box>
 
-            <Box style={{ flex: 1 }}>
-              <CompletedTasks projectID={currentProjectData.id} />
-            </Box>
-          </HStack>
-        </Box>
+                <Box style={{ minWidth: 300, maxWidth: 400 }}>
+                  <CompletedTasks projectID={currentProjectData.id} />
+                </Box>
+              </HStack>
+            </ScrollView>
+          </>
+        ) : (
+          <Box style={{ borderWidth: 0, flex: 1 }}>
+            <HStack space="sm" style={{ alignItems: 'stretch' }}>
+              <Box style={{ flex: 1 }}>
+                <TodoTasks projectID={currentProjectData.id} />
+              </Box>
+
+              <Box style={{ flex: 1 }}>
+                <OngoingTasks projectID={currentProjectData.id} />
+              </Box>
+
+              <Box style={{ flex: 1 }}>
+                <CompletedTasks projectID={currentProjectData.id} />
+              </Box>
+            </HStack>
+          </Box>
+        )}
       </ScrollView>
 
       <ProjectEditModal
+        projectID={currentProjectData.id}
         visible={showEditProjectModal}
         onClose={() => setShowEditProjectModal(false)}
       />

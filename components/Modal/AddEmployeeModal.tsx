@@ -49,6 +49,15 @@ import { Toast, ToastDescription, ToastTitle, useToast } from '../ui/toast'
 import { HStack } from '../ui/hstack'
 import { HelpCircleIcon } from 'lucide-react-native'
 
+const toTitleCase = (str: string) => {
+  return str
+    .trim()
+    .toLowerCase()
+    .replace(/\b\w+/g, (word) => {
+      return word.charAt(0).toUpperCase() + word.slice(1)
+    })
+}
+
 const AddEmployeeModal = () => {
   const { roles } = useProject()
   const [showModal, setShowModal] = useState(false)
@@ -157,28 +166,50 @@ const AddEmployeeModal = () => {
 
   const handleCreateUser = async () => {
     setIsSaving(true)
+
     try {
-      const response = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
+      // Get current user's ID token
+      const token = await auth.currentUser?.getIdToken()
+
+      if (!token) {
+        throw new Error('Not authenticated')
+      }
+
+      const response = await fetch(
+        'http://localhost:3000/api/employees/create',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            email,
+            password,
+            firstName,
+            lastName,
+            nickname,
+            role,
+          }),
+        }
       )
 
-      await addDoc(collection(db, 'profile'), {
-        firstName: firstName.trim(),
-        lastName: lastName.trim(),
-        email: email,
-        nickName: nickname,
-        role: role,
-        points: 0,
-        uid: response.user.uid,
-      })
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create employee')
+      }
+
+      // Success! Modal closes and form resets
+      handleModal(false)
+
+      // Optional: Show success toast
+      console.log('Employee created successfully:', data)
     } catch (error: any) {
-      console.log('Error adding employee: ', error)
-      handleToastError(error.message)
+      console.log('Error adding employee:', error)
+      handleToastError(error.message || 'Failed to create employee')
     } finally {
       setIsSaving(false)
-      handleModal(false)
     }
   }
 

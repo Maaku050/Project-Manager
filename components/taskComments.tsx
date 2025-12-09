@@ -1,85 +1,88 @@
-import { useUser } from "@/context/profileContext";
-import { Timestamp } from "firebase/firestore";
-import React from "react";
-import { Text, View } from "react-native";
-import { HStack } from "./ui/hstack";
-import { VStack } from "./ui/vstack";
-import { Avatar, AvatarFallbackText } from "./ui/avatar";
-import { timeAgo } from "@/helpers/timeAgoCalculator";
+import { useUser } from '@/context/profileContext'
+import { Timestamp } from 'firebase/firestore'
+import React from 'react'
+import { Text, useWindowDimensions, View } from 'react-native'
+import { HStack } from './ui/hstack'
+import { VStack } from './ui/vstack'
+import { Avatar, AvatarFallbackText } from './ui/avatar'
+import { timeAgo } from '@/helpers/timeAgoCalculator'
 import {
   isCodeBlock,
   detectLanguage,
   formatCode,
   extractCode,
-} from "@/helpers/codeBlockDetector";
-import { tokenizeCode, getTokenStyle } from "@/helpers/syntaxHighlighting";
+} from '@/helpers/codeBlockDetector'
+import { tokenizeCode, getTokenStyle } from '@/helpers/syntaxHighlighting'
 
 type TaskCommentsType = {
-  uid: string;
-  text: string;
-  createdAt: Timestamp;
-};
+  uid: string
+  text: string
+  createdAt: Timestamp
+}
 
 export default function TaskComments({
   uid,
   text,
   createdAt,
 }: TaskCommentsType) {
-  const { profiles } = useUser();
-  const currentUser = profiles.find((t) => t.uid === uid);
-  if (!currentUser) return;
+  const dimensions = useWindowDimensions()
+  const isMobile = dimensions.width <= 1000
+  const { profiles } = useUser()
+  const currentUser = profiles.find((t) => t.uid === uid)
+  if (!currentUser) return
 
-  const isCode = isCodeBlock(text);
-  const language = isCode ? detectLanguage(text) : "";
-  const code = isCode ? extractCode(text) : "";
-  const formattedCode = isCode ? formatCode(code, language) : "";
-  const tokens = isCode ? tokenizeCode(formattedCode, language) : [];
+  const isCode = isCodeBlock(text)
+  const language = isCode ? detectLanguage(text) : ''
+  const code = isCode ? extractCode(text) : ''
+  const formattedCode = isCode ? formatCode(code, language) : ''
+  const tokens = isCode ? tokenizeCode(formattedCode, language) : []
 
   return (
     <HStack space="sm">
-      <Avatar size="md">
-        <AvatarFallbackText style={{ color: "white" }}>
+      <Avatar size={isMobile ? 'sm' : 'md'}>
+        <AvatarFallbackText style={{ color: 'white' }}>
           {currentUser.firstName}
         </AvatarFallbackText>
       </Avatar>
       <VStack style={{ flex: 1 }} space="sm">
         <HStack
           style={{
-            justifyContent: "space-between",
-            alignItems: "center",
+            justifyContent: 'space-between',
+            alignItems: 'center',
           }}
         >
           <Text
             style={{
-              fontWeight: "bold",
-              color: "white",
+              fontWeight: 'bold',
+              color: 'white',
+              fontSize: isMobile ? 12 : 16,
             }}
           >
             {currentUser.firstName}
           </Text>
-          <Text style={{ fontSize: 12, color: "#999" }}>
+          <Text style={{ fontSize: isMobile ? 10 : 12, color: '#999' }}>
             {createdAt
               ? timeAgo(
                   createdAt.seconds
                     ? new Date(createdAt.seconds * 1000)
                     : new Date(createdAt.toDate())
                 )
-              : ""}
+              : ''}
           </Text>
         </HStack>
         {isCode ? (
           <View
             style={{
-              backgroundColor: "#1e1e1e",
+              backgroundColor: '#1e1e1e',
               padding: 12,
               borderRadius: 8,
               borderLeftWidth: 3,
-              borderLeftColor: "#569cd6",
+              borderLeftColor: '#569cd6',
             }}
           >
             <Text
               style={{
-                fontFamily: "monospace",
+                fontFamily: 'monospace',
                 fontSize: 13,
                 lineHeight: 20,
               }}
@@ -94,7 +97,8 @@ export default function TaskComments({
         ) : (
           <Text
             style={{
-              color: "white",
+              color: 'white',
+              fontSize: isMobile ? 12 : 16,
             }}
           >
             {text}
@@ -102,5 +106,5 @@ export default function TaskComments({
         )}
       </VStack>
     </HStack>
-  );
+  )
 }

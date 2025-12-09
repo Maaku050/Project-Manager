@@ -41,6 +41,7 @@ import { Spinner } from '@/components/ui/spinner'
 import DateTimePicker from '@/components/DateTimePicker'
 import { Textarea, TextareaInput } from '@/components/ui/textarea'
 import { Search } from 'lucide-react-native'
+import { useGlobalSearchParams, useLocalSearchParams } from 'expo-router'
 
 type tasktModalType = {
   visible: boolean
@@ -53,23 +54,19 @@ export default function TaskAddModal({ visible, onClose }: tasktModalType) {
   const [tempDescription, setTempDescription] = useState<string>('')
   const [tempStart, setTempStart] = useState<Date | null>(null)
   const [tempEnd, setTempEnd] = useState<Date | null>(null)
-  const [tempDeadline, setTempDeadline] = useState<Date | null>(null)
   const [tempAssigned, setTempAssigned] = useState<string[]>([])
   const [tempChildTasks, setTempChildTasks] = useState<string[]>([])
   const [searchInput, setSearchInput] = useState<string>('')
   const [isSaving, setIsSaving] = useState<boolean>(false)
+  const params = useLocalSearchParams()
+  const projectID = params.project as string
+  console.log('taskAddModal project ID: ', projectID)
 
   // Contexts
-  const { selectedProject, project, tasks } = useProject()
+  const { tasks, roles } = useProject()
   const { profiles, profile } = useUser()
 
   // On Load Innitializations
-  const currentProjectData = project.find((t) => t.id === selectedProject)
-  const projectDeadline =
-    currentProjectData?.deadline && 'toDate' in currentProjectData.deadline
-      ? currentProjectData.deadline.toDate()
-      : null
-
   useEffect(() => {
     if (!visible) return
 
@@ -107,12 +104,13 @@ export default function TaskAddModal({ visible, onClose }: tasktModalType) {
       const docRef = await addDoc(collection(db, 'tasks'), {
         title: tempTitle.trim(),
         description: tempDescription.trim(),
-        projectID: selectedProject,
+        projectID: projectID,
         status: 'To-do',
         start: Timestamp.fromDate(toLocalStart),
         end: Timestamp.fromDate(toLocalEnd),
         starPoints: 0,
         childTasks: tempChildTasks,
+        parentTasks: null,
       })
 
       const taskID = docRef.id
@@ -296,27 +294,13 @@ export default function TaskAddModal({ visible, onClose }: tasktModalType) {
               >
                 {/* Members List */}
                 <VStack space="sm">
-                  {[
-                    'Project Manager',
-                    'UI/UX',
-                    'Fullstack Developer',
-                    'Front-End Developer',
-                    'Back-End Developer',
-                    'Mobile Developer',
-                    'Game Developer',
-                    'Quality Assurance',
-                    'Intern',
-                  ]
+                  {roles
                     .filter((role) =>
-                      profiles.some(
-                        (profile) =>
-                          profile.role?.toLowerCase() === role.toLowerCase()
-                      )
+                      profiles.some((profile) => profile.role === role.role)
                     )
                     .map((role, i) => {
                       const matchingProfiles = profiles.filter(
-                        (profile) =>
-                          profile.role?.toLowerCase() === role.toLowerCase()
+                        (profile) => profile.role === role.role
                       )
 
                       return (
@@ -329,7 +313,7 @@ export default function TaskAddModal({ visible, onClose }: tasktModalType) {
                             }}
                           >
                             <Text style={{ fontSize: 14, fontWeight: 'bold' }}>
-                              {role}
+                              {role.role}
                             </Text>
                           </HStack>
 
@@ -451,7 +435,7 @@ export default function TaskAddModal({ visible, onClose }: tasktModalType) {
                 <VStack space="sm">
                   {tasks.filter(
                     (task) =>
-                      task.projectID === selectedProject &&
+                      task.projectID === projectID &&
                       (task.status === 'To-do' || task.status === 'Ongoing') &&
                       !task.parentTasks &&
                       (!task.childTasks || task.childTasks.length === 0) &&
@@ -472,7 +456,7 @@ export default function TaskAddModal({ visible, onClose }: tasktModalType) {
                     tasks
                       .filter(
                         (task) =>
-                          task.projectID === selectedProject &&
+                          task.projectID === projectID &&
                           (task.status === 'To-do' ||
                             task.status === 'Ongoing') &&
                           !task.parentTasks &&

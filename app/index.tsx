@@ -1,5 +1,12 @@
 import React, { useState } from 'react'
-import { Text, TextInput, StyleSheet, Image } from 'react-native'
+import {
+  Text,
+  TextInput,
+  StyleSheet,
+  Image,
+  useWindowDimensions,
+  View,
+} from 'react-native'
 import { signInWithEmailAndPassword } from 'firebase/auth'
 import { auth, db } from '@/firebase/firebaseConfig'
 import { useRouter } from 'expo-router'
@@ -29,12 +36,14 @@ import { Divider } from '@/components/ui/divider'
 import { Heading } from '@/components/ui/heading'
 import { useUser } from '@/context/profileContext'
 import { collection, query, where, getDocs } from 'firebase/firestore'
+import ForgotPasswordModal from '@/modals/forgotPasswordModal'
 
 export default function LoginScreen() {
+  const dimensions = useWindowDimensions()
+  const isMobile = dimensions.width <= 1000
+  const isDesktop = dimensions.width >= 1280
   const router = useRouter()
-  const { profiles } = useUser()
   const [email, setEmail] = useState('')
-  const [forgotPasswordEmail, setforgotPasswordEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const toastError = useToast()
@@ -176,13 +185,129 @@ export default function LoginScreen() {
     }
   }
   const [showModal, setShowModal] = React.useState(false)
+
+  if (isMobile) {
+    return (
+      <Box
+        style={{
+          flex: 1,
+          backgroundColor: '#000000',
+          borderWidth: 0,
+          alignItems: 'center',
+          paddingHorizontal: 50,
+        }}
+      >
+        <Box
+          style={{
+            borderWidth: 0,
+            height: '25%',
+            width: '50%',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Image
+            source={require('@/assets/images/final dark logo.png')}
+            alt="image"
+            style={{
+              width: '75%',
+              height: '75%',
+              resizeMode: 'contain',
+            }}
+          />
+        </Box>
+        {/* Header */}
+        <Box
+          style={{
+            marginBottom: 30,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <Text style={{ color: 'white', fontSize: 24 }}>Welcome back!</Text>
+          <Text style={{ color: 'white', fontSize: 14 }}>
+            Please enter your details to log into the system.
+          </Text>
+        </Box>
+
+        {/* Inputs */}
+        <Box style={{ borderWidth: 0, width: 320 }}>
+          <Text style={styles.label}>Email</Text>
+          <TextInput
+            placeholder="Enter Your Email"
+            value={email}
+            onChangeText={setEmail}
+            autoCapitalize="none"
+            keyboardType="email-address"
+            style={styles.inputs}
+          />
+
+          <Text style={styles.label}>Password</Text>
+          <TextInput
+            placeholder="Enter Your Password"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+            onSubmitEditing={handleLogin}
+            autoCapitalize="none"
+            style={styles.inputs}
+          />
+        </Box>
+
+        {/* Forgot Password Button */}
+        <Box
+          style={{
+            width: 320,
+            alignItems: 'flex-end',
+            borderWidth: 0,
+            marginTop: 10,
+          }}
+        >
+          <Button variant="link" onPress={() => setShowModal(true)}>
+            <ButtonText style={{ color: 'white', fontSize: 14 }}>
+              Forgot Password?
+            </ButtonText>
+          </Button>
+        </Box>
+
+        {/* Login Button */}
+        <Box
+          style={{
+            width: 320,
+            borderWidth: 0,
+            marginTop: 30,
+            marginBottom: 30,
+          }}
+        >
+          <Button
+            style={{ backgroundColor: '#CDCCCC', borderRadius: 8, height: 36 }}
+            onPress={handleLogin}
+          >
+            <ButtonText style={{ color: 'black', fontSize: 14 }}>
+              {loading ? (
+                <Spinner size="small" color="black" style={{ marginTop: 7 }} />
+              ) : (
+                'Log in'
+              )}
+            </ButtonText>
+          </Button>
+        </Box>
+
+        <ForgotPasswordModal
+          visible={showModal}
+          onClose={() => setShowModal(false)}
+        />
+      </Box>
+    )
+  }
+
   return (
     <HStack style={{ flex: 1 }}>
       {/* Login Section */}
       <Box
         style={{
-          width: 600,
-          backgroundColor: 'black',
+          flex: 1,
+          backgroundColor: '#171717',
           borderWidth: 0,
           alignItems: 'center',
           justifyContent: 'center',
@@ -236,7 +361,11 @@ export default function LoginScreen() {
             marginTop: 10,
           }}
         >
-          <Text style={{ color: 'white', fontSize: 14 }}>Forgot Password?</Text>
+          <Button variant="link" onPress={() => setShowModal(true)}>
+            <ButtonText style={{ color: 'white', fontSize: 14 }}>
+              Forgot Password?
+            </ButtonText>
+          </Button>
         </Box>
 
         {/* Login Button */}
@@ -266,81 +395,35 @@ export default function LoginScreen() {
       {/* Company Logo Section */}
       <Box
         style={{
-          flex: 1,
-          backgroundColor: 'white',
-          alignItems: 'center',
-          justifyContent: 'center',
+          flex: 2,
+          backgroundColor: '#000000',
         }}
       >
-        <Box style={{ borderWidth: 0, height: 500, width: 500 }}>
+        <Box
+          style={{
+            borderWidth: 0,
+            height: '100%',
+            width: '100%',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
           <Image
-            source={require('@/assets/images/Innoendo Logo_Main Logo.png')}
+            source={require('@/assets/images/final dark logo.png')}
             alt="image"
             style={{
-              width: '100%',
-              height: '100%',
+              width: '50%',
+              height: '50%',
               resizeMode: 'contain',
             }}
           />
         </Box>
       </Box>
 
-      <Modal
-        isOpen={showModal}
-        onClose={() => {
-          setShowModal(false)
-        }}
-        size="md"
-      >
-        <ModalBackdrop />
-        <ModalContent>
-          <ModalHeader>
-            <Heading size="lg">Forgot Your Password?</Heading>
-            <ModalCloseButton>
-              <Icon as={CloseIcon} />
-            </ModalCloseButton>
-          </ModalHeader>
-          <ModalBody>
-            <Text>Enter Your Email</Text>
-            <TextInput
-              style={{
-                borderWidth: 1,
-                borderColor: '#0000005b',
-                borderRadius: 8,
-                padding: 10,
-                color: '#000000ff',
-                marginTop: 8,
-              }}
-              placeholder="Email"
-              autoCapitalize="none"
-              keyboardType="default"
-              value={forgotPasswordEmail}
-              onChangeText={setforgotPasswordEmail}
-            />
-          </ModalBody>
-          <ModalFooter className="flex-col items-start">
-            <Button
-              // onPress={handlePasswordReset}
-              className="w-full"
-              action="positive"
-              size="lg"
-            >
-              <ButtonText>Submit</ButtonText>
-            </Button>
-            <Button
-              onPress={() => {
-                setShowModal(false)
-                setforgotPasswordEmail('')
-              }}
-              className="w-full"
-              action="negative"
-              size="lg"
-            >
-              <ButtonText>Cancel</ButtonText>
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+      <ForgotPasswordModal
+        visible={showModal}
+        onClose={() => setShowModal(false)}
+      />
     </HStack>
   )
 }

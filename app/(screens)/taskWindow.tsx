@@ -5,7 +5,13 @@ import { Box } from '@/components/ui/box'
 import { HStack } from '@/components/ui/hstack'
 import { VStack } from '@/components/ui/vstack'
 import { Divider } from '@/components/ui/divider'
-import { EllipsisVertical, SquarePen, Trash } from 'lucide-react-native'
+import {
+  ArrowLeft,
+  EllipsisVertical,
+  SquarePen,
+  Trash,
+  Undo2,
+} from 'lucide-react-native'
 import TaskEditModal from '@/modals/taskEditModal'
 import { Heading } from '@/components/ui/heading'
 import { Text } from '@/components/ui/text'
@@ -16,32 +22,68 @@ import TaskDeleteModal from '@/modals/taskDeleteModal'
 import TaskCommentSection from '@/components/taskCommentSection'
 import TasktUsers from '@/components/taskAssignedUsers'
 import TaskCard from '@/components/taskCard'
+import { useLocalSearchParams, useRouter } from 'expo-router'
+import TaskWindowSkeleton from '@/components/Skeleton/taskWindowSkeleton'
+import { handleUnstartTask } from '@/helpers/taskStateHandler'
 
 export default function TaskWindow() {
-  const { selectedProject, tasks, selectedTask, project } = useProject()
+  const { tasks, project } = useProject() // ✅ Removed selectedProject
+  const params = useLocalSearchParams()
 
   const dimensions = useWindowDimensions()
-  const isLargeScreen = dimensions.width >= 1280 // computer UI condition
-  const isMediumScreen = dimensions.width <= 1280 && dimensions.width > 768 // tablet UI condition
-  const currentTask = tasks.find(
-    (t) => t.projectID === selectedProject && t.id === selectedTask
-  )
-  const currentProjectData = project.find((t) => t.id === selectedProject)
+  const isMobile = dimensions.width <= 1000
+  const router = useRouter()
+
+  // ✅ Get IDs from URL params instead of context
+  const projectId = params.project as string
+  const taskId = params.task as string
+
+  // ✅ Find task and project using params
+  const currentTask = tasks.find((t) => t.id === taskId)
+  const currentProjectData = project.find((t) => t.id === projectId)
+
   const [showEditTaskModal, setShowEditTaskModal] = useState(false)
   const [showDeleteTaskModal, setShowDeleteTaskModal] = useState(false)
-  if (!currentTask || !currentProjectData) return
+
+  // ✅ Better error handling
+  // if (!currentTask || !currentProjectData) {
+  if (!currentTask || !currentProjectData) {
+    return (
+      <Box
+        style={{
+          flex: 1,
+          padding: isMobile ? 12 : 30,
+          backgroundColor: '#000000',
+        }}
+      >
+        <TaskWindowSkeleton />
+      </Box>
+    )
+  }
 
   return (
     <>
       <ScrollView
         style={{
           flex: 1,
-          paddingTop: 30,
-          paddingHorizontal: 15,
+          padding: isMobile ? 12 : 30,
           backgroundColor: '#000000',
         }}
         showsVerticalScrollIndicator={false}
       >
+        {isMobile ? (
+          <Pressable
+            onPress={() =>
+              router.replace(`/(screens)/projectWindow?project=${projectId}`)
+            }
+            style={{ marginBottom: 20 }}
+          >
+            <HStack style={{ alignItems: 'center', borderWidth: 0 }} space="sm">
+              <ArrowLeft color={'white'} />
+              <Text style={{ color: 'white', fontSize: 15 }}>Task Details</Text>
+            </HStack>
+          </Pressable>
+        ) : null}
         <HStack
           style={{
             justifyContent: 'space-between',
@@ -71,12 +113,27 @@ export default function TaskWindow() {
                           : 'red',
             paddingLeft: 8,
           }}
+          space="md"
         >
-          <Box>
-            <Text style={{ color: '#ffffff' }}>
+          <Box style={{ maxWidth: isMobile ? 165 : null, borderWidth: 0 }}>
+            <Text
+              style={{
+                color: '#ffffff',
+                fontSize: isMobile ? 10 : 16,
+                lineHeight: 1,
+              }}
+            >
               {currentProjectData?.title}
             </Text>
-            <Heading style={{ color: '#ffffff' }}>{currentTask?.title}</Heading>
+            <Heading
+              style={{
+                color: '#ffffff',
+                lineHeight: 1,
+                fontSize: isMobile ? 15 : 16,
+              }}
+            >
+              {currentTask?.title}
+            </Heading>
           </Box>
           <HStack style={{ alignItems: 'center' }} space="lg">
             <TaskStateButton taskID={currentTask.id} from="taskWindow" />
@@ -95,10 +152,29 @@ export default function TaskWindow() {
                 )
               }}
             >
+              {isMobile && currentTask.status === 'Ongoing' ? (
+                <MenuItem
+                  textValue="Add account"
+                  onPress={() => handleUnstartTask(currentTask.id)}
+                >
+                  <Undo2 />
+                  <MenuItemLabel
+                    size="md"
+                    style={{ marginLeft: 10, fontWeight: 'bold' }}
+                  >
+                    Unstart task
+                  </MenuItemLabel>
+                </MenuItem>
+              ) : null}
+
               <MenuItem
                 textValue="Add account"
                 onPress={() => {
-                  setShowEditTaskModal(true)
+                  isMobile
+                    ? router.replace(
+                        `/(screens)/editTaskScreen?project=${projectId}&task=${taskId}`
+                      )
+                    : setShowEditTaskModal(true)
                 }}
               >
                 <SquarePen />
@@ -126,98 +202,169 @@ export default function TaskWindow() {
           </HStack>
         </HStack>
 
-        <HStack style={{ borderWidth: 0, marginTop: 10 }}>
-          <Text
-            style={{
-              color: 'white',
-              flex: 2,
-            }}
-          >
-            {currentTask.description}
-          </Text>
-          <Divider
-            orientation="vertical"
-            style={{ backgroundColor: '#414141' }}
-          />
-          <VStack style={{ borderWidth: 0, flex: 1 }} space="lg">
-            <HStack
+        {isMobile ? (
+          <VStack style={{ marginTop: 10 }}>
+            <Text
               style={{
-                marginLeft: 30,
+                color: 'white',
+                marginBottom: 20,
+                fontSize: 12,
               }}
-              space="sm"
             >
-              <Text style={{ color: '#CDCCCC' }}>Status</Text>
-              <Text style={{ color: 'white' }}>{currentTask.status}</Text>
-            </HStack>
-            <HStack
-              style={{
-                marginLeft: 30,
-              }}
-              space="sm"
-            >
-              <Text style={{ color: '#CDCCCC' }}>Timeline</Text>
+              {currentTask.description}
+            </Text>
 
-              <Text
-                style={{
-                  color:
-                    currentTask.start && currentTask.start.toDate() > new Date()
-                      ? 'white'
-                      : '#B91C1C',
-                  fontSize: 12,
-                }}
-              >
-                {getDateLabel(currentTask.start, 'start')}
-              </Text>
-              <Text style={{ color: '#CDCCCC' }}>-</Text>
-              <Text
-                style={{
-                  color:
-                    currentTask.end && currentTask.end.toDate() > new Date()
-                      ? 'white'
-                      : '#B91C1C',
-                  fontSize: 12,
-                }}
-              >
-                {getDateLabel(currentTask.end, 'due')}
-              </Text>
-            </HStack>
-            <HStack
-              style={{
-                marginLeft: 30,
-              }}
-              space="sm"
-            >
-              <Text style={{ color: '#CDCCCC' }}>Status</Text>
-              <TasktUsers taskID={currentTask.id} />
-            </HStack>
+            <VStack space="md">
+              <HStack space="sm">
+                <Text style={{ color: '#CDCCCC', fontSize: 14 }}>Status</Text>
+                <Text
+                  style={{ color: 'white', fontWeight: 'bold', fontSize: 14 }}
+                >
+                  {currentTask.status}
+                </Text>
+              </HStack>
+
+              <HStack space="sm">
+                <Text style={{ color: '#CDCCCC', fontSize: 14 }}>Timeline</Text>
+
+                <Text
+                  style={{
+                    color:
+                      currentTask.start &&
+                      currentTask.start.toDate() > new Date()
+                        ? 'white'
+                        : '#B91C1C',
+                    fontWeight: 'bold',
+                    fontSize: 14,
+                  }}
+                >
+                  {getDateLabel(currentTask.start, 'start')}
+                </Text>
+                <Text style={{ color: '#CDCCCC' }}>-</Text>
+                <Text
+                  style={{
+                    color:
+                      currentTask.end && currentTask.end.toDate() > new Date()
+                        ? 'white'
+                        : '#B91C1C',
+                    fontWeight: 'bold',
+                    fontSize: 14,
+                  }}
+                >
+                  {getDateLabel(currentTask.end, 'due')}
+                </Text>
+              </HStack>
+
+              <HStack space="sm" style={{ alignItems: 'center' }}>
+                <Text style={{ color: '#CDCCCC', fontSize: 14 }}>
+                  Assignees
+                </Text>
+                <TasktUsers taskID={currentTask.id} />
+              </HStack>
+            </VStack>
           </VStack>
-        </HStack>
-        {currentTask.childTasks.length > 0 ? (
+        ) : (
+          <HStack style={{ borderWidth: 0, marginTop: 10 }}>
+            <Text
+              style={{
+                color: 'white',
+                flex: 2,
+              }}
+            >
+              {currentTask.description}
+            </Text>
+            <Divider
+              orientation="vertical"
+              style={{ backgroundColor: '#414141' }}
+            />
+            <VStack style={{ borderWidth: 0, flex: 1 }} space="lg">
+              <HStack
+                style={{
+                  marginLeft: 30,
+                }}
+                space="sm"
+              >
+                <Text style={{ color: '#CDCCCC' }}>Status</Text>
+                <Text style={{ color: 'white' }}>{currentTask.status}</Text>
+              </HStack>
+              <HStack
+                style={{
+                  marginLeft: 30,
+                }}
+                space="sm"
+              >
+                <Text style={{ color: '#CDCCCC' }}>Timeline</Text>
+
+                <Text
+                  style={{
+                    color:
+                      currentTask.start &&
+                      currentTask.start.toDate() > new Date()
+                        ? 'white'
+                        : '#B91C1C',
+                    fontSize: 12,
+                  }}
+                >
+                  {getDateLabel(currentTask.start, 'start')}
+                </Text>
+                <Text style={{ color: '#CDCCCC' }}>-</Text>
+                <Text
+                  style={{
+                    color:
+                      currentTask.end && currentTask.end.toDate() > new Date()
+                        ? 'white'
+                        : '#B91C1C',
+                    fontSize: 12,
+                  }}
+                >
+                  {getDateLabel(currentTask.end, 'due')}
+                </Text>
+              </HStack>
+              <HStack
+                style={{
+                  marginLeft: 30,
+                }}
+                space="sm"
+              >
+                <Text style={{ color: '#CDCCCC' }}>Assignees</Text>
+                <TasktUsers taskID={currentTask.id} />
+              </HStack>
+            </VStack>
+          </HStack>
+        )}
+
+        {/* Prerequisite tasks section */}
+        {currentTask.childTasks?.length > 0 ? (
           <>
             <Divider
               orientation="horizontal"
               style={{ backgroundColor: '#414141', marginVertical: 10 }}
             />
             <Text style={{ color: '#F3F3F3', marginBottom: 10 }}>
-              {currentTask.childTasks.length} prerequisite task/s
+              {currentTask.childTasks.length} prerequisite task
+              {currentTask.childTasks.length > 1 ? 's' : ''}
             </Text>
-            <HStack
-              style={{
-                alignContent: 'flex-start',
-                flexDirection: 'row',
-                flexWrap: 'wrap',
-                borderWidth: 0,
-                alignItems: 'stretch',
-              }}
-              space="md"
-            >
-              {currentTask.childTasks.map((taskid) => (
-                <TaskCard taskID={taskid} origin="taskWindow" />
-              ))}
-            </HStack>
+            <Box style={{ borderWidth: 0, borderColor: 'red' }}>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ paddingRight: 16 }}
+              >
+                <HStack space="md">
+                  {currentTask.childTasks.map((taskid) => (
+                    <TaskCard
+                      key={taskid}
+                      taskID={taskid}
+                      origin="taskWindow"
+                    />
+                  ))}
+                </HStack>
+              </ScrollView>
+            </Box>
           </>
         ) : null}
 
+        {/* Blocking task section */}
         {currentTask.parentTasks ? (
           <>
             <Divider
@@ -227,24 +374,25 @@ export default function TaskWindow() {
             <Text style={{ color: '#F3F3F3', marginBottom: 10 }}>
               1 blocking task
             </Text>
-            <HStack
-              style={{
-                alignContent: 'flex-start',
-                flexDirection: 'row',
-                flexWrap: 'wrap',
-                borderWidth: 0,
-                alignItems: 'stretch',
-              }}
-              space="md"
-            >
-              <TaskCard taskID={currentTask.parentTasks} origin="taskWindow" />
-            </HStack>
+            <Box style={{ borderWidth: 0, borderColor: 'red' }}>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ paddingRight: 16 }}
+              >
+                <TaskCard
+                  taskID={currentTask.parentTasks}
+                  origin="taskWindow"
+                />
+              </ScrollView>
+            </Box>
           </>
         ) : null}
 
         <TaskCommentSection taskID={currentTask.id} />
 
         <TaskEditModal
+          taskID={currentTask.id}
           visible={showEditTaskModal}
           onClose={() => setShowEditTaskModal(false)}
         />

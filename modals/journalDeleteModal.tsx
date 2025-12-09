@@ -14,7 +14,7 @@ import { Spinner } from '@/components/ui/spinner'
 import { db } from '@/firebase/firebaseConfig'
 import { deleteDoc, doc } from 'firebase/firestore'
 import React, { useState } from 'react'
-import { Text } from 'react-native'
+import { Text, useWindowDimensions } from 'react-native'
 
 type TaskDeleteModalType = {
   journalID: string
@@ -29,6 +29,8 @@ export default function JournalDeleteModal({
 }: TaskDeleteModalType) {
   const [isHover, setIsHover] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const dimension = useWindowDimensions()
+  const isMobile = dimension.width <= 1000
 
   const handleDeleteJournal = async () => {
     setIsSaving(true)
@@ -54,7 +56,7 @@ export default function JournalDeleteModal({
         }}
       >
         <ModalHeader>
-          <Heading size="xl" style={{ color: 'white' }}>
+          <Heading size={isMobile ? 'lg' : 'xl'} style={{ color: 'white' }}>
             Deleting Journal
           </Heading>
           <ModalCloseButton>
@@ -62,30 +64,58 @@ export default function JournalDeleteModal({
           </ModalCloseButton>
         </ModalHeader>
         <ModalBody>
-          <Text style={{ color: 'white', fontSize: 18 }}>
+          <Text style={{ color: 'white', fontSize: isMobile ? 16 : 18 }}>
             Are you sure you want to delete this journal?
           </Text>
         </ModalBody>
         <ModalFooter>
-          <Button
-            variant="outline"
-            className="mr-3"
-            onPress={onClose}
-            onHoverIn={() => setIsHover(true)}
-            onHoverOut={() => setIsHover(false)}
-            style={{ backgroundColor: isHover ? 'gray' : '' }}
-          >
-            <ButtonText style={{ color: 'white' }}>Cancel</ButtonText>
-          </Button>
-          <Button onPress={handleDeleteJournal} action="negative">
-            <ButtonText>
-              {isSaving ? (
-                <Spinner size="small" color="white" style={{ marginTop: 6 }} />
-              ) : (
-                'Delete journal'
-              )}
-            </ButtonText>
-          </Button>
+          {isMobile ? (
+            <>
+              <Button
+                onPress={handleDeleteJournal}
+                action="negative"
+                style={{ flex: 1 }}
+              >
+                <ButtonText>
+                  {isSaving ? (
+                    <Spinner
+                      size="small"
+                      color="white"
+                      style={{ marginTop: 6 }}
+                    />
+                  ) : (
+                    'Delete journal'
+                  )}
+                </ButtonText>
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                variant="outline"
+                className="mr-3"
+                onPress={onClose}
+                onHoverIn={() => setIsHover(true)}
+                onHoverOut={() => setIsHover(false)}
+                style={{ backgroundColor: isHover ? 'gray' : '' }}
+              >
+                <ButtonText style={{ color: 'white' }}>Cancel</ButtonText>
+              </Button>
+              <Button onPress={handleDeleteJournal} action="negative">
+                <ButtonText>
+                  {isSaving ? (
+                    <Spinner
+                      size="small"
+                      color="white"
+                      style={{ marginTop: 6 }}
+                    />
+                  ) : (
+                    'Delete journal'
+                  )}
+                </ButtonText>
+              </Button>
+            </>
+          )}
         </ModalFooter>
       </ModalContent>
     </Modal>
