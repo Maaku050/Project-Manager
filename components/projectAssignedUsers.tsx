@@ -1,27 +1,28 @@
-import { useUser } from "@/context/profileContext";
-import { useProject } from "@/context/projectContext";
-import React from "react";
-import { HStack } from "./ui/hstack";
-import { Avatar, AvatarFallbackText, AvatarGroup } from "./ui/avatar";
-import { Tooltip, TooltipContent } from "./ui/tooltip";
-import { VStack } from "./ui/vstack";
-import { Text } from "react-native";
-import { Heading } from "./ui/heading";
+import { useUser } from '@/context/profileContext'
+import { useProject } from '@/context/projectContext'
+import React from 'react'
+import { HStack } from './ui/hstack'
+import { Avatar, AvatarFallbackText, AvatarGroup } from './ui/avatar'
+import { Tooltip, TooltipContent } from './ui/tooltip'
+import { VStack } from './ui/vstack'
+import { Text, useWindowDimensions } from 'react-native'
+import { Heading } from './ui/heading'
 
 type ProjectUsersType = {
-  projectID: string;
-};
+  projectID: string
+}
 
 export default function ProjectUsers({ projectID }: ProjectUsersType) {
- 
-  const { assignedUser, project } = useProject();
-   const { profiles } = useUser();
+  const dimensions = useWindowDimensions()
+  const isMobile = dimensions.width <= 786
+  const { assignedUser, project } = useProject()
+  const { profiles } = useUser()
 
-  const currentProject = project.find((t) => t.id === projectID);
-  if (!currentProject) return;
+  const currentProject = project.find((t) => t.id === projectID)
+  if (!currentProject) return
 
   return (
-    <HStack style={{ justifyContent: "flex-end", gap: 8 }}>
+    <HStack style={{ justifyContent: 'flex-end', gap: 5 }}>
       {profiles
         .filter((p) =>
           assignedUser.some(
@@ -34,7 +35,7 @@ export default function ProjectUsers({ projectID }: ProjectUsersType) {
             key={t.id}
             placement="top"
             trigger={(triggerProps) => (
-              <Avatar size="sm" {...triggerProps}>
+              <Avatar size={isMobile ? 'xs' : 'sm'} {...triggerProps}>
                 <AvatarFallbackText>{t.firstName}</AvatarFallbackText>
               </Avatar>
             )}
@@ -54,7 +55,7 @@ export default function ProjectUsers({ projectID }: ProjectUsersType) {
         <Tooltip
           placement="top"
           trigger={(triggerProps) => (
-            <Avatar size="sm" {...triggerProps}>
+            <Avatar size={isMobile ? 'xs' : 'sm'} {...triggerProps}>
               <AvatarFallbackText>
                 {`+ ${
                   profiles.filter((p) =>
@@ -88,5 +89,5 @@ export default function ProjectUsers({ projectID }: ProjectUsersType) {
         </Tooltip>
       )}
     </HStack>
-  );
+  )
 }

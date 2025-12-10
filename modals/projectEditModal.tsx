@@ -1,13 +1,13 @@
-import { Box } from "@/components/ui/box";
-import { ScrollView } from "react-native";
-import { Text } from "@/components/ui/text";
-import { Button, ButtonText } from "@/components/ui/button";
-import { CheckIcon, CloseIcon, Icon } from "@/components/ui/icon";
-import { View } from "@/components/Themed";
-import { useUser } from "@/context/profileContext";
-import { useProject } from "@/context/projectContext";
-import { Heading } from "@/components/ui/heading";
-import { Divider } from "@/components/ui/divider";
+import { Box } from '@/components/ui/box'
+import { ScrollView } from 'react-native'
+import { Text } from '@/components/ui/text'
+import { Button, ButtonText } from '@/components/ui/button'
+import { CheckIcon, CloseIcon, Icon } from '@/components/ui/icon'
+import { View } from '@/components/Themed'
+import { useUser } from '@/context/profileContext'
+import { useProject } from '@/context/projectContext'
+import { Heading } from '@/components/ui/heading'
+import { Divider } from '@/components/ui/divider'
 import {
   ModalBackdrop,
   ModalContent,
@@ -16,11 +16,11 @@ import {
   ModalBody,
   ModalFooter,
   Modal,
-} from "@/components/ui/modal";
-import { useEffect, useState } from "react";
-import React from "react";
-import { TextInput } from "react-native-gesture-handler";
-import { db } from "@/firebase/firebaseConfig";
+} from '@/components/ui/modal'
+import { useEffect, useState } from 'react'
+import React from 'react'
+import { TextInput } from 'react-native-gesture-handler'
+import { db } from '@/firebase/firebaseConfig'
 import {
   addDoc,
   collection,
@@ -31,155 +31,153 @@ import {
   Timestamp,
   updateDoc,
   where,
-} from "firebase/firestore";
-import { HStack } from "@/components/ui/hstack";
+} from 'firebase/firestore'
+import { HStack } from '@/components/ui/hstack'
 import {
   Checkbox,
   CheckboxIndicator,
   CheckboxIcon,
-} from "@/components/ui/checkbox";
-import { VStack } from "@/components/ui/vstack";
-import {
-  Avatar,
-  AvatarFallbackText,
-  AvatarBadge,
-} from "@/components/ui/avatar";
-import { Spinner } from "@/components/ui/spinner";
-import DateTimePicker from "@/components/DateTimePicker";
-import { Textarea, TextareaInput } from "@/components/ui/textarea";
+} from '@/components/ui/checkbox'
+import { VStack } from '@/components/ui/vstack'
+import { Avatar, AvatarFallbackText, AvatarBadge } from '@/components/ui/avatar'
+import { Spinner } from '@/components/ui/spinner'
+import DateTimePicker from '@/components/DateTimePicker'
+import { Textarea, TextareaInput } from '@/components/ui/textarea'
+import { useGlobalSearchParams } from 'expo-router'
 
 type projectModalType = {
-  visible: boolean;
-  onClose: () => void;
-};
+  projectID: string
+  visible: boolean
+  onClose: () => void
+}
 
 export default function ProjectEditModal({
   visible,
   onClose,
+  projectID,
 }: projectModalType) {
   // UseStates
-  const [tempTitle, setTempTitle] = useState<string>("");
-  const [tempDescription, setTempDescription] = useState<string>("");
-  const [tempDeadline, setTempDeadline] = useState<Date | null>(null);
-  const [tempAssigned, setTempAssigned] = useState<string[]>([]);
-  const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [tempTitle, setTempTitle] = useState<string>('')
+  const [tempDescription, setTempDescription] = useState<string>('')
+  const [tempDeadline, setTempDeadline] = useState<Date | null>(null)
+  const [tempAssigned, setTempAssigned] = useState<string[]>([])
+  const [isSaving, setIsSaving] = useState<boolean>(false)
 
   // Contexts
-  const { selectedProject, project, assignedUser } = useProject();
-  const { profiles } = useUser();
+  const { project, assignedUser, roles } = useProject()
+  const { profiles } = useUser()
 
   // On Load Innitializations
-  const currentProjectData = project.find((t) => t.id === selectedProject);
+  const currentProjectData = project.find((t) => t.id === projectID)
   const projectDeadline =
-    currentProjectData?.deadline && "toDate" in currentProjectData.deadline
+    currentProjectData?.deadline && 'toDate' in currentProjectData.deadline
       ? currentProjectData.deadline.toDate()
-      : null;
+      : null
 
   // Remove other tempAssigned effects and use only this one:
   useEffect(() => {
-    if (!visible) return;
+    if (!visible) return
 
     // Initialize assigned users for this project when modal opens
     const assignedUids = assignedUser
-      .filter((a) => a.projectID === selectedProject)
-      .map((a) => a.uid);
+      .filter((a) => a.projectID === projectID)
+      .map((a) => a.uid)
 
-    setTempAssigned(assignedUids);
+    setTempAssigned(assignedUids)
 
     // Initialize other fields
     if (currentProjectData) {
       const projectDeadline =
-        currentProjectData.deadline && "toDate" in currentProjectData.deadline
+        currentProjectData.deadline && 'toDate' in currentProjectData.deadline
           ? currentProjectData.deadline.toDate()
-          : null;
-      setTempTitle(currentProjectData.title);
-      setTempDescription(currentProjectData.description);
-      setTempDeadline(projectDeadline);
+          : null
+      setTempTitle(currentProjectData.title)
+      setTempDescription(currentProjectData.description)
+      setTempDeadline(projectDeadline)
     }
-  }, [visible]);
+  }, [visible])
 
   // Functions
   const handleSave = async () => {
-    if (!tempTitle.trim() || !tempDescription.trim() || !tempDeadline) return;
-    if (!selectedProject) return;
-    setIsSaving(true);
+    if (!tempTitle.trim() || !tempDescription.trim() || !tempDeadline) return
+    setIsSaving(true)
     try {
-      const projectRef = doc(db, "project", selectedProject);
-      const localDeadline = new Date(tempDeadline);
-      localDeadline.setHours(0, 0, 0, 0);
+      const projectRef = doc(db, 'project', projectID)
+      const localDeadline = new Date(tempDeadline)
+      localDeadline.setHours(0, 0, 0, 0)
 
       await updateDoc(projectRef, {
         title: tempTitle.trim(),
         description: tempDescription.trim(),
         deadline: Timestamp.fromDate(localDeadline),
-      });
+      })
 
-      await handleSaveAssignedUsers(); // ✅ Save assigned users last
+      await handleSaveAssignedUsers() // ✅ Save assigned users last
     } catch (err) {
-      console.error("Error saving project details: ", err);
+      console.error('Error saving project details: ', err)
     } finally {
-      setIsSaving(false);
+      setIsSaving(false)
     }
-  };
+  }
 
   const handleSaveAssignedUsers = async () => {
     try {
-      const userRef = collection(db, "assignedUser");
+      const userRef = collection(db, 'assignedUser')
 
       // Get current assignments for this project
-      const q = query(userRef, where("projectID", "==", selectedProject));
-      const snapshot = await getDocs(q);
+      const q = query(userRef, where('projectID', '==', projectID))
+      const snapshot = await getDocs(q)
 
       // Map current assignments
       const currentAssignments = snapshot.docs.map((doc) => ({
         id: doc.id,
         uid: doc.data().uid,
         ref: doc.ref,
-      }));
+      }))
 
-      const currentUIDs = new Set(currentAssignments.map((a) => a.uid));
-      const tempUIDs = new Set(tempAssigned);
+      const currentUIDs = new Set(currentAssignments.map((a) => a.uid))
+      const tempUIDs = new Set(tempAssigned)
 
       // Find users to remove (in current but not in temp)
-      const toRemove = currentAssignments.filter((a) => !tempUIDs.has(a.uid));
+      const toRemove = currentAssignments.filter((a) => !tempUIDs.has(a.uid))
 
       // Find users to add (in temp but not in current)
-      const toAdd = tempAssigned.filter((uid) => !currentUIDs.has(uid));
+      const toAdd = tempAssigned.filter((uid) => !currentUIDs.has(uid))
 
       // Batch delete users not in tempAssigned
-      const deletePromises = toRemove.map((a) => deleteDoc(a.ref));
+      const deletePromises = toRemove.map((a) => deleteDoc(a.ref))
 
       // Batch add new users
       const addPromises = toAdd.map((uid) =>
         addDoc(userRef, {
-          projectID: selectedProject,
+          projectID: projectID,
           uid,
         })
-      );
+      )
 
       // Execute all operations in parallel
-      await Promise.all([...deletePromises, ...addPromises]);
+      await Promise.all([...deletePromises, ...addPromises])
 
-      onClose();
+      onClose()
     } catch (err) {
-      console.error("Error saving assignments:", err);
+      console.error('Error saving assignments:', err)
     }
-  };
+  }
 
   return (
     <Modal isOpen={visible} onClose={onClose} size="full">
       <ModalBackdrop />
       <ModalContent
         style={{
-          borderColor: "red",
+          borderColor: 'red',
           borderWidth: 0,
-          backgroundColor: "#000000",
+          backgroundColor: '#000000',
           width: 892,
           height: 530,
         }}
       >
         <ModalHeader>
-          <Heading size="lg" style={{ color: "#ffffff" }}>
+          <Heading size="lg" style={{ color: '#ffffff' }}>
             Edit Project
           </Heading>
           <ModalCloseButton>
@@ -200,7 +198,7 @@ export default function ProjectEditModal({
                 <Text
                   style={{
                     marginBottom: 5,
-                    color: "#ffffff",
+                    color: '#ffffff',
                   }}
                 >
                   Project Name
@@ -208,10 +206,10 @@ export default function ProjectEditModal({
                 <TextInput
                   style={{
                     borderBottomWidth: 1,
-                    borderColor: "#fff",
+                    borderColor: '#fff',
                     paddingVertical: 8,
                     fontSize: 16,
-                    color: "#ffffffff",
+                    color: '#ffffffff',
                   }}
                   placeholder="Enter your Project Title"
                   placeholderTextColor="#999"
@@ -224,7 +222,7 @@ export default function ProjectEditModal({
                 <Text
                   style={{
                     marginBottom: 5,
-                    color: "#ffffff",
+                    color: '#ffffff',
                   }}
                 >
                   Project Description
@@ -236,7 +234,7 @@ export default function ProjectEditModal({
                   style={{ maxHeight: 200 }}
                 >
                   <TextareaInput
-                    style={{ color: "#000000", backgroundColor: "#ffffff" }}
+                    style={{ color: '#000000', backgroundColor: '#ffffff' }}
                     placeholder="Enter your Project Description"
                     defaultValue={currentProjectData?.description}
                     onChangeText={setTempDescription}
@@ -248,7 +246,7 @@ export default function ProjectEditModal({
                 <Text
                   style={{
                     marginBottom: 5,
-                    color: "#ffffff",
+                    color: '#ffffff',
                   }}
                 >
                   Project Deadline
@@ -266,56 +264,42 @@ export default function ProjectEditModal({
             <Box
               style={{ borderWidth: 0, flex: 1, marginLeft: 10, marginTop: 25 }}
             >
-              <Text style={{ color: "#ffffffff" }}>Project Members</Text>
+              <Text style={{ color: '#ffffffff' }}>Project Members</Text>
 
               <ScrollView
                 style={{
                   marginTop: 5,
                   borderWidth: 0,
-                  borderColor: "#ccc",
+                  borderColor: '#ccc',
                   borderRadius: 8,
                   padding: 10,
-                  backgroundColor: "#fff",
+                  backgroundColor: '#fff',
                   height: 302,
                 }}
                 showsVerticalScrollIndicator={false}
               >
                 {/* Members List */}
                 <VStack space="sm">
-                  {[
-                    "Project Manager",
-                    "UI/UX",
-                    "Fullstack Developer",
-                    "Front-End Developer",
-                    "Back-End Developer",
-                    "Mobile Developer",
-                    "Game Developer",
-                    "Quality Assurance",
-                    "Intern",
-                  ]
+                  {roles
                     .filter((role) =>
-                      profiles.some(
-                        (profile) =>
-                          profile.role?.toLowerCase() === role.toLowerCase()
-                      )
+                      profiles.some((profile) => profile.role === role.role)
                     )
                     .map((role, i) => {
                       const matchingProfiles = profiles.filter(
-                        (profile) =>
-                          profile.role?.toLowerCase() === role.toLowerCase()
-                      );
+                        (profile) => profile.role === role.role
+                      )
 
                       return (
                         <View key={i}>
                           <HStack
                             style={{
-                              alignItems: "center",
-                              justifyContent: "space-between",
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
                               paddingVertical: 6,
                             }}
                           >
-                            <Text style={{ fontSize: 14, fontWeight: "bold" }}>
-                              {role}
+                            <Text style={{ fontSize: 14, fontWeight: 'bold' }}>
+                              {role.role}
                             </Text>
                             <Divider
                               style={{
@@ -328,22 +312,22 @@ export default function ProjectEditModal({
 
                           <VStack>
                             {matchingProfiles.map((p) => {
-                              const isChecked = tempAssigned.includes(p.uid);
+                              const isChecked = tempAssigned.includes(p.uid)
 
                               const toggleCheck = () => {
                                 setTempAssigned((prev) =>
                                   isChecked
                                     ? prev.filter((uid) => uid !== p.uid)
                                     : [...prev, p.uid]
-                                );
-                                console.log(tempAssigned);
-                              };
+                                )
+                                console.log(tempAssigned)
+                              }
 
                               return (
                                 <HStack
                                   key={p.uid}
                                   style={{
-                                    alignItems: "center",
+                                    alignItems: 'center',
                                     marginTop: 10,
                                   }}
                                 >
@@ -380,11 +364,11 @@ export default function ProjectEditModal({
                                     {p.firstName} {p.lastName}
                                   </Text>
                                 </HStack>
-                              );
+                              )
                             })}
                           </VStack>
                         </View>
-                      );
+                      )
                     })}
                 </VStack>
               </ScrollView>
@@ -400,17 +384,17 @@ export default function ProjectEditModal({
           >
             <ButtonText>Cancel</ButtonText>
           </Button>
-          <Button onPress={handleSave} style={{ backgroundColor: "white" }}>
-            <ButtonText style={{ color: "black" }}>
+          <Button onPress={handleSave} style={{ backgroundColor: 'white' }}>
+            <ButtonText style={{ color: 'black' }}>
               {isSaving ? (
                 <Spinner size="small" color="grey" />
               ) : (
-                "Save changes"
+                'Save changes'
               )}
             </ButtonText>
           </Button>
         </ModalFooter>
       </ModalContent>
     </Modal>
-  );
+  )
 }

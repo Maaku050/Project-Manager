@@ -39,7 +39,7 @@ import {
   SelectTrigger,
 } from '../ui/select'
 import { Input, InputField } from '../ui/input'
-import { ScrollView } from 'react-native'
+import { ScrollView, useWindowDimensions } from 'react-native'
 import { useProject } from '@/context/projectContext'
 import { addDoc, collection } from 'firebase/firestore'
 import { auth, db } from '@/firebase/firebaseConfig'
@@ -48,8 +48,12 @@ import { Spinner } from '../ui/spinner'
 import { Toast, ToastDescription, ToastTitle, useToast } from '../ui/toast'
 import { HStack } from '../ui/hstack'
 import { HelpCircleIcon } from 'lucide-react-native'
+import { useRouter } from 'expo-router'
 
 const AddEmployeeModal = () => {
+  const dimensions = useWindowDimensions()
+  const isMobile = dimensions.width <= 786
+  const router = useRouter()
   const { roles } = useProject()
   const [showModal, setShowModal] = useState(false)
   const [email, setEmail] = useState<string>('')
@@ -157,28 +161,50 @@ const AddEmployeeModal = () => {
 
   const handleCreateUser = async () => {
     setIsSaving(true)
+
     try {
-      const response = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
+      // Get current user's ID token
+      const token = await auth.currentUser?.getIdToken()
+
+      if (!token) {
+        throw new Error('Not authenticated')
+      }
+
+      const response = await fetch(
+        'http://localhost:3000/api/employees/create',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            email,
+            password,
+            firstName,
+            lastName,
+            nickname,
+            role,
+          }),
+        }
       )
 
-      await addDoc(collection(db, 'profile'), {
-        firstName: firstName.trim(),
-        lastName: lastName.trim(),
-        email: email,
-        nickName: nickname,
-        role: role,
-        points: 0,
-        uid: response.user.uid,
-      })
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create employee')
+      }
+
+      // Success! Modal closes and form resets
+      handleModal(false)
+
+      // Optional: Show success toast
+      console.log('Employee created successfully:', data)
     } catch (error: any) {
-      console.log('Error adding employee: ', error)
-      handleToastError(error.message)
+      console.log('Error adding employee:', error)
+      handleToastError(error.message || 'Failed to create employee')
     } finally {
       setIsSaving(false)
-      handleModal(false)
     }
   }
 
@@ -216,12 +242,26 @@ const AddEmployeeModal = () => {
   return (
     <>
       <Button
-        size="md"
-        onPress={() => handleModal(true)}
-        style={{ width: 192, backgroundColor: '#FDFDFD' }}
+        size={isMobile ? 'sm' : 'md'}
+        onPress={() =>
+          isMobile
+            ? router.replace('/(screens)/addEmployeeScreen')
+            : handleModal(true)
+        }
+        style={{
+          backgroundColor: '#FDFDFD',
+          borderRadius: 8,
+          padding: isMobile ? 6 : 20,
+        }}
       >
         <ButtonIcon as={AddIcon} size="sm" color="#000000" />
-        <ButtonText style={{ fontSize: 18, fontWeight: 500, color: '#000000' }}>
+        <ButtonText
+          style={{
+            fontSize: isMobile ? 14 : 18,
+            fontWeight: 500,
+            color: '#000000',
+          }}
+        >
           Add Employee
         </ButtonText>
       </Button>

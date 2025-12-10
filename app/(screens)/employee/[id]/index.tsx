@@ -1,24 +1,27 @@
-import React from "react";
-import { Text, useWindowDimensions } from "react-native";
-import { useUser } from "@/context/profileContext";
-import { useProject } from "@/context/projectContext";
-import { VStack } from "@/components/ui/vstack";
-import { Box } from "@/components/ui/box";
-import { useLocalSearchParams } from "expo-router";
-import { ScrollView } from "react-native";
-import { Status } from "@/_enums/status.enum";
-import ClosedProjectCard from "@/components/Employee/ClosedProjectCard";
-import OnGoingProjectCard from "@/components/Employee/OnGoingProjectCard";
-import OverdueProjectCard from "@/components/Employee/OverdueProjectCard";
-import UserProfileCard from "@/components/Employee/UserProfileCard";
-import EmployeeProfileSkeleton from "@/components/Skeleton/EmployeeProfileSkeleton";
+import React from 'react'
+import { Text, useWindowDimensions } from 'react-native'
+import { useUser } from '@/context/profileContext'
+import { useProject } from '@/context/projectContext'
+import { VStack } from '@/components/ui/vstack'
+import { Box } from '@/components/ui/box'
+import { useLocalSearchParams, useRouter } from 'expo-router'
+import { ScrollView } from 'react-native'
+import { Status } from '@/_enums/status.enum'
+import ClosedProjectCard from '@/components/Employee/ClosedProjectCard'
+import OnGoingProjectCard from '@/components/Employee/OnGoingProjectCard'
+import OverdueProjectCard from '@/components/Employee/OverdueProjectCard'
+import UserProfileCard from '@/components/Employee/UserProfileCard'
+import EmployeeProfileSkeleton from '@/components/Skeleton/EmployeeProfileSkeleton'
+import { HStack } from '@/components/ui/hstack'
+import { ArrowLeft, Folder, Users } from 'lucide-react-native'
+import { Pressable } from '@/components/ui/pressable'
 
 export default function EmployeeWindow() {
-  const { profiles } = useUser();
-  const { id } = useLocalSearchParams();
-  const { project, assignedUser, setSelectedProject, tasks } = useProject();
+  const { profiles } = useUser()
+  const { id } = useLocalSearchParams()
+  const { project, assignedUser } = useProject()
 
-  const currentUser = profiles?.find((profile) => profile.uid === id);
+  const currentUser = profiles?.find((profile) => profile.uid === id)
 
   const currentUserProjects = project.filter((project) =>
     assignedUser.some(
@@ -27,49 +30,74 @@ export default function EmployeeWindow() {
         assignedUser.uid === currentUser?.uid &&
         project.status !== Status.ARCHIVED
     )
-  );
+  )
 
-  const isLoading = !currentUser;
+  const closedProjects = currentUserProjects.filter(
+    (project) => project.status === 'Closed'
+  )
 
-  const dimensions = useWindowDimensions();
-  const isLargeScreen = dimensions.width >= 1280;
-  const isMediumScreen = dimensions.width <= 1280 && dimensions.width > 768;
+  const isLoading = !currentUser
+
+  const dimensions = useWindowDimensions()
+  const isLargeScreen = dimensions.width >= 1280
+  const isMediumScreen = dimensions.width <= 1280 && dimensions.width > 768
+  const isMobile = dimensions.width <= 1000
+  const router = useRouter()
 
   return (
     <ScrollView
       style={{
         flex: 1,
-        backgroundColor: "#000000ff",
-        paddingTop: 0,
-        paddingBottom: 40,
+        backgroundColor: '#000000ff',
+        padding: 12,
       }}
+      showsVerticalScrollIndicator={false}
     >
+      {isMobile ? (
+        <Pressable
+          onPress={() => router.replace('/(screens)/employee')}
+          style={{ marginBottom: 10 }}
+        >
+          <HStack style={{ alignItems: 'center' }} space="sm">
+            <ArrowLeft color={'white'} size={20} />
+            <Text style={{ color: 'white', fontSize: 15 }}>
+              Employee Profile
+            </Text>
+          </HStack>
+        </Pressable>
+      ) : null}
       <VStack
         style={{
           borderWidth: 0,
-          borderColor: "red",
-          minHeight: "100%",
+          borderColor: 'red',
+          minHeight: '100%',
           gap: isLargeScreen ? 16 : isMediumScreen ? 12 : 8,
         }}
       >
         <Box
           style={{
-            backgroundColor: "transparent",
-            justifyContent: "center",
-            padding: 12,
-            borderWidth: 0,
+            backgroundColor: 'transparent',
+            justifyContent: 'center',
+            padding: isMobile ? 0 : 12,
             gap: 20,
           }}
         >
           {!isLoading ? (
             <>
               <UserProfileCard profile={currentUser} />
-              <Text style={{ color: "white", fontSize: 20, fontWeight: 500 }}>
-                Project Collaborated ({currentUserProjects.length} Total Projects)
+              <Text
+                style={{
+                  color: 'white',
+                  fontSize: isMobile ? 14 : 20,
+                  fontWeight: 500,
+                }}
+              >
+                Project Collaborated ({currentUserProjects.length} Total
+                Projects)
               </Text>
               <OverdueProjectCard project={currentUserProjects} />
               <OnGoingProjectCard project={currentUserProjects} />
-              <ClosedProjectCard project={currentUserProjects} />
+              <ClosedProjectCard project={closedProjects} />
             </>
           ) : (
             <EmployeeProfileSkeleton />
@@ -77,5 +105,5 @@ export default function EmployeeWindow() {
         </Box>
       </VStack>
     </ScrollView>
-  );
+  )
 }

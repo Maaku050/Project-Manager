@@ -28,6 +28,7 @@ import { VStack } from '@/components/ui/vstack'
 import { useUser } from '@/context/profileContext'
 import { useProject } from '@/context/projectContext'
 import { db } from '@/firebase/firebaseConfig'
+import { useLocalSearchParams } from 'expo-router'
 import {
   addDoc,
   collection,
@@ -45,11 +46,18 @@ import { ScrollView } from 'react-native'
 import { TextInput } from 'react-native-gesture-handler'
 
 type tasktModalType = {
+  taskID: string
   visible: boolean
   onClose: () => void
 }
 
-export default function TaskEditModal({ visible, onClose }: tasktModalType) {
+export default function TaskEditModal({
+  visible,
+  onClose,
+  taskID,
+}: tasktModalType) {
+  console.log('received task id in edit modal: ', taskID)
+
   // UseStates
   const [tempTitle, setTempTitle] = useState<string>('')
   const [tempDescription, setTempDescription] = useState<string>('')
@@ -61,11 +69,13 @@ export default function TaskEditModal({ visible, onClose }: tasktModalType) {
   const [isSaving, setIsSaving] = useState<boolean>(false)
 
   // Contexts
-  const { selectedTask, tasks, assignedUser, selectedProject } = useProject()
+  const { tasks, assignedUser, roles } = useProject()
   const { profiles } = useUser()
+  const params = useLocalSearchParams()
 
   // On Load Innitializations
-  const currentTaskData = tasks.find((t) => t.id === selectedTask)
+  const currentTaskData = tasks.find((t) => t.id === taskID)
+  const projectID = currentTaskData?.projectID || (params.project as string) // ✅ Get projectID from task
 
   useEffect(() => {
     if (!visible) return
@@ -89,13 +99,13 @@ export default function TaskEditModal({ visible, onClose }: tasktModalType) {
 
       // Initialize assigned users for this project when modal opens
       const assignedUids = assignedUser
-        .filter((a) => a.taskID === selectedTask)
+        .filter((a) => a.taskID === taskID)
         .map((a) => a.uid)
 
       setTempAssigned(assignedUids)
-      setTempChildTasks(currentTaskData.childTasks)
+      setTempChildTasks(currentTaskData.childTasks || []) // ✅ Handle undefined
     }
-  }, [visible])
+  }, [visible, currentTaskData, taskID, assignedUser])
 
   // Functions
   const updateTask = async () => {
@@ -104,7 +114,7 @@ export default function TaskEditModal({ visible, onClose }: tasktModalType) {
       !tempDescription.trim() ||
       !tempStart ||
       !tempEnd ||
-      !selectedTask
+      !taskID
     )
       return
 
@@ -115,21 +125,19 @@ export default function TaskEditModal({ visible, onClose }: tasktModalType) {
       toLocalStart.setHours(0, 0, 0, 0)
       toLocalEnd.setHours(0, 0, 0, 0)
 
-      const taskRef = doc(db, 'tasks', selectedTask)
+      const taskRef = doc(db, 'tasks', taskID)
 
       await updateDoc(taskRef, {
         title: tempTitle.trim(),
         description: tempDescription.trim(),
-        projectID: selectedProject,
         start: Timestamp.fromDate(toLocalStart),
         end: Timestamp.fromDate(toLocalEnd),
-        starID: null,
         childTasks: tempChildTasks,
       })
 
       await Promise.all([handleSaveAssignedUsers(), handleSaveChildTasks()])
     } catch (error: any) {
-      console.log('Error adding task:', error.message)
+      console.log('Error updating task:', error.message)
     } finally {
       setIsSaving(false)
       onClose()
@@ -141,7 +149,7 @@ export default function TaskEditModal({ visible, onClose }: tasktModalType) {
       const taskRef = collection(db, 'tasks')
 
       // Get current child tasks for this parent task
-      const q = query(taskRef, where('parentTasks', '==', selectedTask))
+      const q = query(taskRef, where('parentTasks', '==', taskID))
       const snapshot = await getDocs(q)
 
       // Map current child tasks
@@ -158,8 +166,14 @@ export default function TaskEditModal({ visible, onClose }: tasktModalType) {
 
       // Find tasks to add parent to (in temp but not in current)
       const toAdd = tempChildTasks.filter(
-        (taskID) => !currentTaskIDs.has(taskID)
+        (childTaskID) => !currentTaskIDs.has(childTaskID)
       )
+
+      console.log(
+        'Child tasks - toRemove:',
+        toRemove.map((t) => t.id)
+      )
+      console.log('Child tasks - toAdd:', toAdd)
 
       // Batch remove parent from tasks not in tempChildTasks
       const removePromises = toRemove.map((t) =>
@@ -168,16 +182,18 @@ export default function TaskEditModal({ visible, onClose }: tasktModalType) {
         })
       )
 
-      // Batch add parent to new child tasks
-      const addPromises = toAdd.map((taskID) => {
-        const taskDocRef = doc(db, 'tasks', taskID)
+      // ✅ FIXED: Batch add parent to new child tasks with correct parent ID
+      const addPromises = toAdd.map((childTaskID) => {
+        const taskDocRef = doc(db, 'tasks', childTaskID)
         return updateDoc(taskDocRef, {
-          parentTasks: selectedTask,
+          parentTasks: taskID, // ✅ Set to the PARENT's ID (the task being edited)
         })
       })
 
       // Execute all operations in parallel
       await Promise.all([...removePromises, ...addPromises])
+
+      console.log('Child tasks updated successfully')
     } catch (err) {
       console.error('Error saving child tasks:', err)
     }
@@ -188,7 +204,7 @@ export default function TaskEditModal({ visible, onClose }: tasktModalType) {
       const userRef = collection(db, 'assignedUser')
 
       // Get current assignments for this task
-      const q = query(userRef, where('taskID', '==', selectedTask))
+      const q = query(userRef, where('taskID', '==', taskID))
       const snapshot = await getDocs(q)
 
       // Map current assignments
@@ -213,16 +229,22 @@ export default function TaskEditModal({ visible, onClose }: tasktModalType) {
       // Batch add new users
       const addPromises = toAdd.map((uid) =>
         addDoc(userRef, {
-          taskID: selectedTask,
+          taskID: taskID,
           uid,
         })
       )
 
       // Execute all operations in parallel
       await Promise.all([...deletePromises, ...addPromises])
+
+      console.log('Assigned users updated successfully')
     } catch (err) {
       console.error('Error saving task assignments:', err)
     }
+  }
+
+  if (!currentTaskData) {
+    return null
   }
 
   return (
@@ -363,27 +385,13 @@ export default function TaskEditModal({ visible, onClose }: tasktModalType) {
               >
                 {/* Members List */}
                 <VStack space="sm">
-                  {[
-                    'Project Manager',
-                    'UI/UX',
-                    'Fullstack Developer',
-                    'Front-End Developer',
-                    'Back-End Developer',
-                    'Mobile Developer',
-                    'Game Developer',
-                    'Quality Assurance',
-                    'Intern',
-                  ]
+                  {roles
                     .filter((role) =>
-                      profiles.some(
-                        (profile) =>
-                          profile.role?.toLowerCase() === role.toLowerCase()
-                      )
+                      profiles.some((profile) => profile.role === role.role)
                     )
                     .map((role, i) => {
                       const matchingProfiles = profiles.filter(
-                        (profile) =>
-                          profile.role?.toLowerCase() === role.toLowerCase()
+                        (profile) => profile.role === role.role
                       )
 
                       return (
@@ -396,7 +404,7 @@ export default function TaskEditModal({ visible, onClose }: tasktModalType) {
                             }}
                           >
                             <Text style={{ fontSize: 14, fontWeight: 'bold' }}>
-                              {role}
+                              {role.role}
                             </Text>
                           </HStack>
 
@@ -517,15 +525,15 @@ export default function TaskEditModal({ visible, onClose }: tasktModalType) {
                   {/* Tasks List */}
                   <VStack space="sm">
                     {tasks.filter((task) => {
-                      // Must be in the selected project
-                      if (task.projectID !== selectedProject) return false
+                      // ✅ Use projectID variable instead of selectedProject
+                      if (task.projectID !== projectID) return false
 
                       // Must be To-do or Ongoing
                       if (task.status !== 'To-do' && task.status !== 'Ongoing')
                         return false
 
                       // Exclude the current task being edited
-                      if (task.id === selectedTask) return false
+                      if (task.id === taskID) return false
 
                       if (
                         !task.title
@@ -535,7 +543,7 @@ export default function TaskEditModal({ visible, onClose }: tasktModalType) {
                         return false
 
                       // If this task is already a child of the current task, include it
-                      if (task.parentTasks === selectedTask) return true
+                      if (task.parentTasks === taskID) return true
 
                       // Otherwise, only include tasks with no parent and no children
                       return (
@@ -555,8 +563,8 @@ export default function TaskEditModal({ visible, onClose }: tasktModalType) {
                     ) : (
                       tasks
                         .filter((task) => {
-                          // Must be in the selected project
-                          if (task.projectID !== selectedProject) return false
+                          // ✅ Use projectID variable instead of selectedProject
+                          if (task.projectID !== projectID) return false
 
                           // Must be To-do or Ongoing
                           if (
@@ -566,7 +574,7 @@ export default function TaskEditModal({ visible, onClose }: tasktModalType) {
                             return false
 
                           // Exclude the current task being edited
-                          if (task.id === selectedTask) return false
+                          if (task.id === taskID) return false
 
                           if (
                             !task.title
@@ -576,7 +584,7 @@ export default function TaskEditModal({ visible, onClose }: tasktModalType) {
                             return false
 
                           // If this task is already a child of the current task, include it
-                          if (task.parentTasks === selectedTask) return true
+                          if (task.parentTasks === taskID) return true
 
                           // Otherwise, only include tasks with no parent and no children
                           return (

@@ -1,18 +1,21 @@
 import React from 'react'
 import { Badge, BadgeText } from './ui/badge'
 import { useProject } from '@/context/projectContext'
+import { useWindowDimensions } from 'react-native'
 
 type ProjectBadgeType = {
   projectID: string
 }
 
 export default function ProjectBadge({ projectID }: ProjectBadgeType) {
+  const dimensions = useWindowDimensions()
+  const isMobile = dimensions.width <= 786
   const { project } = useProject()
 
   const currentProject = project.find((t) => t.id === projectID)
   return (
     <Badge
-      size="lg"
+      size={isMobile ? 'md' : 'lg'}
       variant="solid"
       action={
         currentProject?.deadline &&

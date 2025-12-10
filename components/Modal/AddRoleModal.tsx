@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Text } from 'react-native'
+import { Text, useWindowDimensions } from 'react-native'
 import { Button, ButtonText } from '../ui/button'
 import {
   Modal,
@@ -42,6 +42,7 @@ import {
   SelectTrigger,
 } from '../ui/select'
 import { Box } from '../ui/box'
+import { useRouter } from 'expo-router'
 
 const colorSelection = [
   { id: 1, name: 'Neutral', color: '#404040' },
@@ -69,6 +70,9 @@ const colorSelection = [
 ]
 
 const AddRoleModal = () => {
+  const dimensions = useWindowDimensions()
+  const isMobile = dimensions.width <= 786
+  const router = useRouter()
   const { roles } = useProject()
   const [isSaving, setIsSaving] = useState(false)
   const [showModal, setShowModal] = useState(false)
@@ -160,7 +164,7 @@ const AddRoleModal = () => {
       const docRef = collection(db, 'roles')
 
       await addDoc(docRef, {
-        role: inputValue,
+        role: inputValue?.trim(),
         color: color,
         createdAt: serverTimestamp(),
       })
@@ -207,12 +211,15 @@ const AddRoleModal = () => {
   return (
     <>
       <Button
-        onPress={() => handleModal(true)}
-        size="md"
-        style={{ width: 118 }}
+        onPress={() =>
+          isMobile
+            ? router.replace('/(screens)/addRoleScreen')
+            : handleModal(true)
+        }
+        size={isMobile ? 'sm' : 'md'}
         className="data-[hover=true]:bg-transparent color-[#FFFFFF] bg-transparent"
       >
-        <ButtonText style={{ fontSize: 18, fontWeight: 500 }}>
+        <ButtonText style={{ fontSize: isMobile ? 14 : 18, fontWeight: 500 }}>
           Add role
         </ButtonText>
       </Button>

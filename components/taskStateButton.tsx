@@ -14,7 +14,7 @@ import {
   Undo2,
 } from 'lucide-react-native'
 import React, { use, useState } from 'react'
-import { Text } from 'react-native'
+import { Text, useWindowDimensions } from 'react-native'
 import { ButtonIcon, ButtonText, Button } from './ui/button'
 import { HStack } from './ui/hstack'
 import { Menu, MenuItem, MenuItemLabel } from './ui/menu'
@@ -27,6 +27,8 @@ type TaskStateButtonType = {
 }
 
 export default function TaskStateButton({ taskID, from }: TaskStateButtonType) {
+  const dimensions = useWindowDimensions()
+  const isMobile = dimensions.width <= 768
   const { tasks, assignedUser } = useProject()
   const { profile, profiles } = useUser()
   const currentTask = tasks.find((t) => t.id === taskID)
@@ -58,7 +60,13 @@ export default function TaskStateButton({ taskID, from }: TaskStateButtonType) {
         <Button
           variant={startButtonHover === currentTask.id ? 'solid' : 'outline'}
           action="positive"
-          size={from === 'taskWindow' ? 'md' : 'sm'}
+          size={
+            (from === 'taskWindow' && isMobile) || isMobile
+              ? 'xs'
+              : from === 'taskWindow'
+                ? 'md'
+                : 'sm'
+          }
           onHoverIn={() => setStartButtonHover(currentTask.id)}
           onHoverOut={() => setStartButtonHover('')}
           onPress={() =>
@@ -77,28 +85,36 @@ export default function TaskStateButton({ taskID, from }: TaskStateButtonType) {
         <>
           {from === 'taskWindow' ? (
             <HStack space="md">
-              <Button
-                style={{
-                  backgroundColor:
-                    unstartButtonHover === currentTask.id
-                      ? '#B45A1A'
-                      : '#000000',
-                  borderWidth: unstartButtonHover === currentTask.id ? 0 : 1,
-                  borderColor: '#B45A1A',
-                }}
-                size="md"
-                onHoverIn={() => setUnstartButtonHover(currentTask.id)}
-                onHoverOut={() => setUnstartButtonHover('')}
-                onPress={() => handleUnstartTask(currentTask.id)}
-              >
-                <ButtonIcon as={Undo2} color="white" />
-                <ButtonText style={{ color: 'white' }}>Unstart</ButtonText>
-              </Button>
+              {isMobile ? null : (
+                <Button
+                  style={{
+                    backgroundColor:
+                      unstartButtonHover === currentTask.id
+                        ? '#B45A1A'
+                        : '#000000',
+                    borderWidth: unstartButtonHover === currentTask.id ? 0 : 1,
+                    borderColor: '#B45A1A',
+                  }}
+                  size="md"
+                  onHoverIn={() => setUnstartButtonHover(currentTask.id)}
+                  onHoverOut={() => setUnstartButtonHover('')}
+                  onPress={() => handleUnstartTask(currentTask.id)}
+                >
+                  <ButtonIcon as={Undo2} color="white" />
+                  <ButtonText style={{ color: 'white' }}>Unstart</ButtonText>
+                </Button>
+              )}
 
               <Button
                 variant="solid"
                 action="positive"
-                size="md"
+                size={
+                  (from === 'taskWindow' && isMobile) || isMobile
+                    ? 'xs'
+                    : from === 'taskWindow'
+                      ? 'md'
+                      : 'sm'
+                }
                 onPress={() =>
                   handleCompleteTask(
                     allAssignedUser.map((profile) => profile.uid),
@@ -118,7 +134,7 @@ export default function TaskStateButton({ taskID, from }: TaskStateButtonType) {
               <Button
                 variant="solid"
                 action="positive"
-                size={from === 'taskWindow' ? 'md' : 'sm'}
+                size={isMobile ? 'xs' : 'sm'}
                 onPress={() =>
                   handleCompleteTask(
                     allAssignedUser.map((profile) => profile.uid),
@@ -143,7 +159,7 @@ export default function TaskStateButton({ taskID, from }: TaskStateButtonType) {
                       {...triggerProps}
                       variant="solid"
                       action="positive"
-                      size="sm"
+                      size={isMobile ? 'xs' : 'sm'}
                       style={{ width: 10 }}
                     >
                       <ButtonText style={{ color: 'white' }}>
@@ -175,7 +191,13 @@ export default function TaskStateButton({ taskID, from }: TaskStateButtonType) {
         <Button
           variant={restartButtonHover === currentTask.id ? 'solid' : 'outline'}
           action="negative"
-          size={from === 'taskWindow' ? 'md' : 'sm'}
+          size={
+            (from === 'taskWindow' && isMobile) || isMobile
+              ? 'xs'
+              : from === 'taskWindow'
+                ? 'md'
+                : 'sm'
+          }
           onHoverIn={() => setRestartButtonHover(currentTask.id)}
           onHoverOut={() => setRestartButtonHover('')}
           onPress={() =>

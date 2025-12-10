@@ -66,7 +66,7 @@ export default function TodoTasks({ projectID }: TodoTasksType) {
           borderBottomRightRadius: 8,
           paddingBottom: 10,
           paddingRight: 15,
-          paddingLeft: 15,
+          paddingLeft: 8,
           borderWidth: 0,
           justifyContent: 'center',
           alignItems: 'center',

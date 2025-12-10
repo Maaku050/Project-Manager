@@ -10,6 +10,7 @@ import { useRouter } from 'expo-router'
 import { Text } from '../ui/text'
 import { Pressable } from '../ui/pressable'
 import { VStack } from '../ui/vstack'
+import { useWindowDimensions } from 'react-native'
 
 type ProjectManagerCardProps = {
   profiles: Profile[] | undefined
@@ -18,6 +19,10 @@ type ProjectManagerCardProps = {
 }
 
 const EmployeeCard: React.FC<ProjectManagerCardProps> = (props) => {
+  const dimensions = useWindowDimensions()
+  const isDesktop = dimensions.width >= 1200
+  const isMedium = dimensions.width < 1200 && dimensions.width > 768
+  const isMobile = dimensions.width <= 786
   const router = useRouter()
 
   return (
@@ -27,10 +32,22 @@ const EmployeeCard: React.FC<ProjectManagerCardProps> = (props) => {
           <Box
             style={{ flexDirection: 'row', justifyContent: 'space-between' }}
           >
-            <Text style={{ color: 'white', fontSize: 20, fontWeight: 800 }}>
+            <Text
+              style={{
+                color: 'white',
+                fontSize: isMobile ? 14 : 20,
+                fontWeight: 800,
+              }}
+            >
               {props.role}/s
             </Text>
-            <Text style={{ color: 'white', fontSize: 16, fontWeight: 500 }}>
+            <Text
+              style={{
+                color: 'white',
+                fontSize: isMobile ? 12 : 16,
+                fontWeight: 500,
+              }}
+            >
               {props.profiles?.filter(
                 (profile) =>
                   profile.role === props.role && profile.status != Role.ARCHIVED
@@ -42,7 +59,17 @@ const EmployeeCard: React.FC<ProjectManagerCardProps> = (props) => {
             (profile) =>
               profile.role === props.role && profile.status != Role.ARCHIVED
           )?.length ?? 0) > 0 ? (
-            <Grid _extra={{ className: 'grid-cols-3 gap-4' }}>
+            <Grid
+              _extra={{
+                className: isDesktop
+                  ? 'grid-cols-3 gap-4'
+                  : isMedium
+                    ? 'grid-cols-2 gap-4'
+                    : isMobile
+                      ? 'grid-cols-1 gap-4'
+                      : '',
+              }}
+            >
               {props.profiles?.reduce((acc: React.ReactNode[], profile) => {
                 if (
                   profile.role === props.role &&
@@ -112,7 +139,7 @@ const EmployeeCard: React.FC<ProjectManagerCardProps> = (props) => {
             <Text
               style={{
                 color: 'white',
-                fontSize: 16,
+                fontSize: isMobile ? 12 : 16,
                 fontWeight: 500,
                 textAlign: 'center',
                 paddingBottom: 20,

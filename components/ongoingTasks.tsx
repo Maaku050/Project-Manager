@@ -64,7 +64,7 @@ export default function OngoingTasks({ projectID }: OngoingTasksType) {
           borderBottomRightRadius: 8,
           paddingBottom: 10,
           paddingRight: 15,
-          paddingLeft: 15,
+          paddingLeft: 8,
           borderWidth: 0,
           justifyContent: 'center',
           alignItems: 'center',

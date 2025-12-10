@@ -24,6 +24,8 @@ import {
   ModalFooter,
   ModalHeader,
 } from '@/components/ui/modal'
+import { Pressable } from '@/components/ui/pressable'
+import { VStack } from '@/components/ui/vstack'
 import { useUser } from '@/context/profileContext'
 import { useProject } from '@/context/projectContext'
 import JournalAddModal from '@/modals/journalAddModal'
@@ -31,6 +33,7 @@ import JournalDeleteModal from '@/modals/journalDeleteModal'
 import JournalEditModal from '@/modals/journalEditModal'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import {
+  ArrowLeft,
   ChevronDownIcon,
   ChevronUpIcon,
   Plus,
@@ -48,17 +51,13 @@ const PROJECTS_PER_PAGE = 10
 
 export default function JournalScreen() {
   const dimensions = useWindowDimensions()
-  const isLargeScreen = dimensions.width >= 1280
-  const isMediumScreen = dimensions.width <= 1280 && dimensions.width > 768
+  const isMobile = dimensions.width <= 1000
   const router = useRouter()
   const params = useLocalSearchParams()
   const { profiles } = useUser()
   const { project, journal } = useProject()
   const [showAddJournalModal, setShowAddJournalModal] = useState(false)
   const [editButtonHover, setEditButtonHover] = useState('')
-  const [isHover, setIsHover] = useState(false)
-  const [showEditConfirmationModal, setShowEditConfirmationModal] =
-    useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [selectedJournal, setSelectedJournal] = useState('')
@@ -86,8 +85,8 @@ export default function JournalScreen() {
     <ScrollView
       style={{
         backgroundColor: '#000000',
-        paddingVertical: 20,
-        paddingHorizontal: 100,
+        paddingVertical: isMobile ? 12 : 20,
+        paddingHorizontal: isMobile ? 12 : 250,
         minHeight: '100%',
         borderColor: 'red',
         borderWidth: 0,
@@ -95,23 +94,40 @@ export default function JournalScreen() {
       }}
       showsVerticalScrollIndicator={false}
     >
-      <Box style={{ borderWidth: 0, marginBottom: 30 }}>
-        <HStack
-          style={{ justifyContent: 'space-between', alignItems: 'center' }}
+      {isMobile ? (
+        <Pressable
+          onPress={() =>
+            router.replace(`/projectWindow?project=${params.project as string}`)
+          }
+          style={{ marginBottom: 20 }}
         >
-          <Text
-            style={{
-              fontSize: 28,
-              fontWeight: 'bold',
-              color: 'white',
-            }}
-          >
-            {currentProject?.title}
-          </Text>
-        </HStack>
+          <HStack style={{ alignItems: 'center', borderWidth: 0 }} space="sm">
+            <ArrowLeft color={'white'} />
+            <Text style={{ color: 'white', fontSize: 15 }}>
+              Project Journal
+            </Text>
+          </HStack>
+        </Pressable>
+      ) : null}
+      <Box style={{ borderWidth: 0, marginBottom: isMobile ? 10 : 30 }}>
+        <Text
+          style={{
+            fontSize: isMobile ? 18 : 28,
+            fontWeight: 'bold',
+            color: 'white',
+          }}
+        >
+          {currentProject?.title}
+        </Text>
       </Box>
-      <Box style={{ paddingRight: 10, paddingLeft: 10, paddingBottom: 15 }}>
-        <Text style={{ color: 'white', lineHeight: 25 }}>
+      <Box style={{ paddingBottom: 15 }}>
+        <Text
+          style={{
+            color: 'white',
+            lineHeight: 25,
+            fontSize: isMobile ? 12 : 16,
+          }}
+        >
           {currentProject?.description}
         </Text>
       </Box>
@@ -119,7 +135,7 @@ export default function JournalScreen() {
       <HStack style={{ justifyContent: 'space-between', alignItems: 'center' }}>
         <Text
           style={{
-            fontSize: 20,
+            fontSize: isMobile ? 18 : 20,
             fontWeight: 'bold',
             color: 'white',
             marginVertical: 20,
@@ -129,7 +145,14 @@ export default function JournalScreen() {
         </Text>
         <Button
           style={{ backgroundColor: 'white', borderRadius: 8 }}
-          onPress={() => setShowAddJournalModal(true)}
+          onPress={() =>
+            isMobile
+              ? router.replace(
+                  `/(screens)/addJournalScreen?project=${params.project as string}`
+                )
+              : setShowAddJournalModal(true)
+          }
+          size={isMobile ? 'sm' : 'md'}
         >
           <ButtonIcon as={Plus} color={'black'} />
           <ButtonText style={{ color: 'black' }}>Add Journal</ButtonText>
@@ -147,6 +170,7 @@ export default function JournalScreen() {
         >
           {currentJournals.map((journal) => (
             <AccordionItem
+              key={journal.id}
               value={journal.id}
               style={{
                 backgroundColor: '#272625',
@@ -160,23 +184,24 @@ export default function JournalScreen() {
                     return (
                       <>
                         <AccordionTitleText style={{ color: 'white' }}>
-                          <HStack
-                            style={{
-                              justifyContent: 'space-between',
-                              alignItems: 'center',
-                            }}
-                          >
-                            <Text>{journal.title}</Text>
-
-                            <HStack style={{ alignItems: 'center' }} space="md">
+                          {isMobile ? (
+                            <VStack space="xs">
+                              <Box style={{ maxWidth: 250 }}>
+                                <Text>{journal.title}</Text>
+                              </Box>
                               <HStack
-                                style={{ alignItems: 'center' }}
+                                style={{ alignItems: 'center', maxWidth: 250 }}
                                 space="sm"
                               >
-                                <Text style={{ fontWeight: 'normal' }}>
+                                <Text
+                                  style={{
+                                    fontWeight: 'normal',
+                                    fontSize: isMobile ? 12 : 16,
+                                  }}
+                                >
                                   Created By:
                                 </Text>
-                                <Text>
+                                <Text style={{ fontSize: isMobile ? 12 : 16 }}>
                                   {
                                     profiles?.find(
                                       (profile) =>
@@ -191,28 +216,83 @@ export default function JournalScreen() {
                                   }
                                 </Text>
                               </HStack>
-
-                              <Divider
-                                orientation="vertical"
-                                style={{
-                                  backgroundColor: 'gray',
-                                  height: 30,
-                                }}
-                              />
-
                               <HStack
-                                style={{ alignItems: 'center' }}
+                                style={{ alignItems: 'center', maxWidth: 250 }}
                                 space="sm"
                               >
-                                <Text style={{ fontWeight: 'normal' }}>
+                                <Text
+                                  style={{
+                                    fontWeight: 'normal',
+                                    fontSize: isMobile ? 12 : 16,
+                                  }}
+                                >
                                   Created at:{' '}
                                 </Text>
-                                <Text>
+                                <Text style={{ fontSize: isMobile ? 12 : 16 }}>
                                   {journal.date.toDate().toLocaleDateString()}
                                 </Text>
                               </HStack>
+                            </VStack>
+                          ) : (
+                            <HStack
+                              style={{
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                              }}
+                            >
+                              <Box style={{ maxWidth: 250 }}>
+                                <Text>{journal.title}</Text>
+                              </Box>
+
+                              <HStack
+                                style={{ alignItems: 'center' }}
+                                space="md"
+                              >
+                                <HStack
+                                  style={{ alignItems: 'center' }}
+                                  space="sm"
+                                >
+                                  <Text style={{ fontWeight: 'normal' }}>
+                                    Created By:
+                                  </Text>
+                                  <Text>
+                                    {
+                                      profiles?.find(
+                                        (profile) =>
+                                          profile.uid === journal.createdBy
+                                      )?.firstName
+                                    }{' '}
+                                    {
+                                      profiles?.find(
+                                        (profile) =>
+                                          profile.uid === journal.createdBy
+                                      )?.lastName
+                                    }
+                                  </Text>
+                                </HStack>
+
+                                <Divider
+                                  orientation="vertical"
+                                  style={{
+                                    backgroundColor: 'gray',
+                                    height: 30,
+                                  }}
+                                />
+
+                                <HStack
+                                  style={{ alignItems: 'center' }}
+                                  space="sm"
+                                >
+                                  <Text style={{ fontWeight: 'normal' }}>
+                                    Created at:{' '}
+                                  </Text>
+                                  <Text>
+                                    {journal.date.toDate().toLocaleDateString()}
+                                  </Text>
+                                </HStack>
+                              </HStack>
                             </HStack>
-                          </HStack>
+                          )}
                         </AccordionTitleText>
                         {isExpanded ? (
                           <AccordionIcon
@@ -233,52 +313,105 @@ export default function JournalScreen() {
                 </AccordionTrigger>
               </AccordionHeader>
               <AccordionContent>
-                <AccordionContentText style={{ color: 'white' }}>
+                <AccordionContentText
+                  style={{ color: 'white', marginBottom: 10 }}
+                >
                   {journal.description}
                 </AccordionContentText>
-                <HStack
-                  style={{
-                    justifyContent: 'flex-end',
-                    alignItems: 'center',
-                    marginTop: 20,
-                  }}
-                  space="md"
-                >
-                  <Button
-                    style={{ borderRadius: 8 }}
-                    variant="outline"
-                    onHoverIn={() => setEditButtonHover(journal.id)}
-                    onHoverOut={() => setEditButtonHover('')}
-                  >
-                    <ButtonIcon
-                      as={SquarePen}
-                      color={editButtonHover === journal.id ? 'black' : 'white'}
-                    />
-                    <ButtonText
+                {isMobile ? (
+                  <VStack space="xs">
+                    <Button
                       style={{
-                        color:
-                          editButtonHover === journal.id ? 'black' : 'white',
+                        borderRadius: 8,
                       }}
+                      variant="outline"
+                      onHoverIn={() => setEditButtonHover(journal.id)}
+                      onHoverOut={() => setEditButtonHover('')}
                       onPress={() => {
-                        setSelectedJournal(journal.id)
-                        setShowEditConfirmationModal(true)
+                        if (isMobile) {
+                          router.replace(
+                            `/editJournalScreen?journalID=${journal.id}&project=${params.project as string}`
+                          )
+                        } else {
+                          setSelectedJournal(journal.id)
+                          setShowEditModal(true)
+                        }
                       }}
                     >
-                      Edit Journal
-                    </ButtonText>
-                  </Button>
-                  <Button
-                    onPress={() => {
-                      setSelectedJournal(journal.id)
-                      setShowDeleteModal(true)
+                      <ButtonIcon
+                        as={SquarePen}
+                        color={
+                          editButtonHover === journal.id ? 'black' : 'white'
+                        }
+                      />
+                      <ButtonText
+                        style={{
+                          color:
+                            editButtonHover === journal.id ? 'black' : 'white',
+                        }}
+                      >
+                        Edit Journal
+                      </ButtonText>
+                    </Button>
+                    <Button
+                      onPress={() => {
+                        setSelectedJournal(journal.id)
+                        setShowDeleteModal(true)
+                      }}
+                      style={{ borderRadius: 8 }}
+                      action="primary"
+                    >
+                      <ButtonIcon as={Trash} />
+                      <ButtonText>Delete Journal</ButtonText>
+                    </Button>
+                  </VStack>
+                ) : (
+                  <HStack
+                    style={{
+                      justifyContent: 'flex-end',
+                      alignItems: 'center',
+                      marginTop: 20,
                     }}
-                    style={{ borderRadius: 8 }}
-                    action="primary"
+                    space="md"
                   >
-                    <ButtonIcon as={Trash} />
-                    <ButtonText>Delete Journal</ButtonText>
-                  </Button>
-                </HStack>
+                    <Button
+                      style={{ borderRadius: 8 }}
+                      variant="outline"
+                      onHoverIn={() => setEditButtonHover(journal.id)}
+                      onHoverOut={() => setEditButtonHover('')}
+                      onPress={() => {
+                        setSelectedJournal(journal.id)
+                        setShowEditModal(true)
+                      }}
+                    >
+                      <ButtonIcon
+                        as={SquarePen}
+                        color={
+                          editButtonHover === journal.id ? 'black' : 'white'
+                        }
+                      />
+                      <ButtonText
+                        style={{
+                          color:
+                            editButtonHover === journal.id ? 'black' : 'white',
+                        }}
+                      >
+                        Edit Journal
+                      </ButtonText>
+                    </Button>
+                    <Button
+                      onPress={() => {
+                        setSelectedJournal(journal.id)
+                        setShowDeleteModal(true)
+                      }}
+                      style={{ borderRadius: 8 }}
+                      action="primary"
+                    >
+                      <ButtonIcon as={Trash} />
+                      <ButtonText>Delete Journal</ButtonText>
+                    </Button>
+                  </HStack>
+                )}
               </AccordionContent>
             </AccordionItem>
           ))}
@@ -292,59 +425,6 @@ export default function JournalScreen() {
           onPageChange={handlePageChange}
         />
       </Box>
-
-      <Modal
-        isOpen={showEditConfirmationModal}
-        onClose={() => setShowEditConfirmationModal(false)}
-        size="md"
-      >
-        <ModalBackdrop />
-        <ModalContent
-          style={{
-            borderColor: 'red',
-            borderWidth: 0,
-            backgroundColor: '#000000',
-          }}
-        >
-          <ModalHeader>
-            <Heading size="xl" style={{ color: 'white' }}>
-              Edit Journal
-            </Heading>
-            <ModalCloseButton>
-              <Icon as={CloseIcon} color="white" />
-            </ModalCloseButton>
-          </ModalHeader>
-          <ModalBody>
-            <Text style={{ color: 'white', fontSize: 18 }}>
-              Are you sure you want to edit this journal?
-            </Text>
-          </ModalBody>
-          <ModalFooter>
-            <Button
-              variant="outline"
-              className="mr-3"
-              onPress={() => setShowEditConfirmationModal(false)}
-              onHoverIn={() => setIsHover(true)}
-              onHoverOut={() => setIsHover(false)}
-              style={{
-                backgroundColor: isHover ? 'gray' : '',
-                borderRadius: 8,
-              }}
-            >
-              <ButtonText style={{ color: 'white' }}>Cancel</ButtonText>
-            </Button>
-            <Button
-              onPress={() => {
-                setShowEditModal(true)
-                setShowEditConfirmationModal(false)
-              }}
-              style={{ borderRadius: 8 }}
-            >
-              <ButtonText>Edit journal</ButtonText>
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
 
       <JournalAddModal
         visible={showAddJournalModal}

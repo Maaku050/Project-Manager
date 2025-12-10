@@ -1,14 +1,21 @@
 import React from 'react'
-import { Pressable, Text } from 'react-native'
+import { Pressable, Text, useWindowDimensions, View, Image } from 'react-native'
 import { HStack } from './ui/hstack'
 import { ArrowLeft, Folder, House, LayoutDashboard } from 'lucide-react-native'
-import { router } from 'expo-router'
+import {
+  router,
+  useGlobalSearchParams,
+  useLocalSearchParams,
+} from 'expo-router'
 
 type HeaderButtonType = {
   screen: string
 }
 
 export default function HeaderButtons({ screen }: HeaderButtonType) {
+  const params = useGlobalSearchParams()
+  const dimensions = useWindowDimensions()
+  const isMobile = dimensions.width <= 768
   return (
     <>
       {screen === 'home' ? (
@@ -22,21 +29,51 @@ export default function HeaderButtons({ screen }: HeaderButtonType) {
           <Text style={{ color: 'white', fontSize: 20 }}>Dashboard</Text>
         </HStack>
       ) : screen === 'project' ? (
-        <HStack style={{ alignItems: 'center', marginLeft: 20 }} space="sm">
-          <Folder color={'white'} />
-          <Text style={{ color: 'white', fontSize: 20 }}>Projects</Text>
-        </HStack>
+        <>
+          {isMobile ? (
+            <Image
+              source={require('@/assets/images/final dark logo.png')} // Your logo path
+              style={{ width: 60, height: 30 }}
+              resizeMode="contain"
+            />
+          ) : (
+            <HStack style={{ alignItems: 'center', marginLeft: 20 }} space="sm">
+              <Folder color={'white'} />
+              <Text style={{ color: 'white', fontSize: 20 }}>Projects</Text>
+            </HStack>
+          )}
+        </>
       ) : screen === 'projectWindow' ? (
-        <Pressable onPress={() => router.replace('/(screens)/project')}>
-          <HStack style={{ alignItems: 'center', marginLeft: 20 }} space="sm">
-            <ArrowLeft color={'white'} />
-            <Text style={{ color: 'white', fontSize: 20 }}>
-              Project Details
-            </Text>
-          </HStack>
-        </Pressable>
+        <>
+          {isMobile ? (
+            <Image
+              source={require('@/assets/images/final dark logo.png')} // Your logo path
+              style={{ width: 60, height: 30 }}
+              resizeMode="contain"
+            />
+          ) : (
+            <Pressable onPress={() => router.replace('/(screens)/project')}>
+              <HStack
+                style={{ alignItems: 'center', marginLeft: 20 }}
+                space="sm"
+              >
+                <ArrowLeft color={'white'} />
+                <Text style={{ color: 'white', fontSize: 20 }}>
+                  Project Details
+                </Text>
+              </HStack>
+            </Pressable>
+          )}
+        </>
       ) : screen === 'taskWindow' ? (
-        <Pressable onPress={() => router.replace('/(screens)/projectWindow')}>
+        <Pressable
+          onPress={() =>
+            router.replace({
+              pathname: '/(screens)/projectWindow',
+              params: { project: params.project as string },
+            })
+          }
+        >
           <HStack style={{ alignItems: 'center', marginLeft: 20 }} space="sm">
             <ArrowLeft color={'white'} />
             <Text style={{ color: 'white', fontSize: 20 }}>Task Details</Text>
@@ -62,7 +99,14 @@ export default function HeaderButtons({ screen }: HeaderButtonType) {
           <Text style={{ color: 'white', fontSize: 20 }}>Home</Text>
         </HStack>
       ) : screen === 'projectJournalScreen' ? (
-        <Pressable onPress={() => router.replace('/(screens)/projectWindow')}>
+        <Pressable
+          onPress={() =>
+            router.replace({
+              pathname: '/(screens)/projectWindow',
+              params: { project: params.project as string },
+            })
+          }
+        >
           <HStack style={{ alignItems: 'center', marginLeft: 20 }} space="sm">
             <ArrowLeft color={'white'} />
             <Text style={{ color: 'white', fontSize: 20 }}>

@@ -1,26 +1,28 @@
-import { useUser } from "@/context/profileContext";
-import { useProject } from "@/context/projectContext";
-import React from "react";
-import { HStack } from "./ui/hstack";
-import { Avatar, AvatarFallbackText, AvatarGroup } from "./ui/avatar";
-import { Tooltip, TooltipContent } from "./ui/tooltip";
-import { VStack } from "./ui/vstack";
-import { Text } from "react-native";
-import { Heading } from "./ui/heading";
+import { useUser } from '@/context/profileContext'
+import { useProject } from '@/context/projectContext'
+import React from 'react'
+import { HStack } from './ui/hstack'
+import { Avatar, AvatarFallbackText, AvatarGroup } from './ui/avatar'
+import { Tooltip, TooltipContent } from './ui/tooltip'
+import { VStack } from './ui/vstack'
+import { Text, useWindowDimensions } from 'react-native'
+import { Heading } from './ui/heading'
 
 type ProjectUsersType = {
-  taskID: string;
-};
+  taskID: string
+}
 
 export default function TasktUsers({ taskID }: ProjectUsersType) {
-  const { profiles } = useUser();
-  const { assignedUser, tasks } = useProject();
+  const { profiles } = useUser()
+  const { assignedUser, tasks } = useProject()
+  const dimensions = useWindowDimensions()
+  const isMobile = dimensions.width <= 1000
 
-  const currentTask = tasks.find((t) => t.id === taskID);
-  if (!currentTask) return;
+  const currentTask = tasks.find((t) => t.id === taskID)
+  if (!currentTask) return
 
   return (
-    <HStack style={{ justifyContent: "flex-end", gap: 8 }}>
+    <HStack style={{ justifyContent: 'flex-end', gap: 8 }}>
       {profiles
         .filter((p) =>
           assignedUser.some(
@@ -33,7 +35,7 @@ export default function TasktUsers({ taskID }: ProjectUsersType) {
             key={t.id}
             placement="top"
             trigger={(triggerProps) => (
-              <Avatar size="xs" {...triggerProps}>
+              <Avatar size={isMobile ? 'sm' : 'xs'} {...triggerProps}>
                 <AvatarFallbackText>{t.firstName}</AvatarFallbackText>
               </Avatar>
             )}
@@ -51,7 +53,7 @@ export default function TasktUsers({ taskID }: ProjectUsersType) {
         <Tooltip
           placement="top"
           trigger={(triggerProps) => (
-            <Avatar size="xs" {...triggerProps}>
+            <Avatar size={isMobile ? 'sm' : 'xs'} {...triggerProps}>
               <AvatarFallbackText>
                 {`+ ${
                   profiles.filter((p) =>
@@ -84,5 +86,5 @@ export default function TasktUsers({ taskID }: ProjectUsersType) {
         </Tooltip>
       )}
     </HStack>
-  );
+  )
 }

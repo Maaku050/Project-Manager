@@ -1,5 +1,5 @@
 import { Project } from '@/_types'
-import React from 'react'
+import React, { useState } from 'react'
 import { Card } from '../ui/card'
 import { Box } from '../ui/box'
 import { Text } from '../ui/text'
@@ -10,18 +10,39 @@ import { VStack } from '../ui/vstack/index.web'
 import { Button, ButtonText } from '../ui/button'
 import capitalizeWord from '@/_helpers/capitalizeWord'
 import { Pressable } from '../ui/pressable'
-import { useRouter } from 'expo-router'
+import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useProject } from '@/context/projectContext'
 import ProjectBadge from '../projectBadge'
 import ProjectUsers from '../projectAssignedUsers'
+import Pagination from '../customPagination'
+import { useWindowDimensions } from 'react-native'
 
 type ClosedProjectCardProps = {
   project: Project[]
 }
 
 const ClosedProjectCard: React.FC<ClosedProjectCardProps> = (props) => {
+  const dimensions = useWindowDimensions()
+  const isDesktop = dimensions.width >= 1200
+  const isMedium = dimensions.width < 1200 && dimensions.width > 768
+  const isMobile = dimensions.width <= 786
+  const PROJECTS_PER_PAGE = isMobile ? 5 : 15
   const router = useRouter()
+  const params = useLocalSearchParams()
   const { setSelectedProject } = useProject()
+  const [closedProjectsPage, setClosedProjectsPage] = useState(
+    parseInt(params.page as string) || 1
+  )
+
+  const totalPages = Math.ceil(props.project.length / PROJECTS_PER_PAGE)
+  const startIndex = (closedProjectsPage - 1) * PROJECTS_PER_PAGE
+  const endIndex = startIndex + PROJECTS_PER_PAGE
+  const closedProjects = props.project.slice(startIndex, endIndex)
+
+  const handlePageChange = (page: number) => {
+    setClosedProjectsPage(page)
+    router.setParams({ page: page.toString() })
+  }
   return (
     <>
       <Card style={{ backgroundColor: '#171717' }}>
@@ -29,23 +50,31 @@ const ClosedProjectCard: React.FC<ClosedProjectCardProps> = (props) => {
           <Box
             style={{ flexDirection: 'row', justifyContent: 'space-between' }}
           >
-            <Text style={{ color: 'white', fontSize: 20, fontWeight: 800 }}>
+            <Text
+              style={{
+                color: 'white',
+                fontSize: isMobile ? 16 : 20,
+                fontWeight: 800,
+              }}
+            >
               Closed Projects
             </Text>
           </Box>
-          {props.project.filter(
-            (project) =>
-              project.deadline &&
-              project.deadline.toDate() < new Date() &&
-              project.status === Status.CLOSED
-          ).length > 0 ? (
-            <Grid _extra={{ className: 'grid-cols-3 gap-4' }}>
-              {props.project.reduce((acc: React.ReactNode[], project) => {
-                if (
-                  project.deadline &&
-                  project.deadline.toDate() < new Date() &&
-                  project.status === Status.CLOSED
-                ) {
+          {closedProjects.filter((project) => project.status === Status.CLOSED)
+            .length > 0 ? (
+            <Grid
+              _extra={{
+                className: isDesktop
+                  ? 'grid-cols-3 gap-4'
+                  : isMedium
+                    ? 'grid-cols-2 gap-4'
+                    : isMobile
+                      ? 'grid-cols-1 gap-4'
+                      : '',
+              }}
+            >
+              {closedProjects.reduce((acc: React.ReactNode[], project) => {
+                if (project.status === Status.CLOSED) {
                   acc.push(
                     <GridItem
                       key={project.id}
@@ -55,7 +84,9 @@ const ClosedProjectCard: React.FC<ClosedProjectCardProps> = (props) => {
                       <Pressable
                         onPress={() => {
                           setSelectedProject(project.id)
-                          router.push(`/(screens)/projectWindow`)
+                          router.push(
+                            `/(screens)/projectWindow?project=${project.id}`
+                          )
                         }}
                         style={{ height: '100%' }}
                       >
@@ -86,7 +117,7 @@ const ClosedProjectCard: React.FC<ClosedProjectCardProps> = (props) => {
                               <Text
                                 style={{
                                   color: 'white',
-                                  fontSize: 16,
+                                  fontSize: isMobile ? 14 : 16,
                                   fontWeight: 600,
                                 }}
                                 numberOfLines={1}
@@ -117,7 +148,7 @@ const ClosedProjectCard: React.FC<ClosedProjectCardProps> = (props) => {
             <Text
               style={{
                 color: 'white',
-                fontSize: 16,
+                fontSize: isMobile ? 12 : 16,
                 fontWeight: 500,
                 textAlign: 'center',
                 paddingBottom: 20,
@@ -127,6 +158,12 @@ const ClosedProjectCard: React.FC<ClosedProjectCardProps> = (props) => {
             </Text>
           )}
         </Box>
+        {/* Pagination Controls */}
+        <Pagination
+          currentPage={closedProjectsPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
       </Card>
     </>
   )

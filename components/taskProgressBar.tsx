@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
-import { Text } from 'react-native'
+import { Text, useWindowDimensions } from 'react-native'
 import { HStack } from './ui/hstack'
 import { useProject } from '@/context/projectContext'
 import { Button, ButtonIcon, ButtonText } from './ui/button'
 import { PlusIcon } from 'lucide-react-native'
 import { Progress, ProgressFilledTrack } from './ui/progress'
 import TaskAddModal from '@/modals/taskAddModal'
+import { useRouter } from 'expo-router'
 
 type TaskProgressBarType = {
   projectID: string
@@ -16,6 +17,9 @@ export default function TaskProgressBar({
   projectID,
   origin,
 }: TaskProgressBarType) {
+  const dimensions = useWindowDimensions()
+  const isMobile = dimensions.width <= 768
+  const router = useRouter()
   const [showAddTaskModal, setShowAddTaskModal] = useState(false)
   const { tasks } = useProject()
 
@@ -68,18 +72,23 @@ export default function TaskProgressBar({
   return (
     <>
       <HStack style={{ justifyContent: 'space-between', marginBottom: 20 }}>
-        <HStack style={{ alignItems: 'center' }} space="sm">
-          <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 18 }}>
+        <HStack style={{ alignItems: 'center' }} space={isMobile ? 'xs' : 'sm'}>
+          <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 16 }}>
             {currentTotalTasks} total tasks
           </Text>
-          <Text style={{ color: 'white', fontSize: 18 }}>
+          <Text style={{ color: 'white', fontSize: 15 }}>
             ({progress.toFixed(0)}% complete)
           </Text>
         </HStack>
         <Button
           action="secondary"
           style={{ backgroundColor: 'white' }}
-          onPress={() => setShowAddTaskModal(true)}
+          onPress={() => {
+            isMobile
+              ? router.replace(`/(screens)/addTaskScreen?project=${projectID}`)
+              : setShowAddTaskModal(true)
+          }}
+          size={isMobile ? 'sm' : 'md'}
         >
           <ButtonIcon as={PlusIcon} />
           <ButtonText>Add Task</ButtonText>

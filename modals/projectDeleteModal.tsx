@@ -15,7 +15,7 @@ import { db } from '@/firebase/firebaseConfig'
 import { router } from 'expo-router'
 import { doc, updateDoc } from 'firebase/firestore'
 import React, { useState } from 'react'
-import { Text } from 'react-native'
+import { Text, useWindowDimensions } from 'react-native'
 
 type ProjectDeleteModalType = {
   projectID: string
@@ -30,6 +30,8 @@ export default function ProjectDeleteModal({
 }: ProjectDeleteModalType) {
   const [isHover, setIsHover] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
+  const dimensions = useWindowDimensions()
+  const isMobile = dimensions.width <= 768
   const handleDeleteProject = async () => {
     try {
       setIsSaving(true)
@@ -57,7 +59,7 @@ export default function ProjectDeleteModal({
         }}
       >
         <ModalHeader>
-          <Heading size="xl" style={{ color: 'white' }}>
+          <Heading size={isMobile ? 'lg' : 'xl'} style={{ color: 'white' }}>
             Deleting Project
           </Heading>
           <ModalCloseButton>
@@ -65,30 +67,58 @@ export default function ProjectDeleteModal({
           </ModalCloseButton>
         </ModalHeader>
         <ModalBody>
-          <Text style={{ color: 'white', fontSize: 18 }}>
+          <Text style={{ color: 'white', fontSize: isMobile ? 16 : 18 }}>
             Are you sure you want to delete project?
           </Text>
         </ModalBody>
         <ModalFooter>
-          <Button
-            variant="outline"
-            className="mr-3"
-            onPress={onClose}
-            onHoverIn={() => setIsHover(true)}
-            onHoverOut={() => setIsHover(false)}
-            style={{ backgroundColor: isHover ? 'gray' : '' }}
-          >
-            <ButtonText style={{ color: 'white' }}>Cancel</ButtonText>
-          </Button>
-          <Button onPress={handleDeleteProject} action="negative">
-            <ButtonText>
-              {isSaving ? (
-                <Spinner size="small" color="white" style={{ marginTop: 6 }} />
-              ) : (
-                'Delete Project'
-              )}
-            </ButtonText>
-          </Button>
+          {isMobile ? (
+            <>
+              <Button
+                onPress={handleDeleteProject}
+                action="negative"
+                style={{ flex: 1, borderRadius: 8 }}
+              >
+                <ButtonText>
+                  {isSaving ? (
+                    <Spinner
+                      size="small"
+                      color="white"
+                      style={{ marginTop: 6 }}
+                    />
+                  ) : (
+                    'Delete Project'
+                  )}
+                </ButtonText>
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                variant="outline"
+                className="mr-3"
+                onPress={onClose}
+                onHoverIn={() => setIsHover(true)}
+                onHoverOut={() => setIsHover(false)}
+                style={{ backgroundColor: isHover ? 'gray' : '' }}
+              >
+                <ButtonText style={{ color: 'white' }}>Cancel</ButtonText>
+              </Button>
+              <Button onPress={handleDeleteProject} action="negative">
+                <ButtonText>
+                  {isSaving ? (
+                    <Spinner
+                      size="small"
+                      color="white"
+                      style={{ marginTop: 6 }}
+                    />
+                  ) : (
+                    'Delete Project'
+                  )}
+                </ButtonText>
+              </Button>
+            </>
+          )}
         </ModalFooter>
       </ModalContent>
     </Modal>
