@@ -9,8 +9,8 @@ import { useProject } from '@/context/projectContext'
 import { HStack } from '@/components/ui/hstack'
 import { Avatar, AvatarFallbackText } from '@/components/ui/avatar'
 import { VStack } from '@/components/ui/vstack'
-import { Button, ButtonIcon, ButtonText } from '@/components/ui/button'
-import { HomeIcon, LogOut, SquarePen } from 'lucide-react-native'
+import { Button, ButtonText } from '@/components/ui/button'
+import { HomeIcon, LogOut, SquarePen, Star } from 'lucide-react-native'
 import { House } from 'lucide-react-native'
 import ProfileEditModal from '@/modals/profileEditModal'
 import LogoutModal from '@/modals/logoutModal'
@@ -20,15 +20,19 @@ import { StyleSheet } from 'nativewind'
 import ProjectCard from '@/components/projectCard'
 import TaskCard from '@/components/taskCard'
 import Pagination from '@/components/customPagination'
+import HomeSkeleton from '@/components/Skeleton/Homepage/HomeSkeleton'
+import EmployeeRanking from '@/components/Employee/EmployeeRankingCard/EmployeeRanking'
+
+
+
 
 
 const PROJECT_PER_PAGE = 15
 
 export default function Home() {
   const router = useRouter()
-  const { user, profile, profiles } = useUser()
-  const { project, assignedUser, setSelectedProject, tasks } = useProject()
-  const [hoveredId, setHoveredId] = useState<string | null>(null)
+  const { profile } = useUser()
+  const { project, assignedUser, tasks, loading } = useProject()
   const [showEditModal, setShowEditModal] = useState(false)
 
   const params = useLocalSearchParams()
@@ -42,20 +46,20 @@ export default function Home() {
     assignedUser.some((a) => t.id === a.taskID && a.uid === profile?.uid)
   )
 
-  const myProject = project.filter((p) =>
-    assignedUser.some((a) => a.projectID === p.id && a.uid === profile?.uid)
-  )
+  const myProject = project.filter((p) => 
+    assignedUser.some((a) => a.projectID === p.id && a.uid === profile?.uid) 
+  ).filter((stat) => stat.status !== "Archived")
+
+  
 
   const sortedProject = myProject.sort((a, b) =>
     { const aOverdue =
                     a.deadline &&
                     a.deadline.toDate() < new Date() &&
-                    a.status != 'Archived' &&
                     a.status != 'Closed'
                   const bOverdue =
                     b.deadline &&
                     b.deadline.toDate() < new Date() &&
-                    b.status != 'Arcived' &&
                     b.status != 'Closed'
 
                   if (aOverdue && !bOverdue) return -1
@@ -124,6 +128,17 @@ export default function Home() {
     console.log('Home current user projects: ', myProject)
   }, [])
 
+
+  if(loading || !sliceProject)
+    return(
+      <HomeSkeleton />
+  )
+
+  // if(loading || !loading)
+  //   return(
+  //     <HomeSkeleton />
+  // )
+
   return (
     <ScrollView
       contentContainerStyle={{
@@ -157,6 +172,7 @@ export default function Home() {
           gap: 16,
           borderWidth: 0,
           borderColor: 'blue',
+          // flex: 1,
           height: isLargeScreen || isMediumScreen ? 400 : 220,
           flexDirection: isLargeScreen || isMediumScreen ? 'row' : 'column',
         }}
@@ -273,7 +289,13 @@ export default function Home() {
             >
               {profile?.role.toUpperCase()}{' '}
             </Text>
+            
+            <HStack style={{gap: 8, justifyContent:"center", alignItems:"center"}}>
+              <Star size={24} fill={"yellow"} color={"yellow"} />
+              <Text style={{color: "#fff", fontSize: 20}}>{profile?.points}</Text>
+            </HStack>
           </Box>
+          
 
           {/* ---------------------glow from bottom---------------------------- */}
           {isLargeScreen || isMediumScreen ? (
@@ -358,7 +380,7 @@ export default function Home() {
                     }}
                   />
                   <Text style={{ color: 'white', fontSize: 16 }}>
-                    {currentOverdueToDo}
+                    {currentOverdueOngoing}
                   </Text>
                 </HStack>
                 <HStack
@@ -378,7 +400,7 @@ export default function Home() {
                     }}
                   />
                   <Text style={{ color: 'white', fontSize: 16 }}>
-                    {currentOverdueOngoing}
+                    {currentOverdueToDo}
                   </Text>
                 </HStack>
               </HStack>
@@ -410,7 +432,7 @@ export default function Home() {
                 contentContainerStyle={{
                   borderWidth: 0,
                   alignItems: 'flex-start',
-                  padding: 8,
+                  padding: 0,
                 }}
                 showsVerticalScrollIndicator={false}
               >
@@ -424,17 +446,27 @@ export default function Home() {
       </HStack>
       {/* ----------------------------------------------------top view END------------------------------------------------- */}
 
-      {/* ----------------------------------------------------project view------------------------------------------------------ */}
-      <Box
-        style={{
+      
+      <HStack style={{
           marginTop: 16,
+          backgroundColor: 'transparent',
+          borderRadius: 12,
+          borderWidth: 0,
+          borderColor: 'red',
+          gap: 16,
+          flex: 1,
+        }}>
+          {/* ----------------------------------------------------project view------------------------------------------------------ */}
+          <Box
+        style={{
           backgroundColor: '#171717',
           borderRadius: 12,
           borderWidth: 0,
           borderColor: 'red',
           padding: 28,
           gap: 28,
-          flex: 1,
+          flex: 2,
+          flexDirection: "column"
         }}
       >
         <Box
@@ -466,9 +498,9 @@ export default function Home() {
                 : 'column',
             flexWrap: 'wrap',
             borderWidth: 0,
-            gap: 16,
+            gap: 24,
             flex: 1,
-            paddingBottom: 28,
+            paddingBottom: 0,
           }}
         >
           {projectMassage ? (
@@ -502,7 +534,58 @@ export default function Home() {
           )};
         </Box>
          <Pagination currentPage={myProjecctPage} totalPages={totalPages} onPageChange={handlePageChange} />
-      </Box>
+          </Box>
+
+          {/* ------------------------------------leaderboard area---------------------------------- */}
+        {isLargeScreen || isMediumScreen ? (<View style={{
+          borderRadius: 12,
+          borderWidth: 0,
+          borderColor: 'red',
+          backgroundColor: "#171717",
+          flex: 1,
+          padding: 32,
+          flexDirection: "column",
+        }}>
+          <Box style={{
+            borderWidth: 0, 
+            paddingTop: 12,
+            paddingBottom: 12,
+            gap: 20,
+            backgroundColor: '#171717',
+            borderTopLeftRadius: 12,
+            borderTopRightRadius: 12,
+            }}>
+          <Box style={{borderWidth: 0,}}>
+          <Text style={{fontSize: 16.75, fontWeight: "bold", color:"#fff", justifyContent: "center"}}>Leaderboard</Text>
+          <Text style={{fontSize: 12, fontWeight: "normal", color:"#fff", justifyContent: "center"}}>Complete Task and Climb the rank of top 15!</Text>
+          </Box>
+          <HStack style={{
+            borderWidth: 0,
+            justifyContent: "space-between",
+            paddingLeft: 28,
+            paddingRight: 28,
+            }}>
+            <Box style={{...styles.leaderboardColumn, alignItems: "center",}}>
+              <Text style={{...styles.leaderboardColumnTitle}}>Rank</Text>
+            </Box>
+            <Box style={{...styles.leaderboardColumn, alignItems: "center",}}>
+              <Text style={{...styles.leaderboardColumnTitle}}>Name</Text>
+            </Box>
+            <Box style={{...styles.leaderboardColumn, alignItems: "center",}}>
+              <Text style={{...styles.leaderboardColumnTitle}}>Stars</Text>
+            </Box>
+          </HStack>
+          </Box>
+          
+          
+          <EmployeeRanking />
+          
+        </View>) : 
+        (undefined)}
+        
+
+      </HStack>
+    
 
       <ProfileEditModal
         visible={showEditModal}
@@ -588,4 +671,14 @@ const styles = StyleSheet.create({
     fontWeight: 'semibold',
     color: '#8B8B8B',
   },
+
+  leaderboardColumn: {
+    borderWidth: 0, 
+  },
+
+  leaderboardColumnTitle: {
+    color: "#fff",
+    fontSize: 16.75,
+    fontWeight: "bold",
+  }
 })

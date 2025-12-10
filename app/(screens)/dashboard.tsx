@@ -11,13 +11,14 @@ import { VStack } from '@/components/ui/vstack'
 import { LayoutDashboard } from 'lucide-react-native'
 import ProjectBar from '@/components/ProjectBar'
 import Pagination from '@/components/customPagination'
+import DashboardSkeleton from '@/components/Skeleton/Dashboard/dashboardSkeleton'
 
 const PROJECT_PER_PAGE = 10
 
 
 export default function Home() {
   const router = useRouter()
-  const { project } = useProject()
+  const { project, loading } = useProject()
   const params = useLocalSearchParams()
   const [allProjecctPage, setAllProjectPage] = useState(1)
 
@@ -25,16 +26,16 @@ export default function Home() {
   const isLargeScreen = dimensions.width >= 1280 // computer UI condition
   const isMediumScreen = dimensions.width <= 1280 && dimensions.width > 768 // tablet UI condition
 
-    const allProject = project.sort((a, b) => {
+  const allProject = project.filter((stat) => stat.status !== "Archived" && stat.status !== "Pending");
+
+    const sortedProject = allProject.sort((a, b) => {
        const aOverdue =
                     a.deadline &&
                     a.deadline.toDate() < new Date() &&
-                    a.status != 'Archived' &&
                     a.status != 'Closed'
                   const bOverdue =
                     b.deadline &&
                     b.deadline.toDate() < new Date() &&
-                    b.status != 'Arcived' &&
                     b.status != 'Closed'
 
                   if (aOverdue && !bOverdue) return -1
@@ -58,10 +59,10 @@ export default function Home() {
     
 
      // ---------------pagination-------------------------
-  const totalPages = Math.ceil(allProject.length / PROJECT_PER_PAGE)
+  const totalPages = Math.ceil(sortedProject.length / PROJECT_PER_PAGE)
   const startIndex = (allProjecctPage - 1) * PROJECT_PER_PAGE
   const endIndex = startIndex + PROJECT_PER_PAGE
-  const sliceProject = allProject.slice(startIndex, endIndex)
+  const sliceProject = sortedProject.slice(startIndex, endIndex)
 
   const handlePageChange = (page: number) => {
     setAllProjectPage(page)
@@ -85,8 +86,9 @@ export default function Home() {
     statusText: {
       color: 'white',
       fontFamily: 'roboto, arial',
-      fontWeight: 'medium',
-      fontSize: isLargeScreen || isMediumScreen ? 24 : 14,
+      fontWeight: isLargeScreen || isMediumScreen ? 'semibold' : 'regular',
+      textAlign: "center",
+      fontSize: isLargeScreen || isMediumScreen ? 24 : 12,
     },
     HstackContainerLarge: {
       justifyContent: 'center',
@@ -103,7 +105,7 @@ export default function Home() {
     },
     statusTextLarge: {
       fontFamily: 'roboto, arial',
-      fontSize: isLargeScreen || isMediumScreen ? 32 : 20,
+      fontSize: isLargeScreen || isMediumScreen ? 32 : 16,
       fontWeight: 'bold',
       color: 'white',
     },
@@ -126,6 +128,10 @@ export default function Home() {
       borderWidth: 0,
     },
   })
+
+  if (loading || !project){
+    return <DashboardSkeleton />
+  }
 
   return (
     <ScrollView
@@ -195,7 +201,7 @@ export default function Home() {
                 ...styles.statusTextLarge,
               }}
             >
-              {allProject.length}
+              {sortedProject.length}
             </Text>
             <Text
               style={{
@@ -218,9 +224,8 @@ export default function Home() {
                 color: '#3a9e60ff',
               }}
             >
-              {allProject.filter((t) => 
+              {sortedProject.filter((t) => 
                 t.deadline 
-                // ? t.deadline.toDate().getTime() : Infinity 
                 && t.deadline.toDate() > new Date()
                 && t.status === "Ongoing" || t.status === "Pending"
                 ).length}
@@ -231,7 +236,7 @@ export default function Home() {
                 color: '#3a9e60ff',
               }}
             >
-              On Going
+              {isLargeScreen || isMediumScreen ? "On Going" : "Ongoing"}
             </Text>
           </Box>
           <Box
@@ -247,10 +252,9 @@ export default function Home() {
               }}
             >
               {
-                allProject.filter(
+                sortedProject.filter(
                   (t) =>
                     t.status !== 'Closed' &&
-                    t.status !== "Arcived" &&
                     t.deadline &&
                     t.deadline.toDate() < new Date()
                 ).length
@@ -262,7 +266,7 @@ export default function Home() {
                 color: '#c56969ff',
               }}
             >
-              Over Due
+              {isLargeScreen || isMediumScreen ? "Over Due" : "Overdue"}
             </Text>
           </Box>
           <Box
@@ -278,7 +282,7 @@ export default function Home() {
               }}
             >
               {
-                allProject.filter(
+                sortedProject.filter(
                   (t) => t.status === 'Closed'
                 ).length
               }
