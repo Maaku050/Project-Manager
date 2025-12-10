@@ -39,7 +39,7 @@ import {
   SelectTrigger,
 } from '../ui/select'
 import { Input, InputField } from '../ui/input'
-import { ScrollView } from 'react-native'
+import { ScrollView, useWindowDimensions } from 'react-native'
 import { useProject } from '@/context/projectContext'
 import { addDoc, collection } from 'firebase/firestore'
 import { auth, db } from '@/firebase/firebaseConfig'
@@ -48,17 +48,12 @@ import { Spinner } from '../ui/spinner'
 import { Toast, ToastDescription, ToastTitle, useToast } from '../ui/toast'
 import { HStack } from '../ui/hstack'
 import { HelpCircleIcon } from 'lucide-react-native'
-
-const toTitleCase = (str: string) => {
-  return str
-    .trim()
-    .toLowerCase()
-    .replace(/\b\w+/g, (word) => {
-      return word.charAt(0).toUpperCase() + word.slice(1)
-    })
-}
+import { useRouter } from 'expo-router'
 
 const AddEmployeeModal = () => {
+  const dimensions = useWindowDimensions()
+  const isMobile = dimensions.width <= 786
+  const router = useRouter()
   const { roles } = useProject()
   const [showModal, setShowModal] = useState(false)
   const [email, setEmail] = useState<string>('')
@@ -247,12 +242,26 @@ const AddEmployeeModal = () => {
   return (
     <>
       <Button
-        size="md"
-        onPress={() => handleModal(true)}
-        style={{ width: 192, backgroundColor: '#FDFDFD' }}
+        size={isMobile ? 'sm' : 'md'}
+        onPress={() =>
+          isMobile
+            ? router.replace('/(screens)/addEmployeeScreen')
+            : handleModal(true)
+        }
+        style={{
+          backgroundColor: '#FDFDFD',
+          borderRadius: 8,
+          padding: isMobile ? 6 : 20,
+        }}
       >
         <ButtonIcon as={AddIcon} size="sm" color="#000000" />
-        <ButtonText style={{ fontSize: 18, fontWeight: 500, color: '#000000' }}>
+        <ButtonText
+          style={{
+            fontSize: isMobile ? 14 : 18,
+            fontWeight: 500,
+            color: '#000000',
+          }}
+        >
           Add Employee
         </ButtonText>
       </Button>

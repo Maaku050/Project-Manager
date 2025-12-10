@@ -185,9 +185,15 @@ export default function RootLayout() {
                   ),
                   headerTitle: () => null,
                   headerRight: () => <HeaderLogout />,
-                  headerLeft: isLargeScreen
-                    ? () => <HeaderButtons screen="employee" />
-                    : undefined,
+                  headerLeft: () =>
+                    isMobile ? (
+                      <HStack style={{ alignItems: 'center' }}>
+                        <DrawerToggleButton tintColor="white" />
+                        <HeaderButtons screen="projectWindow" />
+                      </HStack>
+                    ) : (
+                      <HeaderButtons screen="employee" />
+                    ),
                   headerTintColor: 'white',
                   headerStyle: {
                     ...styles.headerSpace,
@@ -264,6 +270,50 @@ export default function RootLayout() {
                 name="addProjectScreen"
                 options={{
                   title: 'addProjectScreen',
+                  drawerItemStyle: { display: 'none' },
+                  headerTitle: () => null,
+                  headerRight: () => <HeaderLogout />,
+                  headerTintColor: 'white',
+                  headerLeft: () =>
+                    isMobile ? (
+                      <HStack style={{ alignItems: 'center' }}>
+                        <DrawerToggleButton tintColor="white" />
+                        <HeaderButtons screen="projectWindow" />
+                      </HStack>
+                    ) : (
+                      <HeaderButtons screen="projectJournalScreen" />
+                    ),
+                  headerStyle: {
+                    ...styles.headerSpace,
+                  },
+                }}
+              />
+              <Drawer.Screen
+                name="addRoleScreen"
+                options={{
+                  title: 'addRoleScreen',
+                  drawerItemStyle: { display: 'none' },
+                  headerTitle: () => null,
+                  headerRight: () => <HeaderLogout />,
+                  headerTintColor: 'white',
+                  headerLeft: () =>
+                    isMobile ? (
+                      <HStack style={{ alignItems: 'center' }}>
+                        <DrawerToggleButton tintColor="white" />
+                        <HeaderButtons screen="projectWindow" />
+                      </HStack>
+                    ) : (
+                      <HeaderButtons screen="projectJournalScreen" />
+                    ),
+                  headerStyle: {
+                    ...styles.headerSpace,
+                  },
+                }}
+              />
+              <Drawer.Screen
+                name="addEmployeeScreen"
+                options={{
+                  title: 'addEmployeeScreen',
                   drawerItemStyle: { display: 'none' },
                   headerTitle: () => null,
                   headerRight: () => <HeaderLogout />,
@@ -398,7 +448,15 @@ export default function RootLayout() {
                   title: 'Employee Profile',
                   headerTitle: () => null,
                   headerRight: () => <HeaderLogout />,
-                  headerLeft: () => <HeaderButtons screen="employee-window" />,
+                  headerLeft: () =>
+                    isMobile ? (
+                      <HStack style={{ alignItems: 'center' }}>
+                        <DrawerToggleButton tintColor="white" />
+                        <HeaderButtons screen="projectWindow" />
+                      </HStack>
+                    ) : (
+                      <HeaderButtons screen="employee-window" />
+                    ),
                   drawerItemStyle: { display: 'none' },
                   headerStyle: {
                     ...styles.headerSpace,

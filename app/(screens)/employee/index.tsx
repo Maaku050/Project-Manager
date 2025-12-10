@@ -1,21 +1,23 @@
 import React from 'react'
-import { Text, ScrollView } from 'react-native'
+import { Text, ScrollView, useWindowDimensions } from 'react-native'
 import { useUser } from '@/context/profileContext'
 import { Box } from '@/components/ui/box'
 import { ButtonGroup } from '@/components/ui/button'
-import ProjectManagerCard from '@/components/Employee/ProjectManagerCard'
-import FullStackDeveloperCard from '@/components/Employee/FullStackDeveloperCard'
-import UXDesignerCard from '@/components/Employee/UXDesignerCard'
-import QACard from '@/components/Employee/QACard'
-import InternCard from '@/components/Employee/InternCard'
 import AddRoleModal from '@/components/Modal/AddRoleModal'
 import AddEmployeeModal from '@/components/Modal/AddEmployeeModal'
 import EmployeeSkeleton from '@/components/Skeleton/EmployeeSkeleton'
 import ArchivedEmployeeCard from '@/components/Employee/ArchivedEmployeeCard'
 import EmployeeCard from '@/components/Employee/EmployeeCard'
 import { useProject } from '@/context/projectContext'
+import { Pressable } from '@/components/ui/pressable'
+import { HStack } from '@/components/ui/hstack'
+import { ArrowLeft, Users } from 'lucide-react-native'
+import { useRouter } from 'expo-router'
 
 export default function EmployeeScreen() {
+  const dimensions = useWindowDimensions()
+  const isMobile = dimensions.width <= 786
+  const router = useRouter()
   const { roles } = useProject()
   const { profiles, setSelectedEmployee } = useUser()
   console.log('🚀 ~ EmployeeScreen ~ profiles:', profiles)
@@ -26,10 +28,10 @@ export default function EmployeeScreen() {
       style={{
         flex: 1,
         backgroundColor: 'black',
+        padding: 12,
       }}
       contentContainerStyle={{
         alignItems: 'flex-start',
-        padding: 12,
       }}
       showsVerticalScrollIndicator={false}
     >
@@ -37,40 +39,83 @@ export default function EmployeeScreen() {
         style={{
           gap: 20,
           width: '100%',
-          borderTopWidth: 30,
+          borderTopWidth: isMobile ? 0 : 30,
           borderColor: 'transparent',
         }}
       >
         {!isLoading ? (
           <>
-            <Box
-              style={{ flexDirection: 'row', justifyContent: 'space-between' }}
-            >
-              <Box>
-                <Text
+            {isMobile ? (
+              <Box
+                style={{
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                }}
+              >
+                <Box style={{ marginBottom: 20 }}>
+                  <HStack style={{ alignItems: 'center' }} space="sm">
+                    <Users color={'white'} size={20} />
+                    <Text style={{ color: 'white', fontSize: 15 }}>
+                      Employee
+                    </Text>
+                  </HStack>
+                </Box>
+
+                <HStack
                   style={{
-                    color: 'white',
-                    fontSize: 24,
-                    fontWeight: 800,
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
                   }}
                 >
-                  {profiles?.length} total employee/s
-                </Text>
+                  <Text
+                    style={{
+                      color: 'white',
+                      fontSize: 13,
+                      fontWeight: 800,
+                    }}
+                  >
+                    {profiles?.length} total employee/s
+                  </Text>
+                  <HStack>
+                    <AddRoleModal />
+                    <AddEmployeeModal />
+                  </HStack>
+                </HStack>
               </Box>
+            ) : (
               <Box
                 style={{
                   flexDirection: 'row',
                   justifyContent: 'space-between',
                 }}
               >
-                <ButtonGroup>
-                  <AddRoleModal />
-                </ButtonGroup>
-                <ButtonGroup>
-                  <AddEmployeeModal />
-                </ButtonGroup>
+                <Box>
+                  <Text
+                    style={{
+                      color: 'white',
+                      fontSize: 24,
+                      fontWeight: 800,
+                    }}
+                  >
+                    {profiles?.length} total employee/s
+                  </Text>
+                </Box>
+                <Box
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                  }}
+                >
+                  <ButtonGroup>
+                    <AddRoleModal />
+                  </ButtonGroup>
+                  <ButtonGroup>
+                    <AddEmployeeModal />
+                  </ButtonGroup>
+                </Box>
               </Box>
-            </Box>
+            )}
+
             {roles
               .sort((a, b) => {
                 // Project Manager always comes first
@@ -95,12 +140,6 @@ export default function EmployeeScreen() {
                   color={role.color}
                 />
               ))}
-
-            {/* <ProjectManagerCard profiles={profiles} />
-            <FullStackDeveloperCard profiles={profiles} />
-            <UXDesignerCard profiles={profiles} />
-            <QACard profiles={profiles} />
-            <InternCard profiles={profiles} /> */}
             <ArchivedEmployeeCard profiles={profiles} />
           </>
         ) : (

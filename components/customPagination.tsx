@@ -1,5 +1,10 @@
 import React, { useState } from 'react'
-import { View, TouchableOpacity, TextInput } from 'react-native'
+import {
+  View,
+  TouchableOpacity,
+  TextInput,
+  useWindowDimensions,
+} from 'react-native'
 import { Text } from '@/components/ui/text'
 import { HStack } from '@/components/ui/hstack'
 import { ChevronLeft, ChevronRight } from 'lucide-react-native'
@@ -17,6 +22,8 @@ export default function Pagination({
 }: PaginationProps) {
   const [showPageInput, setShowPageInput] = useState(false)
   const [pageInputValue, setPageInputValue] = useState('')
+  const dimensions = useWindowDimensions()
+  const isMobile = dimensions.width <= 1000
 
   const handlePageInput = () => {
     const page = parseInt(pageInputValue)
@@ -45,7 +52,9 @@ export default function Pagination({
               marginHorizontal: 2,
             }}
           >
-            <Text style={{ color: 'white', fontSize: 14 }}>{i}</Text>
+            <Text style={{ color: 'white', fontSize: isMobile ? 10 : 14 }}>
+              {i}
+            </Text>
           </TouchableOpacity>
         )
       }
@@ -65,7 +74,9 @@ export default function Pagination({
                 marginHorizontal: 2,
               }}
             >
-              <Text style={{ color: 'white', fontSize: 14 }}>{i}</Text>
+              <Text style={{ color: 'white', fontSize: isMobile ? 10 : 14 }}>
+                {i}
+              </Text>
             </TouchableOpacity>
           )
         }
@@ -82,7 +93,9 @@ export default function Pagination({
               marginHorizontal: 2,
             }}
           >
-            <Text style={{ color: 'white', fontSize: 14 }}>...</Text>
+            <Text style={{ color: 'white', fontSize: isMobile ? 10 : 14 }}>
+              ...
+            </Text>
           </TouchableOpacity>
         )
 
@@ -99,7 +112,9 @@ export default function Pagination({
               marginHorizontal: 2,
             }}
           >
-            <Text style={{ color: 'white', fontSize: 14 }}>{totalPages}</Text>
+            <Text style={{ color: 'white', fontSize: isMobile ? 10 : 14 }}>
+              {totalPages}
+            </Text>
           </TouchableOpacity>
         )
       }
@@ -117,7 +132,9 @@ export default function Pagination({
               marginHorizontal: 2,
             }}
           >
-            <Text style={{ color: 'white', fontSize: 14 }}>1</Text>
+            <Text style={{ color: 'white', fontSize: isMobile ? 10 : 14 }}>
+              1
+            </Text>
           </TouchableOpacity>
         )
 
@@ -133,7 +150,9 @@ export default function Pagination({
               marginHorizontal: 2,
             }}
           >
-            <Text style={{ color: 'white', fontSize: 14 }}>...</Text>
+            <Text style={{ color: 'white', fontSize: isMobile ? 10 : 14 }}>
+              ...
+            </Text>
           </TouchableOpacity>
         )
 
@@ -150,7 +169,9 @@ export default function Pagination({
                 marginHorizontal: 2,
               }}
             >
-              <Text style={{ color: 'white', fontSize: 14 }}>{i}</Text>
+              <Text style={{ color: 'white', fontSize: isMobile ? 10 : 14 }}>
+                {i}
+              </Text>
             </TouchableOpacity>
           )
         }
@@ -169,7 +190,9 @@ export default function Pagination({
               marginHorizontal: 2,
             }}
           >
-            <Text style={{ color: 'white', fontSize: 14 }}>1</Text>
+            <Text style={{ color: 'white', fontSize: isMobile ? 10 : 14 }}>
+              1
+            </Text>
           </TouchableOpacity>
         )
 
@@ -185,7 +208,9 @@ export default function Pagination({
               marginHorizontal: 2,
             }}
           >
-            <Text style={{ color: 'white', fontSize: 14 }}>...</Text>
+            <Text style={{ color: 'white', fontSize: isMobile ? 10 : 14 }}>
+              ...
+            </Text>
           </TouchableOpacity>
         )
 
@@ -202,7 +227,9 @@ export default function Pagination({
                 marginHorizontal: 2,
               }}
             >
-              <Text style={{ color: 'white', fontSize: 14 }}>{i}</Text>
+              <Text style={{ color: 'white', fontSize: isMobile ? 10 : 14 }}>
+                {i}
+              </Text>
             </TouchableOpacity>
           )
         }
@@ -219,7 +246,9 @@ export default function Pagination({
               marginHorizontal: 2,
             }}
           >
-            <Text style={{ color: 'white', fontSize: 14 }}>...</Text>
+            <Text style={{ color: 'white', fontSize: isMobile ? 10 : 14 }}>
+              ...
+            </Text>
           </TouchableOpacity>
         )
 
@@ -236,7 +265,9 @@ export default function Pagination({
               marginHorizontal: 2,
             }}
           >
-            <Text style={{ color: 'white', fontSize: 14 }}>{totalPages}</Text>
+            <Text style={{ color: 'white', fontSize: isMobile ? 10 : 14 }}>
+              {totalPages}
+            </Text>
           </TouchableOpacity>
         )
       }
@@ -274,7 +305,13 @@ export default function Pagination({
             }}
           >
             <ChevronLeft size={16} color="white" />
-            <Text style={{ color: 'white', fontSize: 14, marginLeft: 4 }}>
+            <Text
+              style={{
+                color: 'white',
+                fontSize: isMobile ? 10 : 14,
+                marginLeft: 4,
+              }}
+            >
               Previous
             </Text>
           </TouchableOpacity>
@@ -303,7 +340,13 @@ export default function Pagination({
                 zIndex: 1000,
               }}
             >
-              <Text style={{ color: 'white', fontSize: 12, marginBottom: 8 }}>
+              <Text
+                style={{
+                  color: 'white',
+                  fontSize: isMobile ? 10 : 14,
+                  marginBottom: 8,
+                }}
+              >
                 Go to page:
               </Text>
               <HStack style={{ gap: 8, alignItems: 'center' }}>
@@ -320,7 +363,7 @@ export default function Pagination({
                     paddingVertical: 6,
                     borderRadius: 4,
                     width: 60,
-                    fontSize: 14,
+                    fontSize: isMobile ? 10 : 14,
                   }}
                   onSubmitEditing={handlePageInput}
                 />
@@ -333,7 +376,11 @@ export default function Pagination({
                     borderRadius: 4,
                   }}
                 >
-                  <Text style={{ color: 'white', fontSize: 12 }}>Go</Text>
+                  <Text
+                    style={{ color: 'white', fontSize: isMobile ? 10 : 14 }}
+                  >
+                    Go
+                  </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => {
@@ -347,7 +394,11 @@ export default function Pagination({
                     borderRadius: 4,
                   }}
                 >
-                  <Text style={{ color: 'white', fontSize: 12 }}>Cancel</Text>
+                  <Text
+                    style={{ color: 'white', fontSize: isMobile ? 10 : 14 }}
+                  >
+                    Cancel
+                  </Text>
                 </TouchableOpacity>
               </HStack>
             </View>
@@ -365,7 +416,13 @@ export default function Pagination({
               opacity: currentPage === totalPages ? 0.5 : 1,
             }}
           >
-            <Text style={{ color: 'white', fontSize: 14, marginRight: 4 }}>
+            <Text
+              style={{
+                color: 'white',
+                fontSize: isMobile ? 10 : 14,
+                marginRight: 4,
+              }}
+            >
               Next
             </Text>
             <ChevronRight size={16} color="white" />

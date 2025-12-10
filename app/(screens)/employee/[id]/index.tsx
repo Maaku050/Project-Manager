@@ -4,7 +4,7 @@ import { useUser } from '@/context/profileContext'
 import { useProject } from '@/context/projectContext'
 import { VStack } from '@/components/ui/vstack'
 import { Box } from '@/components/ui/box'
-import { useLocalSearchParams } from 'expo-router'
+import { useLocalSearchParams, useRouter } from 'expo-router'
 import { ScrollView } from 'react-native'
 import { Status } from '@/_enums/status.enum'
 import ClosedProjectCard from '@/components/Employee/ClosedProjectCard'
@@ -12,11 +12,14 @@ import OnGoingProjectCard from '@/components/Employee/OnGoingProjectCard'
 import OverdueProjectCard from '@/components/Employee/OverdueProjectCard'
 import UserProfileCard from '@/components/Employee/UserProfileCard'
 import EmployeeProfileSkeleton from '@/components/Skeleton/EmployeeProfileSkeleton'
+import { HStack } from '@/components/ui/hstack'
+import { ArrowLeft, Folder, Users } from 'lucide-react-native'
+import { Pressable } from '@/components/ui/pressable'
 
 export default function EmployeeWindow() {
   const { profiles } = useUser()
   const { id } = useLocalSearchParams()
-  const { project, assignedUser, setSelectedProject, tasks } = useProject()
+  const { project, assignedUser } = useProject()
 
   const currentUser = profiles?.find((profile) => profile.uid === id)
 
@@ -38,17 +41,31 @@ export default function EmployeeWindow() {
   const dimensions = useWindowDimensions()
   const isLargeScreen = dimensions.width >= 1280
   const isMediumScreen = dimensions.width <= 1280 && dimensions.width > 768
+  const isMobile = dimensions.width <= 1000
+  const router = useRouter()
 
   return (
     <ScrollView
       style={{
         flex: 1,
         backgroundColor: '#000000ff',
-        paddingTop: 0,
-        paddingBottom: 40,
+        padding: 12,
       }}
       showsVerticalScrollIndicator={false}
     >
+      {isMobile ? (
+        <Pressable
+          onPress={() => router.replace('/(screens)/employee')}
+          style={{ marginBottom: 10 }}
+        >
+          <HStack style={{ alignItems: 'center' }} space="sm">
+            <ArrowLeft color={'white'} size={20} />
+            <Text style={{ color: 'white', fontSize: 15 }}>
+              Employee Profile
+            </Text>
+          </HStack>
+        </Pressable>
+      ) : null}
       <VStack
         style={{
           borderWidth: 0,
@@ -61,15 +78,20 @@ export default function EmployeeWindow() {
           style={{
             backgroundColor: 'transparent',
             justifyContent: 'center',
-            padding: 12,
-            borderWidth: 0,
+            padding: isMobile ? 0 : 12,
             gap: 20,
           }}
         >
           {!isLoading ? (
             <>
               <UserProfileCard profile={currentUser} />
-              <Text style={{ color: 'white', fontSize: 20, fontWeight: 500 }}>
+              <Text
+                style={{
+                  color: 'white',
+                  fontSize: isMobile ? 14 : 20,
+                  fontWeight: 500,
+                }}
+              >
                 Project Collaborated ({currentUserProjects.length} Total
                 Projects)
               </Text>

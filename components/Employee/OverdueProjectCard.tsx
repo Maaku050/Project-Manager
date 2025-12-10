@@ -14,12 +14,17 @@ import { useRouter } from 'expo-router'
 import { useProject } from '@/context/projectContext'
 import ProjectUsers from '../projectAssignedUsers'
 import ProjectBadge from '../projectBadge'
+import { useWindowDimensions } from 'react-native'
 
 type OverdueProjectCardProps = {
   project: Project[]
 }
 
 const OverdueProjectCard: React.FC<OverdueProjectCardProps> = (props) => {
+  const dimensions = useWindowDimensions()
+  const isDesktop = dimensions.width >= 1200
+  const isMedium = dimensions.width < 1200 && dimensions.width > 768
+  const isMobile = dimensions.width <= 786
   const router = useRouter()
   const { setSelectedProject } = useProject()
   return (
@@ -29,7 +34,13 @@ const OverdueProjectCard: React.FC<OverdueProjectCardProps> = (props) => {
           <Box
             style={{ flexDirection: 'row', justifyContent: 'space-between' }}
           >
-            <Text style={{ color: 'white', fontSize: 20, fontWeight: 800 }}>
+            <Text
+              style={{
+                color: 'white',
+                fontSize: isMobile ? 16 : 20,
+                fontWeight: 800,
+              }}
+            >
               Overdue Projects
             </Text>
           </Box>
@@ -39,7 +50,17 @@ const OverdueProjectCard: React.FC<OverdueProjectCardProps> = (props) => {
               project.deadline.toDate() < new Date() &&
               project.status != Status.CLOSED
           ).length > 0 ? (
-            <Grid _extra={{ className: 'grid-cols-3 gap-4' }}>
+            <Grid
+              _extra={{
+                className: isDesktop
+                  ? 'grid-cols-3 gap-4'
+                  : isMedium
+                    ? 'grid-cols-2 gap-4'
+                    : isMobile
+                      ? 'grid-cols-1 gap-4'
+                      : '',
+              }}
+            >
               {props.project.reduce((acc: React.ReactNode[], project) => {
                 if (
                   project.deadline &&
@@ -55,7 +76,9 @@ const OverdueProjectCard: React.FC<OverdueProjectCardProps> = (props) => {
                       <Pressable
                         onPress={() => {
                           setSelectedProject(project.id)
-                          router.push(`/(screens)/projectWindow`)
+                          router.push(
+                            `/(screens)/projectWindow?project=${project.id}`
+                          )
                         }}
                         style={{ height: '100%' }}
                       >
@@ -86,7 +109,7 @@ const OverdueProjectCard: React.FC<OverdueProjectCardProps> = (props) => {
                               <Text
                                 style={{
                                   color: 'white',
-                                  fontSize: 16,
+                                  fontSize: isMobile ? 14 : 16,
                                   fontWeight: 600,
                                 }}
                                 numberOfLines={1}
@@ -117,7 +140,7 @@ const OverdueProjectCard: React.FC<OverdueProjectCardProps> = (props) => {
             <Text
               style={{
                 color: 'white',
-                fontSize: 16,
+                fontSize: isMobile ? 12 : 16,
                 fontWeight: 500,
                 textAlign: 'center',
                 paddingBottom: 20,

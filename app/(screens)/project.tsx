@@ -18,13 +18,12 @@ import ProjectCard from '@/components/projectCard'
 import Pagination from '@/components/customPagination'
 import ProjectSkeleton from '@/components/Skeleton/ProjectSkeleton'
 
-const PROJECTS_PER_PAGE = 1
-
 export default function Sample() {
   const dimensions = useWindowDimensions()
   const isLargeScreen = dimensions.width >= 1280
   const isMediumScreen = dimensions.width <= 1280 && dimensions.width > 768
-  const isMobile = dimensions.width <= 768
+  const isMobile = dimensions.width <= 1000
+  const PROJECTS_PER_PAGE = isMobile ? 5 : 15
   const isDesktop = dimensions.width >= 1280
   const router = useRouter()
   const params = useGlobalSearchParams()

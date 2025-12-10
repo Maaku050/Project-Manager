@@ -5,7 +5,7 @@ import { HStack } from './ui/hstack'
 import { Avatar, AvatarFallbackText, AvatarGroup } from './ui/avatar'
 import { Tooltip, TooltipContent } from './ui/tooltip'
 import { VStack } from './ui/vstack'
-import { Text } from 'react-native'
+import { Text, useWindowDimensions } from 'react-native'
 import { Heading } from './ui/heading'
 
 type ProjectUsersType = {
@@ -13,6 +13,8 @@ type ProjectUsersType = {
 }
 
 export default function ProjectUsers({ projectID }: ProjectUsersType) {
+  const dimensions = useWindowDimensions()
+  const isMobile = dimensions.width <= 786
   const { assignedUser, project } = useProject()
   const { profiles } = useUser()
 
@@ -33,7 +35,7 @@ export default function ProjectUsers({ projectID }: ProjectUsersType) {
             key={t.id}
             placement="top"
             trigger={(triggerProps) => (
-              <Avatar size="sm" {...triggerProps}>
+              <Avatar size={isMobile ? 'xs' : 'sm'} {...triggerProps}>
                 <AvatarFallbackText>{t.firstName}</AvatarFallbackText>
               </Avatar>
             )}
@@ -53,7 +55,7 @@ export default function ProjectUsers({ projectID }: ProjectUsersType) {
         <Tooltip
           placement="top"
           trigger={(triggerProps) => (
-            <Avatar size="sm" {...triggerProps}>
+            <Avatar size={isMobile ? 'xs' : 'sm'} {...triggerProps}>
               <AvatarFallbackText>
                 {`+ ${
                   profiles.filter((p) =>
