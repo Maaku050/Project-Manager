@@ -78,17 +78,20 @@ export default function HomeSkeleton() {
                     </Box>
                 </Skeleton>
 
-                <Skeleton style={{
-                    borderRadius: 12,
-                    borderWidth: 0,
-                    borderColor: 'red',
-                    flex: 1,
-                    padding: 16,
-                    flexDirection: "column",
-                }}>
-                    <View>
-                    </View>
-                </Skeleton>
+                {isLargeScreen || isMediumScreen ? (
+                    <Skeleton style={{
+                        borderRadius: 12,
+                        borderWidth: 0,
+                        borderColor: 'red',
+                        flex: 1,
+                        padding: 16,
+                        flexDirection: "column",
+                    }}>
+                        <View>
+                        </View>
+                    </Skeleton>
+                ) : (undefined)}
+
 
             </HStack>
 
