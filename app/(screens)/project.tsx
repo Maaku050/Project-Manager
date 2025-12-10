@@ -234,7 +234,7 @@ export default function Sample() {
                     }}
                   >
                     {overdueProjects.map((t) => (
-                      <ProjectCard key={t.id} projectID={t.id} />
+                      <ProjectCard key={t.id} projectID={t.id} origin='project'/>
                     ))}
                   </HStack>
                 </Box>
@@ -279,7 +279,7 @@ export default function Sample() {
                     }}
                   >
                     {ongoingProjects.map((t) => (
-                      <ProjectCard key={t.id} projectID={t.id} />
+                      <ProjectCard key={t.id} projectID={t.id} origin='project' />
                     ))}
                   </HStack>
                 </Box>
@@ -324,7 +324,7 @@ export default function Sample() {
                     }}
                   >
                     {closedProjects.map((t) => (
-                      <ProjectCard key={t.id} projectID={t.id} />
+                      <ProjectCard key={t.id} projectID={t.id} origin='project'/>
                     ))}
                   </HStack>
 

@@ -22,9 +22,10 @@ import ProjectReopenModal from '@/modals/projectReopenModal'
 
 type ProjectCardType = {
   projectID: string
+  origin: string
 }
 
-export default function ProjectCard({ projectID }: ProjectCardType) {
+export default function ProjectCard({ projectID, origin }: ProjectCardType) {
   const dimensions = useWindowDimensions()
   const isMobile = dimensions.width <= 768
   const router = useRouter()
@@ -41,7 +42,7 @@ export default function ProjectCard({ projectID }: ProjectCardType) {
     <>
       <Pressable
         style={{
-          width: isMobile ? '100%' : '32%', // ← ensures 3 cards per row
+          width: isMobile ? '100%' : origin === 'homeScreen' ? '48%' : '32%', // ← ensures 3 cards per row
           marginBottom: 12,
         }}
         onPress={() => {
@@ -63,8 +64,8 @@ export default function ProjectCard({ projectID }: ProjectCardType) {
             borderLeftWidth: 10,
             borderColor:
               currentProject.deadline &&
-              currentProject.deadline.toDate() < new Date() &&
-              currentProject.status != 'Closed'
+                currentProject.deadline.toDate() < new Date() &&
+                currentProject.status != 'Closed'
                 ? 'red'
                 : currentProject.status === 'Ongoing'
                   ? 'green'

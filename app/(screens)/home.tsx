@@ -46,39 +46,39 @@ export default function Home() {
     assignedUser.some((a) => t.id === a.taskID && a.uid === profile?.uid)
   )
 
-  const myProject = project.filter((p) => 
-    assignedUser.some((a) => a.projectID === p.id && a.uid === profile?.uid) 
+  const myProject = project.filter((p) =>
+    assignedUser.some((a) => a.projectID === p.id && a.uid === profile?.uid)
   ).filter((stat) => stat.status !== "Archived")
 
-  
 
-  const sortedProject = myProject.sort((a, b) =>
-    { const aOverdue =
-                    a.deadline &&
-                    a.deadline.toDate() < new Date() &&
-                    a.status != 'Closed'
-                  const bOverdue =
-                    b.deadline &&
-                    b.deadline.toDate() < new Date() &&
-                    b.status != 'Closed'
 
-                  if (aOverdue && !bOverdue) return -1
-                  if (!aOverdue && bOverdue) return 1
+  const sortedProject = myProject.sort((a, b) => {
+    const aOverdue =
+      a.deadline &&
+      a.deadline.toDate() < new Date() &&
+      a.status != 'Closed'
+    const bOverdue =
+      b.deadline &&
+      b.deadline.toDate() < new Date() &&
+      b.status != 'Closed'
 
-                  const aTime = a.deadline
-                    ? a.deadline.toDate().getTime()
-                    : Infinity
-                  const bTime = b.deadline
-                    ? b.deadline.toDate().getTime()
-                    : Infinity
+    if (aOverdue && !bOverdue) return -1
+    if (!aOverdue && bOverdue) return 1
 
-                  const aClosed = a.status === "Closed";
-                  const bClosed = b.status === "Closed";
+    const aTime = a.deadline
+      ? a.deadline.toDate().getTime()
+      : Infinity
+    const bTime = b.deadline
+      ? b.deadline.toDate().getTime()
+      : Infinity
 
-                  if (aClosed && !bClosed) return +1
-                  if (!aClosed && bClosed) return +2
-                  return aTime - bTime
-                })
+    const aClosed = a.status === "Closed";
+    const bClosed = b.status === "Closed";
+
+    if (aClosed && !bClosed) return +1
+    if (!aClosed && bClosed) return +2
+    return aTime - bTime
+  })
 
   // ---------------pagination-------------------------
   const totalPages = Math.ceil(myProject.length / PROJECT_PER_PAGE)
@@ -129,10 +129,10 @@ export default function Home() {
   }, [])
 
 
-  if(loading || !sliceProject)
-    return(
+  if (loading || !sliceProject)
+    return (
       <HomeSkeleton />
-  )
+    )
 
   // if(loading || !loading)
   //   return(
@@ -289,13 +289,13 @@ export default function Home() {
             >
               {profile?.role.toUpperCase()}{' '}
             </Text>
-            
-            <HStack style={{gap: 8, justifyContent:"center", alignItems:"center"}}>
+
+            <HStack style={{ gap: 8, justifyContent: "center", alignItems: "center" }}>
               <Star size={24} fill={"yellow"} color={"yellow"} />
-              <Text style={{color: "#fff", fontSize: 20}}>{profile?.points}</Text>
+              <Text style={{ color: "#fff", fontSize: 20 }}>{profile?.points}</Text>
             </HStack>
           </Box>
-          
+
 
           {/* ---------------------glow from bottom---------------------------- */}
           {isLargeScreen || isMediumScreen ? (
@@ -432,7 +432,7 @@ export default function Home() {
                 contentContainerStyle={{
                   borderWidth: 0,
                   alignItems: 'flex-start',
-                  padding: 0,
+                  paddingRight: 4,
                 }}
                 showsVerticalScrollIndicator={false}
               >
@@ -446,97 +446,97 @@ export default function Home() {
       </HStack>
       {/* ----------------------------------------------------top view END------------------------------------------------- */}
 
-      
+
       <HStack style={{
-          marginTop: 16,
-          backgroundColor: 'transparent',
-          borderRadius: 12,
-          borderWidth: 0,
-          borderColor: 'red',
-          gap: 16,
-          flex: 1,
-        }}>
-          {/* ----------------------------------------------------project view------------------------------------------------------ */}
-          <Box
-        style={{
-          backgroundColor: '#171717',
-          borderRadius: 12,
-          borderWidth: 0,
-          borderColor: 'red',
-          padding: 28,
-          gap: 28,
-          flex: 2,
-          flexDirection: "column"
-        }}
-      >
+        marginTop: 16,
+        backgroundColor: 'transparent',
+        borderRadius: 12,
+        borderWidth: 0,
+        borderColor: 'red',
+        gap: 16,
+        flex: 1,
+      }}>
+        {/* ----------------------------------------------------project view------------------------------------------------------ */}
         <Box
           style={{
+            backgroundColor: '#171717',
+            borderRadius: 12,
             borderWidth: 0,
-            alignItems: 'flex-start',
-            justifyContent: 'flex-start',
+            borderColor: 'red',
+            padding: isLargeScreen || isMediumScreen ? 28 : 16,
+            gap: 28,
+            flex: 2,
+            flexDirection: "column"
           }}
         >
-          <Text
+          <Box
             style={{
-              fontSize: isLargeScreen || isMediumScreen ? 24 : 18,
-              color: 'white',
-              fontWeight: 'bold',
-              fontFamily: 'roboto, arial',
               borderWidth: 0,
+              alignItems: 'flex-start',
+              justifyContent: 'flex-start',
             }}
           >
-            My Project
-          </Text>
-        </Box>
-        <Box
-          style={{
-            justifyContent: myProject ? 'flex-start' : 'center',
-            flexDirection: isLargeScreen
-              ? 'row'
-              : isMediumScreen
-                ? 'row'
-                : 'column',
-            flexWrap: 'wrap',
-            borderWidth: 0,
-            gap: 24,
-            flex: 1,
-            paddingBottom: 0,
-          }}
-        >
-          {projectMassage ? (
-            <View
+            <Text
               style={{
-                backgroundColor: 'transparent',
-                alignSelf: 'center',
-                flexGrow: 1,
+                fontSize: isLargeScreen || isMediumScreen ? 24 : 18,
+                color: 'white',
+                fontWeight: 'bold',
+                fontFamily: 'roboto, arial',
+                borderWidth: 0,
               }}
             >
-              <Text
+              My Project
+            </Text>
+          </Box>
+          <Box
+            style={{
+              justifyContent: myProject ? 'flex-start' : 'center',
+              flexDirection: isLargeScreen
+                ? 'row'
+                : isMediumScreen
+                  ? 'row'
+                  : 'column',
+              flexWrap: 'wrap',
+              borderWidth: 0,
+              gap: isLargeScreen || isMediumScreen ? 16 : 12,
+              flex: 1,
+              paddingBottom: 0,
+            }}
+          >
+            {projectMassage ? (
+              <View
                 style={{
-                  ...styles.messageFont,
-                  fontSize: 20,
+                  backgroundColor: 'transparent',
+                  alignSelf: 'center',
+                  flexGrow: 1,
                 }}
               >
-                No Project yet
-              </Text>
-              <Text
-                style={{ ...styles.messageFont, fontSize: 14, marginTop: 4 }}
-              >
-                There is no Project yet
-              </Text>
-            </View>
-          ) : (
-            <>
+                <Text
+                  style={{
+                    ...styles.messageFont,
+                    fontSize: 20,
+                  }}
+                >
+                  No Project yet
+                </Text>
+                <Text
+                  style={{ ...styles.messageFont, fontSize: 14, marginTop: 4 }}
+                >
+                  There is no Project yet
+                </Text>
+              </View>
+            ) : (
+              <>
                 {sliceProject.map((Id) => (
-                  <ProjectCard key={Id.id} projectID={Id.id} />
+                  <ProjectCard key={Id.id} projectID={Id.id} origin='homeScreen' />
                 ))}
-            </>
-          )};
-        </Box>
-         <Pagination currentPage={myProjecctPage} totalPages={totalPages} onPageChange={handlePageChange} />
+              </>
+            )};
           </Box>
+          <Pagination currentPage={myProjecctPage} totalPages={totalPages} onPageChange={handlePageChange} />
+        </Box>
 
-          {/* ------------------------------------leaderboard area---------------------------------- */}
+        {/* ------------------------------------leaderboard area---------------------------------- */}
         {isLargeScreen || isMediumScreen ? (<View style={{
           borderRadius: 12,
           borderWidth: 0,
@@ -547,45 +547,45 @@ export default function Home() {
           flexDirection: "column",
         }}>
           <Box style={{
-            borderWidth: 0, 
+            borderWidth: 0,
             paddingTop: 12,
             paddingBottom: 12,
             gap: 20,
             backgroundColor: '#171717',
             borderTopLeftRadius: 12,
             borderTopRightRadius: 12,
+          }}>
+            <Box style={{ borderWidth: 0, }}>
+              <Text style={{ fontSize: 16.75, fontWeight: "bold", color: "#fff", justifyContent: "center" }}>Leaderboard</Text>
+              <Text style={{ fontSize: 12, fontWeight: "normal", color: "#fff", justifyContent: "center" }}>Complete Task and Climb the rank of top 15!</Text>
+            </Box>
+            <HStack style={{
+              borderWidth: 0,
+              justifyContent: "space-between",
+              paddingLeft: 28,
+              paddingRight: 28,
             }}>
-          <Box style={{borderWidth: 0,}}>
-          <Text style={{fontSize: 16.75, fontWeight: "bold", color:"#fff", justifyContent: "center"}}>Leaderboard</Text>
-          <Text style={{fontSize: 12, fontWeight: "normal", color:"#fff", justifyContent: "center"}}>Complete Task and Climb the rank of top 15!</Text>
+              <Box style={{ ...styles.leaderboardColumn, alignItems: "center", }}>
+                <Text style={{ ...styles.leaderboardColumnTitle }}>Rank</Text>
+              </Box>
+              <Box style={{ ...styles.leaderboardColumn, alignItems: "center", }}>
+                <Text style={{ ...styles.leaderboardColumnTitle }}>Name</Text>
+              </Box>
+              <Box style={{ ...styles.leaderboardColumn, alignItems: "center", }}>
+                <Text style={{ ...styles.leaderboardColumnTitle }}>Stars</Text>
+              </Box>
+            </HStack>
           </Box>
-          <HStack style={{
-            borderWidth: 0,
-            justifyContent: "space-between",
-            paddingLeft: 28,
-            paddingRight: 28,
-            }}>
-            <Box style={{...styles.leaderboardColumn, alignItems: "center",}}>
-              <Text style={{...styles.leaderboardColumnTitle}}>Rank</Text>
-            </Box>
-            <Box style={{...styles.leaderboardColumn, alignItems: "center",}}>
-              <Text style={{...styles.leaderboardColumnTitle}}>Name</Text>
-            </Box>
-            <Box style={{...styles.leaderboardColumn, alignItems: "center",}}>
-              <Text style={{...styles.leaderboardColumnTitle}}>Stars</Text>
-            </Box>
-          </HStack>
-          </Box>
-          
-          
+
+
           <EmployeeRanking />
-          
-        </View>) : 
-        (undefined)}
-        
+
+        </View>) :
+          (undefined)}
+
 
       </HStack>
-    
+
 
       <ProfileEditModal
         visible={showEditModal}
@@ -673,7 +673,7 @@ const styles = StyleSheet.create({
   },
 
   leaderboardColumn: {
-    borderWidth: 0, 
+    borderWidth: 0,
   },
 
   leaderboardColumnTitle: {

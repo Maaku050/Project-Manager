@@ -44,8 +44,9 @@ export default function ProjectBar({ projectID }: items) {
     otherItems: {
       flex: 1,
       justifyContent: 'center',
-      alignItems: 'flex-start',
+      alignItems: 'center',
       borderWidth: 0,
+      borderColor: "#fff"
     },
     projectTitle: {
       textDecorationLine:
@@ -59,24 +60,6 @@ export default function ProjectBar({ projectID }: items) {
     },
   })
 
-  // const progressCalculation = (projectID: string) => {
-  //   const currentProjectTasks = tasks.filter((t) => t.projectID === projectID)
-
-  //   const ongoingTasks = currentProjectTasks.filter(
-  //     (t) => t.status === 'Ongoing'
-  //   )
-
-  //   const completedTasks = currentProjectTasks.filter(
-  //     (t) => t.status === 'Completed'
-  //   )
-
-  //   const totalTasks = currentProjectTasks.length
-
-  //   const progress =
-  //     ((ongoingTasks.length * 0.5 + completedTasks.length * 1) / totalTasks) *
-  //     100
-  //   return progress
-  // }
 
   const currentProject = project.find((t) => t.id === projectID)
   if (!currentProject) return
@@ -100,8 +83,8 @@ export default function ProjectBar({ projectID }: items) {
       >
         <Pressable
           onPress={() => {
-            setSelectedProject(projectID)
-            router.push('/projectWindow') // or open modal directly
+            // setSelectedProject(projectID)
+            router.push(`/projectWindow?project=${projectID}`) // or open modal directly
           }}
           onHoverIn={() => setHoveredId(projectID)}
           onHoverOut={() => setHoveredId(null)}
@@ -122,7 +105,7 @@ export default function ProjectBar({ projectID }: items) {
             {/* ------------------------------------------task progress----------------------------------- */}
             <HStack
               style={{
-                ...styles.otherItems
+                ...styles.otherItems,
               }}
             >
               <TaskProgressBar
