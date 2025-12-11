@@ -142,7 +142,7 @@ export default function Home() {
   return (
     <ScrollView
       contentContainerStyle={{
-        padding: 24,
+        padding: isLargeScreen || isMediumScreen ? 24 : 16,
         backgroundColor: '#000000',
         flexGrow: 1,
       }}
