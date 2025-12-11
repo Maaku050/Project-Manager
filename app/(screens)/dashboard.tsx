@@ -137,7 +137,7 @@ export default function Home() {
     <ScrollView
       contentContainerStyle={{
         backgroundColor: '#000000',
-        padding: 24,
+        padding: isLargeScreen || isMediumScreen ? 24 : 16,
         flexGrow: 1,
       }}
       showsVerticalScrollIndicator={false}
